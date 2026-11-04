@@ -16,34 +16,49 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import UIIcon, { type UIIconName } from "../components/UIIcon";
 import Scene from "../components/SceneLoader";
+import Portrait from "../components/Portrait";
+import ItemArt from "../components/ItemArt";
+import ChallengePanel from "../components/ChallengePanel";
+import UIIcon, { type UIIconName } from "../components/UIIcon";
 import { useGameAudio } from "../game/audio/useGameAudio";
 import { World } from "../game/engine/world";
-import { chapters } from "../game/levels/forest";
-import { collect, objective } from "../game/missions/progress";
 import {
-  dialogueSpeaker,
-  speakerNames,
-  type Speaker,
-} from "../game/dialogues/presentation";
-import ItemArt from "../components/ItemArt";
-import Portrait from "../components/Portrait";
-import content from "../game/dialogues/content.json";
-import { faith } from "../game/inventory/tools";
+  chapters,
+  zones,
+  checkpoints,
+  evidenceDescriptions,
+} from "../game/levels/forest";
+import {
+  addUnique,
+  hasMission,
+  currentScene,
+  objective,
+  prerequisites,
+  missionTitles,
+} from "../game/missions/progress";
+import { getScene } from "../game/chapter1/challenges";
+import { speakerNames, type Speaker } from "../game/dialogues/presentation";
 import { newSave, defaultSettings, type Save } from "../game/save/schema";
 import { loadSave, storeSave } from "../game/save/storage";
 import { downloadSave, importSave } from "../game/save/transfer";
-type Screen = "menu" | "chapters" | "play";
+import { faith } from "../game/inventory/tools";
 type Panel =
   | "settings"
   | "credits"
   | "pause"
   | "inventory"
-  | "traveler"
-  | "riddle"
+  | "journal"
+  | "challenge"
+  | "boundary"
+  | "reward"
   | "complete"
   | null;
+type Dialogue = {
+  lines: { speaker: string; text: string }[];
+  index: number;
+  done?: () => void;
+};
 function Button({
   label,
   onPress,
@@ -57,7 +72,7 @@ function Button({
   gold?: boolean;
   small?: boolean;
 }) {
-  const iconNames: Record<string, UIIconName> = {
+  const icons: Record<string, UIIconName> = {
     "▶": "play",
     "▤": "book",
     "↥": "upload",
@@ -65,89 +80,110 @@ function Button({
     "ⓘ": "info",
     "◇": "bag",
   };
-  const icon = label === "Pausa" ? "pause" : iconNames[label[0]];
-  const displayLabel =
-    icon && label !== "Pausa" ? label.slice(1).trim() : label;
+  const icon = label === "Pausa" ? "pause" : icons[label[0]];
+  const text = icon && label !== "Pausa" ? label.slice(1).trim() : label;
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label.replace(/\s+/g, " ")}
+      accessibilityLabel={label}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed, hovered }: any) => [
         styles.button,
         gold && styles.gold,
         small && styles.small,
-        disabled && { opacity: 0.5 },
-        (pressed || hovered) &&
-          !disabled && {
-            backgroundColor: "#ffe5b2",
-            transform: [{ translateY: 1 }],
-          },
+        disabled && { opacity: 0.45 },
+        (pressed || hovered) && !disabled && { backgroundColor: "#e8cc9b" },
       ]}
     >
       <View
         pointerEvents="none"
         style={{
           flexDirection: "row",
-          gap: 10,
+          gap: 9,
           alignItems: "center",
           justifyContent: "center",
         }}
       >
         {icon && <UIIcon name={icon} size={small ? 16 : 19} />}
         <Text style={[styles.buttonText, small && { fontSize: 15 }]}>
-          {displayLabel}
+          {text}
         </Text>
       </View>
     </Pressable>
   );
 }
+function reflectionChoices(raw: string) {
+  try {
+    const picks = JSON.parse(raw);
+    if (!Array.isArray(picks)) return "";
+    return picks
+      .map((ids, i) =>
+        Array.isArray(ids)
+          ? ids
+              .map(
+                (id) =>
+                  getScene(10).stages[i]?.options.find((o) => o.id === id)
+                    ?.text ?? "",
+              )
+              .join(" ")
+          : "",
+      )
+      .join(" · ");
+  } catch {
+    return "";
+  }
+}
 export default function Game() {
   useFonts({ Pixelify: require("../assets/fonts/PixelifySans.ttf") });
-  const insets = useSafeAreaInsets(),
-    size = useWindowDimensions(),
+  const size = useWindowDimensions(),
+    insets = useSafeAreaInsets(),
     width = Math.min(
       size.width - insets.left - insets.right,
       ((size.height - insets.top - insets.bottom) * 16) / 9,
     ),
-    height = (width * 9) / 16;
-  const [screen, setScreen] = useState<Screen>("menu"),
+    height = (width * 9) / 16,
+    compact = height < 520;
+  const world = useRef(new World()).current;
+  const [screen, setScreen] = useState<"menu" | "chapters" | "play">("menu"),
     [panel, setPanel] = useState<Panel>(null),
     [ready, setReady] = useState(false),
     [save, setSave] = useState<Save | null>(null),
-    [settings, setSettings] = useState({ ...defaultSettings });
-  const world = useRef(new World()).current;
-
-  const [progress, setProgress] = useState({ ...world.progress }),
+    [settings, setSettings] = useState({ ...defaultSettings }),
+    [progress, setProgress] = useState({ ...world.progress }),
     [message, setMessage] = useState(""),
-    [dialogue, setDialogue] = useState<{
-      lines: string[];
-      index: number;
-      speaker: Speaker;
-      done?: () => void;
-    } | null>(null),
-    [words, setWords] = useState<number[]>([]),
-    [near, setNear] = useState("");
-  const sound = useGameAudio(
-    settings,
-    screen === "play" && !panel && !dialogue,
-  );
-  const soundRef = useRef(sound);
-  soundRef.current = sound;
-  const lastStep = useRef(0);
-  const x = useSharedValue(65),
+    [dialogue, setDialogue] = useState<Dialogue | null>(null),
+    [near, setNear] = useState(""),
+    [health, setHealth] = useState(3),
+    [zone, setZone] = useState(zones[0].name),
+    [challenge, setChallenge] = useState(1),
+    [journalTab, setJournalTab] = useState<
+      "missions" | "map" | "evidence" | "reflections"
+    >("missions");
+  const x = useSharedValue(120),
     y = useSharedValue(226),
     camera = useSharedValue(0),
     time = useSharedValue(0),
+    simulation = useSharedValue(0),
     motion = useSharedValue(0),
     action = useSharedValue(0),
-    falling = useSharedValue(0);
-  const pickup = useSharedValue({ x: 0, y: 0, at: -10 });
-  const completionStart = useRef(0);
+    falling = useSharedValue(0),
+    companionX = useSharedValue(80),
+    companionY = useSharedValue(226),
+    chestFrame = useSharedValue(0),
+    pickup = useSharedValue({ x: 0, y: 0, at: -10 });
+  const replayOriginal = useRef<Save | null>(null);
+  const saveRef = useRef<Save | null>(null),
+    rewardAt = useRef(-1),
+    stepAt = useRef(0);
   const live = useRef({ screen, panel, dialogue, settings });
   live.current = { screen, panel, dialogue, settings };
-  const saveRef = useRef<Save | null>(null);
+  const sound = useGameAudio(
+      settings,
+      screen === "play" && !panel && !dialogue,
+    ),
+    soundRef = useRef(sound);
+  soundRef.current = sound;
   useEffect(() => {
     loadSave().then((s) => {
       setSave(s);
@@ -157,85 +193,160 @@ export default function Game() {
     });
   }, []);
   useEffect(() => {
-    if (!message.startsWith("✧")) return;
-    const timer = setTimeout(
-      () => setMessage((current) => (current === message ? "" : current)),
-      6500,
-    );
-    return () => clearTimeout(timer);
+    if (!message) return;
+    const id = setTimeout(() => setMessage(""), 6500);
+    return () => clearTimeout(id);
   }, [message]);
   async function persist() {
-    const old = saveRef.current;
-    const s: Save = {
-      ...newSave(),
-      checkpoint: Math.round(world.x),
-      missions: JSON.parse(JSON.stringify(world.progress)),
-      tools: world.progress.complete ? ["fe"] : [],
-      unlockedChapters: world.progress.complete ? [1, 2] : [1],
-      settings: { ...live.current.settings },
-    };
-    if (old?.missions.complete) {
-      s.tools = ["fe"];
-      s.unlockedChapters = [1, 2];
-      s.missions.complete = true;
-      s.missions.riddle = true;
-      s.missions.traveler = true;
-      s.missions.guide = true;
-      s.missions.lights = ["light1", "light2", "light3"];
-      s.missions.lamps = ["lamp1", "lamp2"];
+    if (replayOriginal.current && !hasMission(world.progress, 16)) {
+      saveRef.current = replayOriginal.current;
+      setSave(replayOriginal.current);
+      return replayOriginal.current;
     }
+    if (replayOriginal.current) {
+      const original = replayOriginal.current.missions;
+      for (const key of ["lights", "items", "evidence", "reflections"] as const)
+        for (const value of original[key])
+          addUnique(world.progress[key], value);
+      setProgress(JSON.parse(JSON.stringify(world.progress)));
+      saveRef.current = replayOriginal.current;
+      replayOriginal.current = null;
+    }
+    const prior = saveRef.current,
+      s: Save = {
+        ...newSave(),
+        checkpoint: world.checkpoint,
+        position: world.safePosition(),
+        health: world.health,
+        missions: JSON.parse(JSON.stringify(world.progress)),
+        legacyRewards: prior?.legacyRewards ?? false,
+        migratedFrom: prior?.migratedFrom ?? null,
+        settings: { ...live.current.settings },
+        tools:
+          hasMission(world.progress, 15) || prior?.legacyRewards ? ["fe"] : [],
+        unlockedChapters:
+          hasMission(world.progress, 16) || prior?.legacyRewards ? [1, 2] : [1],
+      };
     try {
       await storeSave(s);
       saveRef.current = s;
       setSave(s);
-    } catch {
-      setMessage("No se pudo guardar. Descarga la partida antes de salir.");
+    } catch (e) {
+      setMessage("No se pudo guardar: " + (e as Error).message);
     }
     return s;
   }
   function refresh() {
-    soundRef.current("discovery");
     setProgress(JSON.parse(JSON.stringify(world.progress)));
+    setHealth(world.health);
     void persist();
   }
-  function say(
-    lines: string[],
+  function say(lines: Dialogue["lines"], done?: () => void) {
+    world.release();
+    setDialogue({ lines, index: 0, done });
+    soundRef.current("interaction");
+  }
+  function note(
+    text: string,
     done?: () => void,
     speaker: Speaker = "narrator",
   ) {
-    soundRef.current("interaction");
-    world.release();
-    setDialogue({ lines, index: 0, done, speaker });
+    say([{ speaker, text }], done);
   }
-  function resume(s: Save) {
+  function resume(s: Save, replay = false) {
+    if (!replay) replayOriginal.current = null;
+    saveRef.current = s;
+    setSave(s);
     world.progress = JSON.parse(JSON.stringify(s.missions));
-    world.restore(s.checkpoint);
+    world.checkpoint = s.checkpoint;
+    world.health = s.health;
+    world.restore(s.position);
+    world.drainEvents();
+    chestFrame.value = hasMission(world.progress, 15) ? 3 : 0;
+    rewardAt.current = -1;
     setProgress({ ...world.progress });
+    setHealth(world.health);
+    setSettings(s.settings);
     setScreen("play");
     setPanel(null);
     setDialogue(null);
-    setMessage("A/D o ← → · Espacio para saltar · E para interactuar");
+    setMessage(
+      "A/D o ← → · Espacio: saltar · E: conversar · J: cuaderno · I: mochila",
+    );
+    if (!replay && s.migratedFrom === 1 && !s.missions.completedMissions.length)
+      note(
+        "El bosque ha cambiado. Tus herramientas anteriores se conservan, pero las 16 escenas nuevas comienzan desde la entrada. La partida anterior permanece como respaldo.",
+      );
   }
   function start() {
     if (save) {
-      say(
-        [
-          "Ya tienes una aventura guardada. Puedes repetir el bosque desde el diario sin perder tus herramientas.",
-        ],
-        () => setScreen("chapters"),
-      );
+      setScreen("chapters");
       return;
     }
-    const s = newSave();
-    saveRef.current = s;
+    const s = { ...newSave(), settings };
     resume(s);
     void persist();
+    note(
+      "Un sendero se abre entre los árboles. Antes de avanzar, prepara tu cuaderno: camina, salta, ábrelo e interactúa con el libro que está junto al camino.",
+    );
+  }
+  function openJournal() {
+    world.release();
+    world.markTutorial("journal");
+    setPanel("journal");
+    refresh();
+  }
+  function complete(n: number, history: string[][] = []) {
+    const decision =
+      n === 5 ? (history[0]?.[0] ?? "") : JSON.stringify(history);
+    try {
+      world.complete(n, decision);
+      refresh();
+      soundRef.current("discovery");
+      setPanel(null);
+      if (n === 7)
+        note(
+          "Gracias por escuchar. Me gustaría acompañarte; podemos comprobar juntos el siguiente paso.",
+          undefined,
+          "traveler",
+        );
+      else if (n === 8)
+        note(
+          "Ahora tengo una acción concreta para comenzar. Gracias por pensar conmigo.",
+          undefined,
+          "travelerHappy",
+        );
+      else if (n === 16) setPanel("complete");
+      else setMessage("Escena completada · " + missionTitles[n - 1]);
+    } catch (e) {
+      note((e as Error).message);
+    }
+  }
+  function afterDialogue(n: number) {
+    const missing = prerequisites(world.progress, n);
+    if (missing.length) {
+      note(missing.join("\n"));
+      return;
+    }
+    if (getScene(n).stages.length) {
+      setChallenge(n);
+      setPanel("challenge");
+      return;
+    }
+    if (n === 15) {
+      rewardAt.current = time.value;
+      world.release();
+      action.value = 5;
+      setMessage("El cofre se abre…");
+      return;
+    }
+    complete(n);
   }
   function interact() {
-    if (live.current.panel) return;
-    const d = live.current.dialogue;
-    if (d) {
-      if (d.index < d.lines.length - 1)
+    const state = live.current;
+    if (state.dialogue) {
+      const d = state.dialogue;
+      if (d.index + 1 < d.lines.length)
         setDialogue({ ...d, index: d.index + 1 });
       else {
         setDialogue(null);
@@ -243,166 +354,180 @@ export default function Game() {
       }
       return;
     }
-    const o = world.nearby();
-    if (!o) return;
-    const p = world.progress;
-    if (o.kind === "guide") {
-      say(
-        content.guide,
-        () => {
-          p.guide = true;
-          refresh();
-        },
-        "guide",
+    if (state.panel) return;
+    world.markTutorial("interact");
+    const object = world.nearby();
+    if (!object) {
+      setMessage(
+        "Acércate a alguien o a un objeto marcado. Las luces y pistas se recogen al pasar.",
       );
       return;
     }
-    if (!p.guide) {
-      setMessage("Primero habla con la guía del bosque.");
-      return;
-    }
-    if (o.kind === "lamp") {
-      if (p.lights.length < 3) {
-        say([
-          "Encuentra las tres luces de esperanza antes de encender los faroles.",
-        ]);
+    if (object.kind === "helper") {
+      if (!hasMission(world.progress, 4)) {
+        note("Escucha primero el relato de la caminante junto al arroyo.");
         return;
       }
-      if (!p.lamps.includes(o.id)) {
-        collect(p, o.id);
-        refresh();
-        say([
-          p.lamps.length === 2
-            ? "¡Excelente! Incluso una pequeña luz puede ayudarte a encontrar el camino."
-            : "El primer farol ilumina el sendero. Busca el segundo.",
-        ]);
-      }
+      addUnique(world.progress.evidence, "helper_offer");
+      refresh();
+      note(
+        "Puedo sostener la rama contigo. Pedir ayuda es una forma sensata de cuidar nuestras fuerzas.",
+        undefined,
+        "walker",
+      );
       return;
     }
-    if (o.kind === "traveler") {
-      if (p.lamps.length < 2) return;
-      if (p.traveler) {
-        say(
-          [
-            "Gracias por escucharme. Ya no siento que deba recorrer este camino a solas.",
-          ],
-          undefined,
-          "travelerHappy",
+    if (object.kind === "rest") {
+      if (hasMission(world.progress, 10)) {
+        world.rest();
+        refresh();
+        setMessage("Descansas y recuperas tus tres corazones.");
+      } else note("La guía te espera en el claro.");
+      return;
+    }
+    if (object.kind === "boundary") {
+      if (!hasMission(world.progress, 11)) {
+        note(
+          "Antes de entrar, ayuda al viajero del claro a reconocer la ruta segura.",
         );
         return;
       }
       world.release();
-      setPanel("traveler");
+      setPanel("boundary");
       return;
     }
-    if (o.kind === "riddle") {
-      if (!p.traveler) {
-        say(["Hay alguien en el claro que necesita que lo escuches."]);
-        return;
-      }
-      if (p.riddle) {
-        say(["El sendero está abierto. El santuario te espera."]);
-        return;
-      }
-      world.release();
-      setWords([]);
-      setMessage("");
-      setPanel("riddle");
+    const n = object.scene!;
+    if (hasMission(world.progress, n)) {
+      note(
+        n === 15
+          ? "La linterna de la Fe ya está en tu inventario."
+          : `Anotaste esta experiencia en el cuaderno. ${objective(world.progress)}`,
+      );
       return;
     }
-    if (o.kind === "chest" && p.riddle) {
-      p.complete = true;
-      refresh();
-      world.release();
-      completionStart.current = Date.now();
-      setPanel("complete");
+    if (n !== currentScene(world.progress)) {
+      note("Antes de continuar: " + objective(world.progress));
+      return;
     }
+    const s = getScene(n);
+    say(s.dialogue, () => afterDialogue(n));
   }
-  const interactRef = useRef(interact);
-  interactRef.current = interact;
   useEffect(() => {
-    let raf = 0,
+    let id: number,
       last = 0,
-      acc = 0,
-      lastNear = "";
-    const tick = (now: number) => {
-      const dt = last ? Math.min((now - last) / 1000, 0.1) : 0;
+      accumulator = 0,
+      cancelled = false;
+    const loop = (now: number) => {
+      if (cancelled) return;
+      const dt = Math.min((now - last) / 1000 || 0, 1 / 15);
       last = now;
-      const l = live.current;
-      if (l.screen === "play" && !l.panel && !l.dialogue) {
-        acc += dt;
-        while (acc >= 1 / 120) {
-          world.step(1 / 120);
-          acc -= 1 / 120;
-        }
-        for (const event of world.drainPickups()) {
-          pickup.value = { x: event.x, y: event.y, at: time.value };
-          setMessage(
-            `✧ ${world.progress.lights.length}/3 · ${content.reflections[Number(event.id.slice(-1)) - 1]}`,
-          );
-          refresh();
-        }
-        x.value = world.x;
-        y.value = world.y;
-        falling.value = world.vy > 0 ? 1 : 0;
-        camera.value = world.camera;
-        motion.value = !world.grounded ? 2 : world.moving ? world.facing : 0;
-        if (world.moving && world.grounded && now - lastStep.current > 340) {
-          lastStep.current = now;
-          soundRef.current("step");
-        }
-        const n = world.nearby()?.id ?? "";
-        if (n !== lastNear) {
-          lastNear = n;
-          setNear(n);
-        }
-      } else {
-        world.release();
-        motion.value = 0;
-        acc = 0;
-      }
-      action.value =
-        l.panel === "complete"
-          ? Date.now() - completionStart.current < 900
-            ? 4
-            : Date.now() - completionStart.current < 1800
-              ? 5
-              : 6
-          : l.dialogue &&
-              dialogueSpeaker(l.dialogue.speaker, l.dialogue.index) === "hero"
-            ? 3
-            : 0;
       time.value += dt;
-      raf = requestAnimationFrame(tick);
+      const state = live.current;
+      const playing =
+        state.screen === "play" &&
+        !state.panel &&
+        !state.dialogue &&
+        rewardAt.current < 0;
+      if (playing) {
+        accumulator = Math.min(accumulator + dt, 1 / 15);
+        while (accumulator >= 1 / 120) {
+          world.step(1 / 120);
+          accumulator -= 1 / 120;
+        }
+        const events = world.drainEvents();
+        if (events.length) {
+          let changed = false;
+          for (const event of events) {
+            changed = true;
+            if (event.message) setMessage(event.message);
+            if (event.type === "pickup") {
+              pickup.value = { x: event.x!, y: event.y!, at: time.value };
+              soundRef.current("discovery");
+            }
+            if (event.type === "damage") soundRef.current("interaction");
+          }
+          if (changed) refresh();
+        }
+        setNear(world.nearby()?.label ?? "");
+        const z = zones.find((z) => world.x >= z.start && world.x < z.end);
+        if (z) setZone(z.name);
+        if (
+          world.moving &&
+          world.grounded &&
+          time.value - stepAt.current > 0.3
+        ) {
+          soundRef.current("step");
+          stepAt.current = time.value;
+        }
+      }
+      if (!playing) accumulator = 0;
+      x.value = world.x;
+      y.value = world.y;
+      camera.value = world.camera;
+      simulation.value = world.time;
+      companionX.value = world.companionX;
+      companionY.value = world.companionY;
+      falling.value = world.vy > 0 ? 1 : 0;
+      motion.value = playing
+        ? world.grounded
+          ? world.moving
+            ? world.facing
+            : 0
+          : world.facing * 2
+        : 0;
+      if (rewardAt.current >= 0) {
+        const elapsed = time.value - rewardAt.current;
+        chestFrame.value = Math.min(3, Math.floor(elapsed / 0.6));
+        action.value = elapsed > 1.8 ? 6 : 5;
+        if (elapsed > 3) {
+          rewardAt.current = -1;
+          complete(15);
+          setPanel("reward");
+        }
+      } else action.value = state.dialogue ? 3 : 0;
+      id = requestAnimationFrame(loop);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    id = requestAnimationFrame(loop);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(id);
+    };
   }, []);
   useEffect(() => {
     if (Platform.OS !== "web") return;
     const down = (e: KeyboardEvent) => {
-      const k = e.key.toLowerCase();
-      if (["arrowleft", "arrowright", " ", "e", "escape", "i"].includes(k))
-        e.preventDefault();
-      if (k === "escape" && live.current.screen === "play") {
-        world.release();
-        setPanel((v) => (v === null ? "pause" : null));
-        return;
-      }
-      if (k === "i" && live.current.screen === "play") {
-        world.release();
-        setPanel((v) => (v === "inventory" ? null : "inventory"));
-        return;
-      }
       if (live.current.screen !== "play") return;
-      if (k === "e" && !e.repeat) {
-        interactRef.current();
+      const key = e.key.toLowerCase();
+      if ([" ", "arrowleft", "arrowright", "arrowup"].includes(key))
+        e.preventDefault();
+      if (key === "escape") {
+        world.release();
+        if (live.current.dialogue) {
+          setDialogue(null);
+          return;
+        }
+        setPanel((p) => (p ? null : "pause"));
+        return;
+      }
+      if (e.repeat && ["e", "i", "j"].includes(key)) return;
+      if (key === "e") {
+        interact();
         return;
       }
       if (live.current.panel || live.current.dialogue) return;
-      if (k === "a" || k === "arrowleft") world.input.left = true;
-      if (k === "d" || k === "arrowright") world.input.right = true;
-      if (k === " " && !e.repeat) world.input.jump = true;
+      if (key === "i") {
+        world.release();
+        setPanel("inventory");
+        return;
+      }
+      if (key === "j") {
+        openJournal();
+        return;
+      }
+      if (key === "a" || key === "arrowleft") world.input.left = true;
+      if (key === "d" || key === "arrowright") world.input.right = true;
+      if ((key === " " || key === "arrowup") && !e.repeat)
+        world.input.jump = true;
     };
     const up = (e: KeyboardEvent) => {
       if (["a", "ArrowLeft"].includes(e.key)) world.input.left = false;
@@ -422,69 +547,46 @@ export default function Game() {
     };
   }, []);
   useEffect(() => {
-    const s = AppState.addEventListener("change", (state) => {
-      if (state !== "active") {
+    const sub = AppState.addEventListener("change", (s) => {
+      if (s !== "active" && live.current.screen === "play") {
         world.release();
-        if (live.current.screen === "play") {
-          setPanel("pause");
-          void persist();
-        }
+        setPanel("pause");
+        void persist();
       }
     });
-    return () => s.remove();
+    return () => sub.remove();
   }, []);
-  async function importGame() {
-    try {
-      const s = await importSave();
-      if (s) {
-        await storeSave(s);
-        saveRef.current = s;
-        setSave(s);
-        setSettings(s.settings);
-        resume(s);
-        setMessage("Partida cargada correctamente.");
-      }
-    } catch (e) {
-      setMessage(
-        e instanceof Error ? e.message : "No se pudo cargar la partida.",
-      );
-    }
-  }
   async function exportGame() {
     try {
       await downloadSave(
-        screen === "play" ? await persist() : saveRef.current!,
+        screen === "play" ? await persist() : (saveRef.current ?? newSave()),
       );
-      setMessage("Partida descargada.");
-    } catch {
-      setMessage("No se pudo descargar la partida.");
+    } catch (e) {
+      setMessage((e as Error).message);
     }
   }
-  const controlsBlocked = !!panel || !!dialogue;
-  const touch = (label: string, key: "left" | "right" | "jump") => (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      disabled={controlsBlocked}
-      onPressIn={() => {
-        world.input[key] = true;
-      }}
-      onPressOut={() => {
-        if (key !== "jump") world.input[key] = false;
-      }}
-      style={styles.touch}
-    >
-      {label === "◀" || label === "▶" ? (
-        <UIIcon
-          name={label === "◀" ? "left" : "play"}
-          size={21}
-          color="#f6e8c7"
-        />
-      ) : (
-        <Text style={styles.touchText}>{label}</Text>
-      )}
-    </Pressable>
-  );
+  async function importGame() {
+    try {
+      const imported = await importSave();
+      if (imported) {
+        await storeSave(imported);
+        saveRef.current = imported;
+        setSave(imported);
+        resume(imported);
+        setMessage("Partida validada y restaurada.");
+      }
+    } catch (e) {
+      note(
+        "No se cargó la partida. " +
+          (e as Error).message +
+          " Tu progreso anterior se conserva.",
+      );
+    }
+  }
+  const talking = dialogue
+    ? (dialogue.lines[dialogue.index].speaker as Speaker)
+    : null;
+  const paperWidth = compact ? "90%" : "76%";
   return (
     <SafeAreaView style={styles.root}>
       <View
@@ -492,540 +594,781 @@ export default function Game() {
           width,
           height,
           overflow: "hidden",
-          backgroundColor: "#284e54",
+          backgroundColor: "#203d40",
         }}
       >
         <Scene
           width={width}
           height={height}
           menu={screen !== "play"}
-          x={x}
-          y={y}
-          camera={camera}
-          time={time}
-          motion={motion}
-          action={action}
-          progress={progress}
-          reducedMotion={settings.reducedMotion}
-          pickup={pickup}
-          talking={
-            dialogue
-              ? dialogueSpeaker(dialogue.speaker, dialogue.index)
-              : panel === "traveler"
-                ? "traveler"
-                : null
-          }
-          falling={falling}
-        />
-        <View
-          pointerEvents="box-none"
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: 960,
-            height: 540,
-            transform: [{ scale: width / 960 }],
-            transformOrigin: "top left",
+          {...{
+            x,
+            y,
+            camera,
+            time,
+            simulation,
+            motion,
+            action,
+            falling,
+            companionX,
+            companionY,
+            chestFrame,
+            progress,
+            pickup,
+            talking,
           }}
-        >
-          {screen === "menu" && (
-            <View style={styles.menu}>
-              <View style={styles.bookMark} accessibilityElementsHidden>
-                <ItemArt index={3} size={78} />
-              </View>
-              <Text style={[styles.title, { fontSize: 29 }]}>
-                El camino de una
-              </Text>
-              <View style={styles.ribbon}>
-                <Text style={[styles.precursora, { fontSize: 60 }]}>
-                  Precursora
-                </Text>
-              </View>
-              <Text style={[styles.subtitle, { fontSize: 16 }]}>
-                Una aventura de fe, aprendizaje y perseverancia
-              </Text>
-              <View style={{ width: "79%", gap: 9 }}>
-                <Button
-                  label="▶  Comenzar aventura"
-                  gold
-                  onPress={start}
-                  disabled={!ready}
-                />
-                <Button
-                  label="▤  Continuar"
-                  onPress={() => save && resume(save)}
-                  disabled={!ready || !save}
-                />
-                {Platform.OS === "web" && (
-                  <Button
-                    label="↥  Cargar partida"
-                    onPress={() => void importGame()}
-                    disabled={!ready}
-                  />
-                )}
-                <View style={styles.row}>
-                  <Button
-                    label="⚙  Ajustes"
-                    small
-                    onPress={() => setPanel("settings")}
-                  />
-                  <Button
-                    label="ⓘ  Créditos"
-                    small
-                    onPress={() => setPanel("credits")}
-                  />
-                </View>
-              </View>
-              <Text style={styles.prototype}>
-                EL BOSQUE DE LAS DUDAS · CAPÍTULO I
+          reducedMotion={settings.reducedMotion}
+        />
+        {screen === "menu" && (
+          <View style={[styles.menu, compact && { top: "4%", bottom: "4%" }]}>
+            <View style={[styles.row, { marginBottom: 3 }]}>
+              <Text style={styles.olive}>❧</Text>
+              <UIIcon name="book" size={compact ? 30 : 45} />
+              <Text style={styles.olive}>❧</Text>
+            </View>
+            <Text style={[styles.title, { fontSize: compact ? 21 : 32 }]}>
+              El camino de una
+            </Text>
+            <View style={styles.ribbon}>
+              <Text
+                style={[styles.precursora, { fontSize: compact ? 42 : 67 }]}
+              >
+                Precursora
               </Text>
             </View>
-          )}
-          {screen === "chapters" && (
-            <View style={styles.shade}>
-              <View style={[styles.paper, { width: "76%", maxHeight: "92%" }]}>
-                <Text style={styles.heading}>Tu diario de viaje</Text>
-                <Text style={styles.body}>Cada paso tiene su tiempo.</Text>
-                <ScrollView>
-                  {chapters.map((c, i) => (
-                    <View key={c} style={styles.chapter}>
-                      <Text style={styles.body}>
-                        {i + 1}. {c}
-                      </Text>
-                      {i === 0 ? (
+            <Text
+              style={[
+                styles.subtitle,
+                compact && {
+                  fontSize: 13,
+                  lineHeight: 17,
+                  marginBottom: 10,
+                  marginTop: 4,
+                },
+              ]}
+            >
+              Una aventura de fe, aprendizaje y perseverancia
+            </Text>
+            <View style={{ width: "94%", gap: compact ? 5 : 9 }}>
+              <Button
+                label="▶ Comenzar aventura"
+                gold
+                disabled={!ready}
+                onPress={start}
+              />
+              <Button
+                label="▤ Continuar"
+                disabled={!save}
+                onPress={() => save && resume(save)}
+              />
+              {Platform.OS === "web" && (
+                <Button
+                  label="↥ Cargar partida"
+                  onPress={() => void importGame()}
+                />
+              )}
+              <View style={styles.row}>
+                <Button
+                  label="⚙ Ajustes"
+                  small
+                  onPress={() => setPanel("settings")}
+                />
+                <Button
+                  label="ⓘ Créditos"
+                  small
+                  onPress={() => setPanel("credits")}
+                />
+              </View>
+            </View>
+            <Text style={styles.prototype}>
+              CAPÍTULO I · UN PASO CON CONFIANZA
+            </Text>
+          </View>
+        )}
+        {screen === "chapters" && !panel && (
+          <View style={styles.shade}>
+            <View
+              style={[styles.paper, { width: paperWidth, maxHeight: "92%" }]}
+            >
+              <ScrollView contentContainerStyle={{ gap: 12 }}>
+                <Text style={styles.heading}>El diario de viaje</Text>
+                {chapters.map((title, i) => (
+                  <View key={title} style={styles.chapter}>
+                    <Text style={styles.body}>
+                      {save?.unlockedChapters.includes(i + 1) ? "✧" : "🔒"}{" "}
+                      {String(i + 1).padStart(2, "0")} · {title}
+                    </Text>
+                    {i === 0 ? (
+                      <View style={styles.row}>
                         <Button
                           small
-                          label={
-                            save?.missions.complete
-                              ? "Repetir bosque"
-                              : "Explorar"
-                          }
+                          label="Continuar el bosque"
+                          onPress={() => resume(save ?? newSave())}
+                        />
+                        <Button
+                          small
+                          label="Repetir capítulo"
                           onPress={() => {
-                            const s = save ?? newSave();
-                            if (s.missions.complete) {
-                              world.progress = newSave().missions;
-                              world.x = 65;
-                              world.y = 226;
-                              world.camera = 0;
-                              world.release();
-                              setProgress({ ...world.progress });
-                              setScreen("play");
-                            } else resume(s);
+                            const s = {
+                              ...newSave(),
+                              settings,
+                              legacyRewards:
+                                save?.tools.includes("fe") ?? false,
+                              migratedFrom: save?.tools.includes("fe")
+                                ? (1 as const)
+                                : null,
+                            };
+                            if (s.legacyRewards) {
+                              s.tools = ["fe"];
+                              s.unlockedChapters = [1, 2];
+                            }
+                            replayOriginal.current = save;
+                            resume(s, true);
+                            void persist();
                           }}
                         />
-                      ) : (
-                        <Text style={styles.muted}>
-                          {i === 1 && save?.missions.complete
-                            ? "Desbloqueado · Próximamente"
-                            : "🔒 Un nuevo sendero espera"}
-                        </Text>
-                      )}
-                    </View>
-                  ))}
-                </ScrollView>
+                      </View>
+                    ) : (
+                      <Text style={styles.muted}>
+                        {i === 1 && save?.unlockedChapters.includes(2)
+                          ? "Desbloqueado. Su aventura llegará en una próxima fase."
+                          : "Una nueva experiencia espera al otro lado del sendero."}
+                      </Text>
+                    )}
+                  </View>
+                ))}
                 <Button
                   label="Volver al inicio"
-                  small
                   onPress={() => setScreen("menu")}
+                />
+              </ScrollView>
+            </View>
+          </View>
+        )}
+        {screen === "play" && (
+          <>
+            <View
+              style={[styles.hud, compact && { top: 8, left: 9, right: 9 }]}
+            >
+              <View style={[styles.objective, compact && { padding: 8 }]}>
+                <Text style={styles.overline}>
+                  CAPÍTULO I · {zone.toLocaleUpperCase("es")}
+                </Text>
+                <Text
+                  style={[styles.objectiveText, compact && { fontSize: 13 }]}
+                >
+                  {objective(progress)}
+                </Text>
+                <Text
+                  accessibilityLabel={`${health} de 3 corazones`}
+                  style={{ color: "#f0bb9c", fontSize: 17, marginTop: 3 }}
+                >
+                  {"♥ ".repeat(health)}
+                  <Text style={{ color: "#a7aaa0" }}>
+                    {"♡ ".repeat(3 - health)}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: "#ddd5b4" }}>
+                    {" "}
+                    · Luces {progress.lights.length}/7
+                  </Text>
+                </Text>
+              </View>
+              <View style={[styles.row, { alignItems: "flex-start" }]}>
+                <Button small label="▤ Cuaderno" onPress={openJournal} />
+                <Button
+                  small
+                  label="◇ Inventario"
+                  onPress={() => {
+                    world.release();
+                    setPanel("inventory");
+                  }}
+                />
+                <Button
+                  small
+                  label="Pausa"
+                  onPress={() => {
+                    world.release();
+                    setPanel("pause");
+                  }}
                 />
               </View>
             </View>
-          )}
-          {screen === "play" && (
-            <>
-              <View style={styles.hud}>
-                <View style={styles.objective}>
-                  <Text style={styles.overline}>
-                    CAPÍTULO I · EL BOSQUE DE LAS DUDAS
-                  </Text>
-                  <Text style={styles.objectiveText}>
-                    {objective(progress)}
-                  </Text>
+            {!panel && !dialogue && rewardAt.current < 0 && (
+              <>
+                <View
+                  style={[
+                    styles.controls,
+                    compact && { bottom: 10, left: 12, right: 12 },
+                  ]}
+                >
+                  <View style={styles.row}>
+                    {(["left", "right"] as const).map((key, i) => (
+                      <Pressable
+                        key={key}
+                        accessibilityRole="button"
+                        accessibilityLabel={
+                          i ? "Caminar a la derecha" : "Caminar a la izquierda"
+                        }
+                        onPressIn={() => (world.input[key] = true)}
+                        onPressOut={() => (world.input[key] = false)}
+                        style={[
+                          styles.touch,
+                          compact && { width: 52, height: 48 },
+                        ]}
+                      >
+                        <UIIcon
+                          name={i ? "play" : "left"}
+                          size={24}
+                          color="#f6e8c7"
+                        />
+                      </Pressable>
+                    ))}
+                  </View>
+                  <View style={styles.row}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Saltar"
+                      onPressIn={() => (world.input.jump = true)}
+                      onPress={() => (world.input.jump = true)}
+                      style={[
+                        styles.touch,
+                        compact && { width: 52, height: 48 },
+                      ]}
+                    >
+                      <Text style={styles.touchText}>↑</Text>
+                    </Pressable>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Interactuar"
+                      onPress={interact}
+                      style={[
+                        styles.touch,
+                        compact && { width: 52, height: 48 },
+                      ]}
+                    >
+                      <Text style={styles.touchText}>E</Text>
+                    </Pressable>
+                  </View>
                 </View>
-                <View style={styles.row}>
-                  <Button
-                    small
-                    label="▤ Diario"
-                    onPress={() => {
-                      world.release();
-                      setScreen("chapters");
-                      void persist();
-                    }}
-                  />
-                  <Button
-                    small
-                    label="◇ Inventario"
-                    onPress={() => setPanel("inventory")}
-                  />
-                  <Button
-                    small
-                    label="Pausa"
-                    onPress={() => setPanel("pause")}
-                  />
-                </View>
-              </View>
-              {near && !controlsBlocked && (
-                <View style={styles.prompt}>
-                  <Text style={styles.objectiveText}>E · Interactuar</Text>
-                </View>
-              )}
-              <View style={styles.controls}>
-                <View style={styles.row}>
-                  {touch("◀", "left")}
-                  {touch("▶", "right")}
-                </View>
-                <View style={styles.row}>
-                  {touch("↑", "jump")}
+                {near !== "" && (
                   <Pressable
                     accessibilityRole="button"
-                    disabled={!!panel}
                     onPress={interact}
-                    style={styles.touch}
+                    style={[styles.prompt, compact && { bottom: 66 }]}
                   >
-                    <Text style={styles.touchText}>E</Text>
+                    <Text style={styles.objectiveText}>E · {near}</Text>
                   </Pressable>
-                </View>
-              </View>
-            </>
-          )}
-          {!!message && !panel && !dialogue && (
-            <Pressable onPress={() => setMessage("")} style={styles.toast}>
-              <Text style={styles.toastText}>{message} ×</Text>
-            </Pressable>
-          )}
-          {dialogue && (
-            <View style={styles.shade}>
-              <View style={[styles.paper, { width: "70%" }]}>
+                )}
+              </>
+            )}
+          </>
+        )}
+        {message !== "" && !dialogue && !panel && (
+          <View
+            pointerEvents="none"
+            style={[
+              styles.toast,
+              { bottom: screen === "play" ? (compact ? 67 : 86) : 12 },
+            ]}
+          >
+            <Text style={styles.toastText}>{message}</Text>
+          </View>
+        )}
+        {dialogue && (
+          <View style={styles.dialogueShade}>
+            <View
+              style={[
+                styles.dialoguePaper,
+                {
+                  width: compact ? "94%" : "82%",
+                  padding: compact ? 16 : 25,
+                  maxHeight: "87%",
+                },
+              ]}
+            >
+              <ScrollView contentContainerStyle={{ gap: 16 }}>
                 <View
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
-                    gap: 12,
+                    gap: 16,
                   }}
                 >
-                  <Portrait
-                    speaker={dialogueSpeaker(dialogue.speaker, dialogue.index)}
-                    size={66}
-                  />
-                  <View>
-                    <Text style={styles.overline}>EL BOSQUE DE LAS DUDAS</Text>
-                    <Text style={styles.speaker}>
-                      {
-                        speakerNames[
-                          dialogueSpeaker(dialogue.speaker, dialogue.index)
-                        ]
-                      }
+                  <Portrait speaker={talking!} size={compact ? 58 : 74} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.muted}>
+                      EL BOSQUE DE LAS DUDAS · {dialogue.index + 1}/
+                      {dialogue.lines.length}
+                    </Text>
+                    <Text style={styles.heading}>
+                      {speakerNames[talking!] ?? "El camino"}
                     </Text>
                   </View>
                 </View>
-                <Text style={styles.dialogue}>
-                  {dialogue.lines[dialogue.index]}
+                <Text
+                  style={[
+                    styles.dialogue,
+                    {
+                      fontSize: compact ? 18 : 22,
+                      lineHeight: compact ? 27 : 33,
+                    },
+                  ]}
+                >
+                  {dialogue.lines[dialogue.index].text}
                 </Text>
                 <Button
-                  label={
-                    dialogue.index === dialogue.lines.length - 1
-                      ? "Seguir mi camino →"
-                      : "Continuar →"
-                  }
                   gold
+                  label={
+                    dialogue.index + 1 < dialogue.lines.length
+                      ? "Continuar →"
+                      : "Seguir mi camino →"
+                  }
                   onPress={interact}
                 />
-              </View>
+              </ScrollView>
             </View>
-          )}
-          {panel && (
-            <View style={styles.shade}>
-              <View style={[styles.paper, { maxHeight: "92%" }]}>
-                <ScrollView contentContainerStyle={{ gap: 12 }}>
-                  {panel === "settings" && (
-                    <>
-                      <Text style={styles.heading}>Ajustes</Text>
-                      <Text style={styles.body}>
-                        Efectos visuales reducidos
-                      </Text>
-                      <Switch
-                        accessibilityLabel="Reducir efectos visuales"
-                        value={settings.reducedMotion}
-                        onValueChange={(v) =>
-                          setSettings((s) => ({ ...s, reducedMotion: v }))
-                        }
-                      />
-                      {(["music", "effects"] as const).map((k) => (
-                        <View key={k}>
-                          <Text style={styles.body}>
-                            {k === "music" ? "Música" : "Efectos"} ·{" "}
-                            {Math.round(settings[k] * 100)}%
-                          </Text>
-                          <View style={styles.row}>
-                            <Button
-                              small
-                              label="−"
-                              onPress={() =>
-                                setSettings((s) => ({
-                                  ...s,
-                                  [k]: Math.max(0, s[k] - 0.1),
-                                }))
-                              }
-                            />
-                            <Button
-                              small
-                              label="+"
-                              onPress={() =>
-                                setSettings((s) => ({
-                                  ...s,
-                                  [k]: Math.min(1, s[k] + 0.1),
-                                }))
-                              }
-                            />
-                          </View>
-                        </View>
-                      ))}
-                      <Text style={styles.muted}>
-                        Audio original sintetizado para este prototipo. Los
-                        ajustes se conservan en la partida.
-                      </Text>
-                    </>
-                  )}
-                  {panel === "credits" && (
-                    <>
-                      <Text style={styles.heading}>
-                        Hecho para un camino especial
-                      </Text>
-                      <Text style={styles.body}>
-                        El camino de una Precursora{"\n\n"}Una aventura de fe,
-                        aprendizaje y perseverancia.{"\n\n"}Personaje: paquete
-                        visual proporcionado por Marcor360. Escenarios y
-                        personajes secundarios: gráficos temporales para este
-                        prototipo. Motor: Expo, React Native y Skia.{"\n\n"}Sin
-                        anuncios, compras ni cuentas.
-                      </Text>
-                    </>
-                  )}
-                  {panel === "pause" && (
-                    <>
-                      <Text style={styles.heading}>
-                        Un respiro en el camino
-                      </Text>
-                      <Button
-                        label="Continuar aventura"
-                        gold
-                        onPress={() => setPanel(null)}
-                      />
-                      <Button
-                        label="Ajustes"
-                        onPress={() => setPanel("settings")}
-                      />
-                      {Platform.OS === "web" && (
-                        <Button
-                          label="Descargar partida"
-                          onPress={() => void exportGame()}
-                        />
-                      )}
-                      <Button
-                        label="Guardar y volver al inicio"
-                        onPress={async () => {
-                          await persist();
-                          setPanel(null);
-                          setDialogue(null);
-                          setScreen("menu");
-                          setMessage(
-                            "Partida guardada. En web puedes descargar una copia desde el menú.",
-                          );
-                        }}
-                      />
-                    </>
-                  )}
-                  {panel === "inventory" && (
-                    <>
-                      <Text style={styles.heading}>Tus herramientas</Text>
-                      {(save?.tools.includes("fe") || progress.complete) && (
-                        <View style={{ alignItems: "center" }}>
-                          <ItemArt index={2} size={125} />
-                        </View>
-                      )}
-                      <Text style={styles.body}>
-                        {save?.tools.includes("fe") || progress.complete
-                          ? `${faith.icon} ${faith.name}\n\n${faith.description}\n\n${faith.ability}`
-                          : "Cada experiencia te ayudará a descubrir una nueva herramienta. Sigue explorando."}
-                      </Text>
-                    </>
-                  )}
-                  {panel === "traveler" && (
-                    <>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          gap: 14,
-                          alignItems: "center",
-                        }}
-                      >
-                        <Portrait speaker="traveler" size={66} />
-                        <Text style={styles.heading}>El claro del viajero</Text>
-                      </View>
-                      <Text style={styles.body}>
-                        «He intentado avanzar, pero tengo miedo de equivocarme.
-                        Siento que no puedo seguir».
-                      </Text>
-                      <Button
-                        label="No deberías sentirte así."
-                        onPress={() => {
-                          setPanel(null);
-                          say([
-                            "A veces, antes de dar consejos, necesitamos escuchar y reconocer cómo se siente la otra persona. Intenta hablar con el viajero de nuevo.",
-                          ]);
-                        }}
-                      />
-                      <Button
-                        label="Entiendo que tengas miedo. Podemos dar un paso juntos."
-                        gold
-                        onPress={() => {
-                          world.progress.traveler = true;
-                          refresh();
-                          setPanel(null);
-                          say(
-                            [
-                              "Gracias por escucharme. Saber que no estoy solo me da fuerzas para seguir.",
-                            ],
-                            undefined,
-                            "travelerHappy",
-                          );
-                        }}
-                      />
-                      <Button
-                        label="Seguro que no es tan difícil."
-                        onPress={() => {
-                          setPanel(null);
-                          say([
-                            "Lo que para una persona parece sencillo puede ser difícil para otra. Escúchalo con empatía y vuelve a intentarlo.",
-                          ]);
-                        }}
-                      />
-                    </>
-                  )}
-                  {panel === "riddle" && (
-                    <>
-                      <Text style={styles.heading}>
-                        El desafío de la confianza
-                      </Text>
-                      <Text style={styles.body}>
-                        Ordena las palabras para reconstruir esta idea sobre la
-                        confianza.
-                      </Text>
-                      <Text style={styles.muted}>
-                        {content.riddle.reference} · {content.riddle.notice}
-                      </Text>
-                      <Text style={styles.dialogue}>
-                        {words.map((i) => content.riddle.words[i]).join(" ") ||
-                          "…"}
-                      </Text>
-                      <View style={[styles.row, { flexWrap: "wrap" }]}>
-                        {[3, 0, 5, 2, 6, 1, 4].map((i) => (
-                          <Button
-                            key={i}
-                            small
-                            label={content.riddle.words[i]}
-                            disabled={words.includes(i)}
-                            onPress={() => {
-                              setMessage("");
-                              setWords((w) => [...w, i]);
-                            }}
-                          />
-                        ))}
-                      </View>
-                      <View style={styles.row}>
-                        <Button
-                          small
-                          label="Reintentar"
-                          onPress={() => setWords([])}
-                        />
-                        <Button
-                          small
-                          gold
-                          label="Comprobar"
-                          onPress={() => {
-                            if (words.join(",") === "0,1,2,3,4,5,6") {
-                              world.progress.riddle = true;
-                              refresh();
-                              setPanel(null);
-                              say([
-                                "La niebla se disipa. Puedes seguir adelante con confianza.",
-                              ]);
-                            } else {
-                              setWords([]);
-                              setMessage(
-                                "Comienza por «Confía en Jehová» y vuelve a intentarlo.",
-                              );
-                            }
-                          }}
-                        />
-                      </View>
-                      {message && <Text style={styles.body}>{message}</Text>}
-                    </>
-                  )}
-                  {panel === "complete" && (
-                    <>
-                      <Text style={styles.overline}>CAPÍTULO COMPLETADO</Text>
-                      <Text style={styles.heading}>Una luz para tu camino</Text>
-                      <Text style={styles.dialogue}>{content.reward}</Text>
-                      <Text style={styles.body}>
-                        La biblioteca del aprendizaje está desbloqueada. Su
-                        aventura llegará en una próxima fase.
-                      </Text>
-                      {Platform.OS === "web" && (
-                        <Button
-                          gold
-                          label="Descargar partida"
-                          onPress={() => void exportGame()}
-                        />
-                      )}
-                      <Button
-                        label="Abrir el diario de viaje"
-                        onPress={() => {
-                          setPanel(null);
-                          setScreen("chapters");
-                        }}
-                      />
-                    </>
-                  )}
-                  {panel !== "complete" && panel !== "pause" && (
+          </View>
+        )}
+        {panel && (
+          <View style={styles.shade}>
+            <View
+              style={[
+                styles.paper,
+                {
+                  width: paperWidth,
+                  maxWidth: 940,
+                  maxHeight: "92%",
+                  padding: compact ? 16 : 28,
+                },
+              ]}
+            >
+              <ScrollView contentContainerStyle={{ gap: 17 }}>
+                {panel === "challenge" && (
+                  <>
+                    <Text style={styles.heading}>
+                      {getScene(challenge).title}
+                    </Text>
+                    <ChallengePanel
+                      key={challenge}
+                      scene={getScene(challenge)}
+                      progress={progress}
+                      onComplete={(h) => complete(challenge, h)}
+                    />
+                  </>
+                )}
+                {panel === "boundary" && (
+                  <>
+                    <Text style={styles.heading}>El sendero de la niebla</Text>
+                    <Text style={styles.body}>
+                      El tramo que viene exige saltar entre apoyos móviles y
+                      piedras húmedas. Tras entrar, el camino de regreso quedará
+                      cubierto. Tu cuaderno, objetos y decisiones están
+                      guardados.
+                    </Text>
+                    <Text style={styles.body}>
+                      Si pierdes tus tres corazones, volverás al checkpoint de
+                      la niebla sin perder tu historia. Puedes descansar antes
+                      en el claro.
+                    </Text>
                     <Button
-                      label="Volver"
-                      small
+                      gold
+                      label="Estoy lista · entrar en la niebla"
                       onPress={() => {
-                        if (saveRef.current) {
-                          const s = { ...saveRef.current, settings };
-                          void storeSave(s)
-                            .then(() => {
-                              saveRef.current = s;
-                              setSave(s);
-                            })
-                            .catch(() =>
-                              setMessage("No se pudieron guardar los ajustes."),
-                            );
-                        }
+                        world.enterMist();
                         setPanel(null);
+                        refresh();
                       }}
                     />
-                  )}
-                </ScrollView>
-              </View>
+                  </>
+                )}
+                {panel === "journal" && (
+                  <>
+                    <Text style={styles.heading}>Mi cuaderno del camino</Text>
+                    <View style={[styles.row, { flexWrap: "wrap" }]}>
+                      {(
+                        ["missions", "map", "evidence", "reflections"] as const
+                      ).map((tab, i) => (
+                        <Button
+                          small
+                          key={tab}
+                          gold={journalTab === tab}
+                          label={
+                            ["Misiones", "Mapa", "Evidencias", "Reflexiones"][i]
+                          }
+                          onPress={() => setJournalTab(tab)}
+                        />
+                      ))}
+                    </View>
+                    {journalTab === "missions" && (
+                      <>
+                        <Text style={styles.body}>{objective(progress)}</Text>
+                        {!hasMission(progress, 1) && (
+                          <Text style={styles.body}>
+                            {Object.entries(progress.tutorial)
+                              .map(
+                                ([key, value]) =>
+                                  `${value ? "✓" : "○"} ${{ walk: "Caminar", jump: "Saltar", journal: "Abrir cuaderno", interact: "Interactuar" }[key]}`,
+                              )
+                              .join(" · ")}
+                          </Text>
+                        )}
+                        {missionTitles.map((title, i) => (
+                          <Text
+                            key={title}
+                            style={[
+                              styles.body,
+                              {
+                                color: hasMission(progress, i + 1)
+                                  ? "#3e7058"
+                                  : "#797467",
+                              },
+                            ]}
+                          >
+                            {hasMission(progress, i + 1) ? "✓" : "○"}{" "}
+                            {String(i + 1).padStart(2, "0")} · {title}
+                          </Text>
+                        ))}
+                      </>
+                    )}
+                    {journalTab === "map" &&
+                      (hasMission(progress, 2) ? (
+                        <>
+                          {zones.map((z) => (
+                            <View
+                              key={z.id}
+                              style={[
+                                styles.mapZone,
+                                {
+                                  borderColor:
+                                    zone === z.name ? "#ac8552" : "#c7c5ad",
+                                },
+                              ]}
+                            >
+                              <Text style={styles.body}>
+                                {zone === z.name ? "◆ " : "· "}
+                                {z.name}
+                              </Text>
+                              <Text style={styles.muted}>
+                                {z.id === "bridge"
+                                  ? "Revisa el paso elevado; el puente principal sufrió daños."
+                                  : z.id === "mist"
+                                    ? "Checkpoint al entrar · apoyos móviles · regreso cerrado."
+                                    : z.id === "refuge"
+                                      ? "Entrega del mapa y descanso."
+                                      : "Busca señales, conversa y observa el entorno."}
+                              </Text>
+                            </View>
+                          ))}
+                          <Text style={styles.muted}>
+                            Checkpoint: {world.checkpoint.replace("ch1_", "")} ·
+                            Los círculos de luz son recuerdos opcionales.
+                          </Text>
+                        </>
+                      ) : (
+                        <Text style={styles.body}>
+                          La guía te ayudará a interpretar el mapa al completar
+                          la segunda escena.
+                        </Text>
+                      ))}
+                    {journalTab === "evidence" && (
+                      <>
+                        {progress.evidence.length ? (
+                          progress.evidence.map((id) => (
+                            <View key={id} style={styles.mapZone}>
+                              <Text style={styles.body}>
+                                {evidenceDescriptions[id]}
+                              </Text>
+                            </View>
+                          ))
+                        ) : (
+                          <Text style={styles.body}>
+                            Todavía no hay observaciones. Las pistas se guardan
+                            al pasar cerca.
+                          </Text>
+                        )}
+                        <Text style={styles.body}>
+                          Mochila:{" "}
+                          {progress.items
+                            .map(
+                              (id) =>
+                                ({
+                                  lever: "palanca",
+                                  cover: "cubierta del farol",
+                                  wick: "mecha",
+                                })[id],
+                            )
+                            .join(", ") || "sin materiales todavía"}
+                        </Text>
+                      </>
+                    )}
+                    {journalTab === "reflections" && (
+                      <>
+                        {progress.reflections.length ? (
+                          progress.reflections.map((r, i) => (
+                            <Text key={i} style={styles.body}>
+                              ✧ {r}
+                            </Text>
+                          ))
+                        ) : (
+                          <Text style={styles.body}>
+                            Tus experiencias irán dejando pequeñas reflexiones.
+                          </Text>
+                        )}
+                        {progress.decisions.CH1_10 && (
+                          <Text style={styles.muted}>
+                            En el descanso elegiste:{" "}
+                            {reflectionChoices(progress.decisions.CH1_10)}. La
+                            reflexión es personal; no se califica una oración.
+                          </Text>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+                {panel === "inventory" && (
+                  <>
+                    <Text style={styles.heading}>
+                      Las herramientas del camino
+                    </Text>
+                    {save?.tools.includes("fe") || hasMission(progress, 15) ? (
+                      <>
+                        <View style={{ alignItems: "center" }}>
+                          <ItemArt index={2} size={105} />
+                        </View>
+                        <Text style={styles.body}>
+                          {faith.name}
+                          {"\n\n"}
+                          {faith.description}
+                          {"\n\n"}
+                          {faith.ability}
+                        </Text>
+                      </>
+                    ) : (
+                      <Text style={styles.body}>
+                        Aún no has recibido una herramienta. Los materiales del
+                        farol están en el cuaderno, en la pestaña Evidencias.
+                      </Text>
+                    )}
+                  </>
+                )}
+                {panel === "settings" && (
+                  <>
+                    <Text style={styles.heading}>Ajustes</Text>
+                    {(["music", "effects"] as const).map((key, i) => (
+                      <View key={key} style={styles.mapZone}>
+                        <Text style={styles.body}>
+                          {i ? "Efectos" : "Música"} ·{" "}
+                          {Math.round(settings[key] * 100)}%
+                        </Text>
+                        <View style={styles.row}>
+                          <Button
+                            small
+                            label="−"
+                            onPress={() =>
+                              setSettings((s) => ({
+                                ...s,
+                                [key]: Math.max(0, +(s[key] - 0.1).toFixed(1)),
+                              }))
+                            }
+                          />
+                          <Button
+                            small
+                            label="+"
+                            onPress={() =>
+                              setSettings((s) => ({
+                                ...s,
+                                [key]: Math.min(1, +(s[key] + 0.1).toFixed(1)),
+                              }))
+                            }
+                          />
+                        </View>
+                      </View>
+                    ))}
+                    <View
+                      style={[styles.row, { justifyContent: "space-between" }]}
+                    >
+                      <Text style={styles.body}>
+                        Reducir efectos y movimiento ambiental
+                      </Text>
+                      <Switch
+                        value={settings.reducedMotion}
+                        onValueChange={(reducedMotion) =>
+                          setSettings((s) => ({ ...s, reducedMotion }))
+                        }
+                      />
+                    </View>
+                    <Text style={styles.muted}>
+                      Las plataformas mantienen su movimiento porque forma parte
+                      del desafío. Se reducen los destellos y las animaciones
+                      ambientales.
+                    </Text>
+                  </>
+                )}
+                {panel === "credits" && (
+                  <>
+                    <Text style={styles.heading}>
+                      El camino de una Precursora
+                    </Text>
+                    <Text style={styles.body}>
+                      Una aventura de fe, aprendizaje y perseverancia.{"\n\n"}
+                      Arte original generado para este proyecto y animado con
+                      atlas registrados. Música y efectos sintetizados
+                      originales. Expo · React Native · Skia.{"\n\n"}Las
+                      referencias bíblicas acompañan reflexiones adaptadas. No
+                      se presentan como citas literales. Sin anuncios, compras
+                      ni cuentas.
+                    </Text>
+                  </>
+                )}
+                {panel === "pause" && (
+                  <>
+                    <Text style={styles.heading}>Un respiro en el camino</Text>
+                    <Text style={styles.body}>
+                      Checkpoint: {world.checkpoint.replace("ch1_", "")} ·{" "}
+                      {health}/3 corazones
+                    </Text>
+                    <Button
+                      gold
+                      label="Continuar aventura"
+                      onPress={() => setPanel(null)}
+                    />
+                    <Button
+                      label="Ajustes"
+                      onPress={() => setPanel("settings")}
+                    />
+                    {Platform.OS === "web" && (
+                      <Button
+                        label="Descargar partida"
+                        onPress={() => void exportGame()}
+                      />
+                    )}
+                    <Button
+                      label="Guardar y volver al inicio"
+                      onPress={async () => {
+                        await persist();
+                        setPanel(null);
+                        setScreen("menu");
+                        setMessage(
+                          "Partida guardada. Puedes descargar una copia antes de cerrar.",
+                        );
+                      }}
+                    />
+                  </>
+                )}
+                {panel === "reward" && (
+                  <>
+                    <Text style={styles.overline}>HERRAMIENTA OBTENIDA</Text>
+                    <Text style={styles.heading}>Una luz para tu camino</Text>
+                    <View style={{ alignItems: "center" }}>
+                      <ItemArt index={2} size={100} />
+                    </View>
+                    <Text style={styles.body}>
+                      ¡Has obtenido la Fe! Recuerda que incluso cuando no puedes
+                      ver todo el camino, puedes seguir adelante con confianza.
+                    </Text>
+                    <Text style={styles.body}>
+                      El cofre guardaba suministros, pero tu viaje dio sentido a
+                      esta pequeña linterna. La puerta del refugio está un poco
+                      más adelante.
+                    </Text>
+                    <Button
+                      gold
+                      label="Guardar la linterna y continuar"
+                      onPress={() => setPanel(null)}
+                    />
+                  </>
+                )}
+                {panel === "complete" && (
+                  <>
+                    <Text style={styles.overline}>CAPÍTULO I · COMPLETADO</Text>
+                    <Text style={styles.heading}>El viaje continúa</Text>
+                    <Text style={styles.body}>
+                      La biblioteca del aprendizaje está desbloqueada. Su
+                      aventura llegará en una próxima fase.
+                    </Text>
+                    <Text style={styles.body}>
+                      Tu cuaderno conserva {progress.evidence.length}{" "}
+                      evidencias, {progress.reflections.length} reflexiones y{" "}
+                      {progress.lights.length}/7 luces opcionales.
+                    </Text>
+                    <Text style={styles.body}>
+                      Tus decisiones:{"\n"}
+                      {progress.reflections.join("\n")}
+                    </Text>
+                    {Platform.OS === "web" && (
+                      <Button
+                        gold
+                        label="Descargar partida"
+                        onPress={() => void exportGame()}
+                      />
+                    )}
+                    <Button
+                      label="Abrir el diario de viaje"
+                      onPress={() => {
+                        setPanel(null);
+                        setScreen("chapters");
+                      }}
+                    />
+                  </>
+                )}
+                {!["complete", "pause", "reward"].includes(panel) && (
+                  <Button
+                    label={
+                      panel === "challenge" ? "Volver al bosque" : "Volver"
+                    }
+                    small
+                    onPress={() => {
+                      if (panel === "settings" && saveRef.current) {
+                        const s = { ...saveRef.current, settings };
+                        void storeSave(s).then(() => {
+                          saveRef.current = s;
+                          setSave(s);
+                        });
+                      }
+                      setPanel(null);
+                    }}
+                  />
+                )}
+              </ScrollView>
             </View>
-          )}
-          {screen === "menu" && save && Platform.OS === "web" && (
-            <Pressable
-              style={styles.download}
-              onPress={() => void exportGame()}
-            >
-              <Text style={styles.downloadText}>↓ Descargar partida</Text>
-            </Pressable>
-          )}
-        </View>
+          </View>
+        )}
+        {screen === "menu" && save && Platform.OS === "web" && (
+          <Pressable
+            accessibilityRole="button"
+            style={styles.download}
+            onPress={() => void exportGame()}
+          >
+            <Text style={styles.downloadText}>↓ Descargar partida</Text>
+          </Pressable>
+        )}
       </View>
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
+  mapZone: {
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#c7c5ad",
+    borderRadius: 8,
+    gap: 6,
+    backgroundColor: "#f2ead7",
+  },
+  dialogueShade: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "#132d3680",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingBottom: 20,
+  },
+  dialoguePaper: {
+    backgroundColor: "#fff2de",
+    borderWidth: 2,
+    borderColor: "#b6a585",
+    borderRadius: 12,
+  },
   root: {
     flex: 1,
     backgroundColor: "#19282d",

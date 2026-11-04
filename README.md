@@ -1,68 +1,79 @@
 # El camino de una Precursora
 
-Prototipo de aventura 2D en Expo SDK 54, React Native, TypeScript, Expo Router y Skia. Web, Android e iOS comparten lógica de movimiento, colisiones y misiones.
+Aventura 2D en Expo SDK 54, React Native, TypeScript, Expo Router y Skia. El capítulo 1 v3 tiene 16 escenas conectadas en un bosque de 8000 píxeles lógicos, con seis zonas y contenido narrativo separado del motor. Web, Android e iOS comparten físicas y misiones.
 
-## Ejecutar
+## Ejecutar en local
 
-Se recomienda Node 22 LTS o Node 24. En el entorno preparado se utilizó Node 24.22.1.
+Node 22 LTS o 24 y npm:
 
 ```bash
-cd Juego
 npm ci
-EXPO_NO_TELEMETRY=1 EXPO_OFFLINE=1 npm run web -- --port 8082
+npm run web
 ```
 
-Para móvil: `npm start` y un cliente compatible con Expo SDK 54 o una compilación de desarrollo. No hay cuentas ni servidor de aplicación. La ejecución nativa en dispositivos no está validada todavía.
+Para móvil, `npm start` y un cliente compatible con Expo SDK 54 o una compilación de desarrollo. No hay cuentas ni servidor de aplicación. La exportación de bundles Android/iOS está comprobada; falta probar el juego en dispositivos físicos.
 
 ```bash
 npm run typecheck
 npm test
-EXPO_NO_TELEMETRY=1 EXPO_OFFLINE=1 npm run build:web
+npm run build:web
 ```
 
-`postinstall` copia CanvasKit desde la dependencia instalada a un archivo público con su versión, actualmente `public/canvaskit-0.40.0.wasm`; el cargador obtiene la misma versión de la dependencia, evitando mezclar JavaScript con WASM antiguo en caché. Web no necesita descargar WASM desde un CDN. El archivo se sirve junto a la aplicación.
+El `postinstall` prepara CanvasKit desde la dependencia instalada. Se sirve `public/canvaskit-0.40.0.wasm`, con la misma versión que su JavaScript y sin depender de un CDN.
 
-## Qué incluye
+## Capítulo 1 v3
 
-- Menú con amanecer pixel art detallado, protagonista redibujada y controles React Native funcionales que escalan junto a la pantalla.
-- Bosque lateral continuo, cámara suave, gravedad, suelo, plataformas, obstáculos y dos barreras de niebla.
-- Seis misiones: guía, tres luces que se recogen por proximidad, dos faroles, viajero, orden de palabras y cofre de la Fe.
-- Diario de siete capítulos. El segundo se desbloquea al terminar el bosque, pero su escenario aún no está implementado. Los capítulos posteriores permanecen cerrados.
-- Inventario, pausa, ajustes visuales, controles táctiles y teclado.
-- AsyncStorage para autoguardado y restauración. En web también permite descargar e importar JSON, con validación antes de reemplazar una partida.
-- Repetición del bosque conservando la Fe y los capítulos ya obtenidos.
+El [documento de diseño](docs/CHAPTER_1_V3.md) guía esta versión:
 
-Controles: A/D o flechas para caminar, Espacio para saltar, E para interactuar y avanzar conversaciones, Esc para pausa, I para inventario. En móvil se utilizan los botones en pantalla.
+- Entrada, arroyo, puente dañado, claro, niebla y refugio, cada zona con fondo original y transiciones suaves.
+- Plataformas de roca y madera, apoyos móviles, piedras húmedas, ruta cooperativa, agua, ramas y un puente que obliga a buscar un desvío. Las pistas y los materiales elevados requieren explorar y saltar.
+- Tres corazones, invulnerabilidad breve, apoyos seguros y checkpoints. Perder todos los corazones conserva misiones, decisiones y objetos.
+- Dieciséis escenas: preparación, guía, señales y testimonios, ayuda con una rama, puente, viajero, aplicación bíblica, reparación de farol, descanso y reflexión, segundo farol, niebla, confianza, entrega del mapa, cofre y epílogo.
+- Desafíos de varias etapas, decisiones con evidencias y referencias alternativas aceptadas cuando la explicación es coherente. Las palabras se mezclan, usan la misma capitalización y contienen distractores. Las pistas son opcionales.
+- Cuaderno con misiones, mapa, evidencias, materiales y reflexiones; siete luces opcionales que se recogen automáticamente.
+- Viajero acompañante, personajes con distintas poses, retratos según el hablante y cofre de madera con cuatro fases de apertura.
+- Entrada a la niebla con confirmación del punto de no retorno. La Fe se obtiene en la escena 15 y el capítulo 2 se desbloquea después del epílogo.
 
-## Organización
+El selector tiene siete capítulos. El segundo queda desbloqueado, pero su aventura aún no está implementada. Los capítulos 2–7 quedan para fases posteriores.
 
-- `app/`: navegación Expo Router y coordinación de pantallas.
-- `components/`: renderizado Skia y arranque CanvasKit exclusivo de web.
-- `game/engine/`: simulación mutable a pasos de 1/120 s; React no recibe una actualización por fotograma. Los valores compartidos actualizan el renderizado.
-- `game/levels/`: geometría, objetos y capítulos.
-- `game/missions/`: objetivos y recolección con prerrequisitos.
-- `game/dialogues/`: contenido narrativo independiente.
-- `game/inventory/`: definición de herramientas.
-- `game/save/`: esquema validado, persistencia y transferencia por plataforma.
-- `game/rendering/art.json`: recortes y anclajes registrados para el arte activo v2. `manifest.json` conserva la descripción del paquete anterior como referencia.
-- `tests/`: físicas, bloqueos, misiones, guardado y verificación de dimensiones PNG.
+Controles: **A/D o flechas** para caminar, **Espacio** para saltar, **E** para conversar, **J** para el cuaderno, **I** para inventario y **Esc** para pausa. También hay controles táctiles. La vista lógica es 480×270, horizontal, con bandas seguras para otras proporciones.
 
-## Estado artístico y pendientes
+## Guardado
 
-El arte activo v2 se creó con asistencia generativa: doce poses nuevas de la protagonista, ocho de los personajes secundarios, seis retratos y ocho objetos ilustrados. Los recortes se inspeccionaron y registraron mediante límites alfa, celdas y anclajes en `game/rendering/art.json`. El motor dibuja los atlases con escala uniforme, fotogramas reales y apoyo estable de los pies. Los archivos originales permanecen disponibles como referencia, pero ya no se usan para animar a los personajes del prototipo.
+AsyncStorage guarda al completar escenas, recoger pistas/materiales, activar checkpoints, recibir daño y salir al menú. En web se pueden descargar e importar partidas JSON validadas antes de reemplazar el progreso. El archivo contiene versión, checkpoint, posición segura, corazones, misiones, evidencias, decisiones, materiales, reflexiones, inventario, capítulos y ajustes.
 
-El fondo mezcla franjas superpuestas para ocultar sus bordes; el suelo alterna franjas reflejadas con uniones coincidentes. Las plataformas tienen extremos ilustrados completos, los faroles y la tablilla usan arte nuevo y la niebla se desvanece gradualmente. Los destellos de recogida, motas y animaciones ambientales respetan el ajuste de efectos reducidos. Las luces no necesitan E ni toque de interacción: basta acercarse, también en web táctil. Los diálogos identifican a su hablante; el agradecimiento del viajero usa su retrato alegre.
+El esquema 2 usa la clave `precursora-save-v2`. Las partidas válidas de la versión anterior se migran desde `precursora-save-v1`, que permanece como respaldo: conservan la Fe y el capítulo 2 obtenidos, pero comienzan las 16 escenas nuevas desde la entrada. Repetir un capítulo no sobrescribe la partida principal hasta terminarlo.
 
-El audio es original sintetizado con `scripts/generate-audio.py`. El texto de Proverbios 3:5 sigue siendo una idea adaptada, pendiente de verificación antes de publicación. Falta pulido artístico de transiciones y pruebas de rendimiento en dispositivos físicos.
+## Arquitectura y arte
 
-La duración de 8–12 minutos requiere pruebas con jugadores y ajuste de diseño. No se han desarrollado los capítulos 2–7. El selector comunica esa limitación. La vista lógica es 480×270 con bandas para otras proporciones; falta una auditoría de accesibilidad y áreas seguras en dispositivos físicos.
+- `app/`: navegación y coordinación de interfaz.
+- `game/engine/`: simulación mutable, cámara, física y colisiones; pasos de 1/120 s, sin renderizados React completos por fotograma.
+- `game/levels/`: zonas, plataformas, objetos y checkpoints.
+- `game/missions/`: progresión y requisitos de las 16 escenas.
+- `game/chapter1/` y `game/dialogues/`: validación de respuestas y contenido independiente.
+- `game/save/`: esquema, migración, persistencia y transferencia por plataforma.
+- `components/`: escenarios Skia, atlas animados, retratos e interfaz nativa.
+- `assets/backgrounds/v3/`, `assets/characters/v3/` y `assets/props/v3/`: seis fondos, personajes adicionales, terreno, letreros, rama y cofre nuevos. Se conservan las poses v2 de la protagonista, guía y viajero.
+- `game/rendering/art.json`: recortes y anclajes de los atlas activos. `scripts/register-art.py` analiza sus límites alfa sin cambiar píxeles; es una herramienta opcional de arte con Python y Pillow.
 
-La publicación del entorno y una compilación nativa distribuible son pasos separados de la exportación web.
+El arte se creó con asistencia generativa para el proyecto. El audio es original sintetizado. Los textos de los retos son reflexiones adaptadas con referencia, no citas bíblicas literales.
 
-## Prueba de navegador opcional
+## Pruebas
 
-`tests/browser.cjs` recorre las seis misiones y comprueba descarga JSON, recarga, rechazo de una importación inválida e importación válida. Requiere Playwright y Chromium disponibles en la máquina. Servir primero `dist` en el puerto 8081; `GAME_URL`, `PLAYWRIGHT_MODULE` y `CHROMIUM_PATH` permiten seleccionar el servidor y las herramientas instaladas. En el entorno preparado Playwright está en `/opt/codex/cua_node/lib/node_modules/playwright` y Chromium en `/usr/bin/chromium`. Esta prueba no forma parte de `npm test` y no descarga navegadores automáticamente.
+`npm test` comprueba progresión, requisitos, alternativas coherentes, migración, rechazos de guardado, colisiones, caídas, corazones, coyote time, buffer, soportes móviles y viabilidad de los saltos entre plataformas obligatorias.
 
-`tests/graphics-browser.cjs` verifica recursos gráficos, apertura de diálogos, cambios repetidos de pausa/inventario y escalado en varias ventanas. Puede ejecutarse con las mismas variables de Playwright; por defecto usa el servidor Expo del puerto 8082. Guarda capturas temporales en `/tmp`.
+Las pruebas de navegador requieren Playwright y Chromium instalados y un servidor para `dist`:
 
-`tests/adventure-browser.cjs` prueba recogida automática con teclado y eventos táctiles reales de Chromium, rango vertical de las luces y el retrato alegre del viajero. `scripts/register-art.py` es una herramienta opcional de registro para artistas (Python + Pillow): analiza PNG y genera JSON, sin modificar píxeles; la app y `npm ci` no necesitan Python.
+```bash
+python3 -m http.server 8081 --directory dist
+# En otra terminal:
+node tests/browser-v3.cjs
+node tests/graphics-browser.cjs
+node tests/replay-browser.cjs
+```
+
+`GAME_URL`, `PLAYWRIGHT_MODULE` y `CHROMIUM_PATH` permiten configurar el servidor y las herramientas. En el entorno de desarrollo: Playwright `/opt/codex/cua_node/lib/node_modules/playwright`, Chromium `/usr/bin/chromium`.
+
+La prueba v3 ejercita el tutorial con controles reales y usa partidas de prueba para entrar a cada escena, resolver sus etapas mediante la interfaz, recoger la recompensa, exportar, importar y rechazar archivos incorrectos. Comprueba controles simultáneos táctiles al saltar. La viabilidad física entre plataformas se verifica aparte en el motor; esto no sustituye una partida humana completa.
+
+La duración de 45–60 minutos, más los opcionales, es un objetivo pendiente de pruebas con jugadores. También faltan validación de rendimiento y áreas seguras en teléfonos físicos. No se ha publicado el entorno ni se ha generado una aplicación firmada para tiendas.

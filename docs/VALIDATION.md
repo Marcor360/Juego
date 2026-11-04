@@ -1,34 +1,47 @@
-# Validación del prototipo actual
+# Validación del capítulo 1 v3
 
-Ejecutada en el entorno de desarrollo con Node 24.22.1 y npm 11.9.0.
+Entorno: Node 24.22.1, Expo SDK 54, Skia 2.2.12. Esta versión reemplaza el bosque anterior de seis misiones por 16 escenas en 8000 píxeles lógicos.
 
-| Comprobación | Resultado |
+| Comprobación | Alcance |
 | --- | --- |
-| `npm run typecheck` | Correcta |
-| `npm test` | 14 pruebas aprobadas, 0 fallidas, 0 omitidas |
-| `expo export --platform web` | Correcta |
-| `expo export --platform android --platform ios` | Ambos bundles Hermes generados |
-| `tests/browser.cjs` | Bosque completo, recompensa, descarga JSON, recarga e importaciones válida e inválida aprobadas |
-| `tests/adventure-browser.cjs` | Recogida automática y retrato alegre aprobados con teclado y eventos táctiles de Chromium |
+| `npm run typecheck` | Tipos del proyecto |
+| `npm test` | 19 pruebas: progresión, evidencias, decisiones, salud, físicas, guardado, migración y arte |
+| `npm run build:web` | Exportación web y recursos locales CanvasKit |
+| `expo export --platform android --platform ios` | Bundles Hermes de ambas plataformas; no equivale a prueba en teléfono |
+| `tests/browser-v3.cjs` | Tutorial, 16 escenas, desafío por etapas, recompensa, exportación, importación válida y rechazo de archivo incompatible |
+| `tests/chest-browser.cjs` | Cuerpo sólido, apertura animada y Fe permanente en escritorio y táctil |
+| `tests/replay-browser.cjs` | Repetición sin sobrescribir y continuación de la partida principal |
+| `tests/graphics-browser.cjs` | Canvas, cuaderno y escalado en 1280×720, 812×375, 667×375 y 390×844 |
 
-## Mecánicas y arte verificados
+## Escenarios y dificultad
 
-El recorrido completo empezó en el menú, habló con la guía, obtuvo las tres luces al acercarse (incluida la plataforma elevada), encendió ambos faroles, ayudó al viajero, ordenó las palabras y abrió el cofre. La partida conservó Fe y capítulos `[1,2]`. Se descargó JSON, se continuó tras recargar, se rechazó una importación incompatible sin perder el progreso y se restauró un archivo válido. No hubo errores de JavaScript de página.
+Los tramos obligatorios del puente y la niebla incluyen huecos largos bajo una cadena de apoyos: no se puede completar la exploración caminando por el suelo. Las plataformas de cuerda requieren haber escuchado al viajero. Los materiales y las pistas elevados coinciden con sus alturas reales de apoyo y se recogen automáticamente al aproximarse.
 
-La prueba táctil mantuvo pulsado el control derecho mediante eventos reales `touchStart`/`touchEnd` de Chromium. La luz se recogió sin tocar E; no se abrió ningún diálogo de recogida. Las pruebas también verificaron que una luz elevada no se recoja desde el suelo, que no se duplique y que requiera el primer encuentro.
+`tests/routes.test.ts` busca una trayectoria física válida entre cada par de apoyos obligatorios, incluyendo distintas fases de las plataformas móviles. Exige llegar sin recibir daño. Esta prueba detectó una rama demasiado cerca del borde de despegue; se ajustó su posición. La prueba de recolección también comprueba todas las pistas y materiales en sus soportes efectivos.
 
-El agradecimiento del viajero muestra su retrato alegre y el nombre «El viajero», tanto en escritorio como en web táctil. El mapeo de hablantes y el índice del retrato tienen pruebas de regresión.
+Se verifican coyote time, buffer de salto, agua y ramas, transporte sobre plataformas móviles, invulnerabilidad y retorno al checkpoint al agotar corazones, conservando evidencias y progreso narrativo. La simulación usa pasos de 1/120 s, con un límite de recuperación por fotograma.
 
-El arte v2 incluye 12 poses nuevas de la protagonista, 8 poses de guía/viajero, 6 retratos y 8 objetos ilustrados. Se inspeccionaron sus distribuciones y límites alfa. La prueba de metadatos compara los PNG reales, sus celdas, recortes y anclajes. Las animaciones usan fotogramas distintos de esos atlases; no son únicamente transformaciones de una imagen fija.
+## Pruebas de interfaz
 
-Los fondos superponen franjas con un fundido de entrada de 64 píxeles lógicos. El suelo alterna franjas reflejadas cuyos bordes de origen coinciden. Las pruebas verifican cobertura del intervalo de cámara y continuidad geométrica de las uniones. Las plataformas conservan extremos completos y los faroles usan una escala común en sus estados apagado/encendido.
+La prueba de navegador utiliza el tutorial con controles reales y partidas de prueba para entrar a las escenas restantes. No afirma haber recorrido físicamente los 8000 píxeles en una única partida humana.
 
-El binario CanvasKit servido tiene la versión instalada en su nombre; una prueba compara su SHA-256 con la dependencia para evitar mezclar JavaScript y WASM de otra versión. Los personajes utilizan buffers de transformaciones de Skia y una imagen fija por atlas, sin transferir imágenes nativas entre fotogramas.
+Cada desafío se resuelve mediante sus botones, con orden mezclado y texto uniforme. Se comprueba una respuesta incorrecta, ausencia de daño por respuestas y aceptación de la elección correcta posterior. El reto de confianza permite intercambiar tokens de palabras repetidas y agrega una decisión de aplicación después del ordenamiento.
 
-## Límites
+En escritorio se usa teclado. En formato móvil se usan toques y eventos Chromium `touchStart`/`touchEnd`, incluyendo dos dedos para caminar y saltar simultáneamente. Una pulsación rápida de Saltar tenía un problema de activación que se corrigió. Se verifican el cuaderno, la confirmación del punto de no retorno, la animación del cofre, la Fe y capítulos `[1,2]`.
 
-- Los bundles Android/iOS no demuestran ejecución, guardado ni rendimiento en dispositivos físicos. La prueba táctil se ejecutó en Chromium, no en una app nativa instalada.
-- La duración objetivo de 8–12 minutos todavía requiere sesiones con jugadores.
-- El arte se creó con asistencia generativa y necesita revisión artística de continuidad entre poses y una auditoría de accesibilidad.
-- Proverbios 3:5 sigue marcado como adaptación pendiente de verificación editorial.
-- Los capítulos 2–7 aún no tienen escenarios jugables.
+La partida exportada contiene las 16 escenas completadas. Una importación incompatible no reemplaza el progreso existente. Las partidas v1 válidas conservan sus recompensas, comienzan las escenas nuevas desde la entrada y mantienen el archivo local anterior como respaldo. La repetición conserva la partida principal mientras se está jugando de nuevo.
+
+## Arte
+
+Se incorporaron seis fondos de zona originales, seis poses de tres personajes adicionales, cuatro fases del cofre, cuatro conjuntos de terreno/objetos y una franja de suelo. Se mantienen las poses animadas v2 de protagonista, guía y viajero. El registro analiza alfa y celdas sin alterar los PNG. Los límites de las celdas de terreno se ajustaron a la distribución observada, en lugar de asumir cuatro recortes iguales.
+
+Los fondos cambian por zona con fundido y desplazamiento; no repiten el gran árbol a lo largo del bosque. El suelo utiliza una textura específica de tierra y raíces, con franjas reflejadas que comparten el mismo borde de origen. Las plataformas muestran salientes completos de roca/musgo y madera. El cofre mantiene una base estable durante su apertura y eleva la linterna al final.
+
+## Pendientes de validación
+
+- Medir la duración con jugadores: 45–60 minutos y opcionales son objetivos del diseño, no una duración comprobada.
+- Probar rendimiento, multitáctil, áreas seguras, audio y persistencia en Android/iOS físicos.
+- Revisar editorialmente las referencias antes de una publicación pública. Los retos actuales indican que contienen reflexiones adaptadas, no citas literales.
+- El capítulo 2 está desbloqueable, pero aún no es jugable. No se implementaron los capítulos 2–7.
+
+No se publicó el entorno ni una aplicación firmada para tiendas durante esta revisión.

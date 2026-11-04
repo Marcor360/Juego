@@ -1,55 +1,61 @@
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
-const fs = require("node:fs");
+const { execFileSync } = require("node:child_process");
+const assert = require("node:assert/strict");
+const fixtures = JSON.parse(
+  execFileSync(
+    process.execPath,
+    ["--experimental-strip-types", "tests/fixtures.ts"],
+    { stdio: ["ignore", "pipe", "ignore"] },
+  ).toString(),
+);
 (async () => {
   const b = await chromium.launch({
-    executablePath: "/usr/bin/chromium",
+    executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
     headless: true,
     args: ["--no-sandbox", "--enable-unsafe-swiftshader"],
   });
-  const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });
-  const errors = [];
-  p.on("pageerror", (e) => errors.push(e.message));
-  const failed = [];
-  p.on("response", (r) => {
-    if (r.status() >= 400 && !r.url().endsWith("favicon.ico"))
-      failed.push(r.url());
-  });
-  await p.goto(process.env.GAME_URL || "http://127.0.0.1:8082");
-  await p
-    .getByRole("button", { name: "▶ Comenzar aventura" })
-    .waitFor({ timeout: 60000 });
-  await p.waitForTimeout(1800);
-  await p.screenshot({ path: "/tmp/precursora-menu-redesign.png" });
-  await p.getByRole("button", { name: "⚙ Ajustes" }).click();
-  await p.getByRole("button", { name: "Volver", exact: true }).click();
-  await p.getByRole("button", { name: "▶ Comenzar aventura" }).click();
-  await p.keyboard.down("d");
-  await p.waitForTimeout(1500);
-  await p.keyboard.up("d");
-  await p.screenshot({ path: "/tmp/precursora-forest-redesign.png" });
-  await p.keyboard.press("e");
-  await p.waitForTimeout(500);
-  await p.screenshot({ path: "/tmp/precursora-dialogue-redesign.png" });
-  for (let i = 0; i < 6; i++) await p.keyboard.press("e");
-  for (let i = 0; i < 12; i++) {
-    await p.keyboard.press("i");
-    await p.keyboard.press("i");
-    await p.keyboard.press("Escape");
-    await p.keyboard.press("Escape");
+  try {
+    for (const viewport of [
+      { width: 1280, height: 720 },
+      { width: 812, height: 375 },
+      { width: 667, height: 375 },
+      { width: 390, height: 844 },
+    ]) {
+      const p = await b.newPage({ viewport });
+      const errors = [];
+      p.on("pageerror", (e) => errors.push(e.message));
+      await p.goto(process.env.GAME_URL || "http://127.0.0.1:8081");
+      await p.waitForTimeout(1000);
+      const chooser = p.waitForEvent("filechooser");
+      await p
+        .getByRole("button", { name: "↥ Cargar partida", exact: true })
+        .click();
+      await (
+        await chooser
+      ).setFiles({
+        name: "v3.json",
+        mimeType: "application/json",
+        buffer: Buffer.from(JSON.stringify(fixtures[11])),
+      });
+      await p.waitForTimeout(1200);
+      assert((await p.locator("canvas").count()) > 0);
+      await p.getByRole("button", { name: "▤ Cuaderno", exact: true }).click();
+      await p.getByRole("button", { name: "Mapa", exact: true }).click();
+      await p.screenshot({ path: `/tmp/v3-map-${viewport.width}.png` });
+      await p.getByRole("button", { name: "Volver", exact: true }).click();
+      await p.screenshot({ path: `/tmp/v3-forest-${viewport.width}.png` });
+      assert(
+        !(await p
+          .getByText("No se pudo preparar el paisaje.", { exact: true })
+          .count()),
+      );
+      assert.deepEqual(errors, []);
+      console.log("graphics", viewport, "ok");
+      await p.close();
+    }
+  } finally {
+    await b.close();
   }
-  for (const viewport of [
-    { width: 667, height: 375 },
-    { width: 2560, height: 1440 },
-  ]) {
-    await p.setViewportSize(viewport);
-    await p.waitForTimeout(300);
-    await p.screenshot({
-      path: `/tmp/precursora-responsive-${viewport.width}.png`,
-    });
-  }
-  console.log(JSON.stringify({ errors, failed }));
-  await b.close();
-  if (errors.length || failed.length) process.exitCode = 1;
 })().catch((e) => {
   console.error(e);
   process.exit(1);

@@ -13,7 +13,7 @@ export function AnimatedCharacter({
   height = 44,
   direction,
 }: {
-  kind: "hero" | "npcs";
+  kind: "hero" | "npcs" | "others";
   frame: SharedValue<number>;
   height?: number;
   direction?: SharedValue<number>;
@@ -22,7 +22,9 @@ export function AnimatedCharacter({
     Asset.fromModule(
       kind === "hero"
         ? require("../assets/characters/v2/hero.png")
-        : require("../assets/characters/v2/npcs.png"),
+        : kind === "npcs"
+          ? require("../assets/characters/v2/npcs.png")
+          : require("../assets/characters/v3/others.png"),
     ).uri,
   );
   const data = art[kind],

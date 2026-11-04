@@ -42,6 +42,45 @@ export default function Portrait({
         <Text style={{ fontSize: size * 0.5, color: "#96794b" }}>✧</Text>
       </View>
     );
+  if (speaker === "walker" || speaker === "secondary" || speaker === "keeper") {
+    const i = { walker: 0, secondary: 1, keeper: 2 }[speaker];
+    const d = art.others,
+      f = d.frames[i];
+    const headHeight = f.height * 0.42;
+    const scale = (size - 8) / headHeight;
+    const headX = f.x + f.width * 0.48,
+      headY = f.y;
+    return (
+      <View
+        accessibilityRole="image"
+        accessibilityLabel={speakerNames[speaker]}
+        style={{
+          width: size,
+          height: size,
+          overflow: "hidden",
+          borderRadius: 12,
+          borderWidth: 2,
+          borderColor: "#bba781",
+          backgroundColor: "#d6d2b4",
+        }}
+      >
+        <Image
+          source={{
+            uri: Asset.fromModule(require("../assets/characters/v3/others.png"))
+              .uri,
+          }}
+          style={{
+            position: "absolute",
+            left: size / 2 - headX * scale,
+            top: 4 - headY * scale,
+            width: d.width * scale,
+            height: d.height * scale,
+          }}
+          resizeMode="stretch"
+        />
+      </View>
+    );
+  }
   const index = portraitFrame(speaker, mouth);
   const f = art.portraits.frames[index].cell;
   const scale = (size - 8) / Math.max(f.width, f.height),

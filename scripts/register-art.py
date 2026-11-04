@@ -11,6 +11,8 @@ def register(path,columns,rows):
     result={'width':image.width,'height':image.height,'columns':columns,'rows':rows,'frames':[]}
     for i in range(columns*rows):
         x0=round((i%columns)*image.width/columns);x1=round((i%columns+1)*image.width/columns)
+        if path.endswith("v3/terrain.png"):
+            edges=[0,640,1270,1620,image.width];x0,x1=edges[i],edges[i+1]
         y0=round((i//columns)*image.height/rows);y1=round((i//columns+1)*image.height/rows)
         alpha=image.getchannel('A').crop((x0,y0,x1,y1)).point(lambda p:255 if p>=120 else 0)
         box=alpha.getbbox()
@@ -24,7 +26,7 @@ def register(path,columns,rows):
         for frame in frames: frame['anchorY']=baseline
     result['referenceHeight']=result['frames'][0]['height']
     return result
-packs={'hero':('assets/characters/v2/hero.png',4,3),'npcs':('assets/characters/v2/npcs.png',4,2),'props':('assets/props/v2/forest-props.png',4,1),'portraits':('assets/characters/v2/portraits.png',3,2),'treasures':('assets/props/v2/treasures.png',4,1)}
+packs={'hero':('assets/characters/v2/hero.png',4,3),'npcs':('assets/characters/v2/npcs.png',4,2),'props':('assets/props/v2/forest-props.png',4,1),'portraits':('assets/characters/v2/portraits.png',3,2),'treasures':('assets/props/v2/treasures.png',4,1),'others':('assets/characters/v3/others.png',3,2),'chest':('assets/props/v3/chest.png',4,1),'terrain':('assets/props/v3/terrain.png',4,1)}
 metadata={k:register(*v) for k,v in packs.items()}
 (root/'game/rendering/art.json').write_text(json.dumps(metadata,indent=2)+'\n')
 print({k:{'size':(v['width'],v['height']),'frames':len(v['frames'])} for k,v in metadata.items()})

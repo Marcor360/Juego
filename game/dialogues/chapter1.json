@@ -1,0 +1,1059 @@
+{
+  "version": 3,
+  "scenes": [
+    {
+      "number": 1,
+      "id": "CH1_01",
+      "title": "Una aventura por comenzar",
+      "dialogue": [
+        {
+          "speaker": "hero",
+          "text": "Hoy empieza un camino nuevo. He preparado todo... o al menos eso creo."
+        },
+        {
+          "speaker": "hero",
+          "text": "Me emociona conocer lo que hay más adelante, pero también siento un poquito de miedo."
+        }
+      ],
+      "stages": [],
+      "reference": "",
+      "intro": "Practica caminar, saltar, abrir el cuaderno e interactuar. Después podrás preparar el viaje."
+    },
+    {
+      "number": 2,
+      "id": "CH1_02",
+      "title": "La guía del bosque",
+      "dialogue": [
+        {
+          "speaker": "guide",
+          "text": "Veo que te preparas para un viaje importante."
+        },
+        {
+          "speaker": "hero",
+          "text": "Sí, aunque me gustaría saber que todo saldrá bien."
+        },
+        {
+          "speaker": "guide",
+          "text": "¿Recuerdas a Abrahán? Él demostró fe incluso cuando no conocía todos los detalles de lo que le esperaba."
+        },
+        {
+          "speaker": "hero",
+          "text": "Entonces, ¿tener fe no significa conocer de antemano todo lo que va a pasar?"
+        },
+        {
+          "speaker": "guide",
+          "text": "Exactamente. Pero tampoco significa caminar sin pensar. Puedes confiar en Jehová y ser prudente al mismo tiempo."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "choice",
+          "prompt": "En tu cuaderno aparece un mapa con un puente junto al arroyo. ¿Cómo registrarías ese dato?",
+          "options": [
+            {
+              "id": "known",
+              "text": "Información comprobada"
+            },
+            {
+              "id": "pending",
+              "text": "Información no confirmada"
+            },
+            {
+              "id": "question",
+              "text": "Pregunta pendiente"
+            }
+          ],
+          "answers": [
+            "known"
+          ],
+          "hint": "Puedes comprobar qué dibuja el mapa; eso no demuestra que el puente siga intacto."
+        },
+        {
+          "kind": "choice",
+          "prompt": "Alguien afirma que el atajo está intacto después de la tormenta, pero nadie lo ha revisado.",
+          "options": [
+            {
+              "id": "known",
+              "text": "Información comprobada"
+            },
+            {
+              "id": "pending",
+              "text": "Información no confirmada"
+            },
+            {
+              "id": "question",
+              "text": "Pregunta pendiente"
+            }
+          ],
+          "answers": [
+            "pending"
+          ],
+          "hint": "Distingue una afirmación de una observación reciente."
+        },
+        {
+          "kind": "choice",
+          "prompt": "¿Existe un desvío seguro antes del puente?",
+          "options": [
+            {
+              "id": "known",
+              "text": "Información comprobada"
+            },
+            {
+              "id": "pending",
+              "text": "Información no confirmada"
+            },
+            {
+              "id": "question",
+              "text": "Pregunta pendiente"
+            }
+          ],
+          "answers": [
+            "question"
+          ],
+          "hint": "Todavía falta buscar una respuesta."
+        }
+      ],
+      "reference": "Hebreos 11:1, 8",
+      "intro": ""
+    },
+    {
+      "number": 3,
+      "id": "CH1_03",
+      "title": "Una señal equivocada",
+      "dialogue": [
+        {
+          "speaker": "hero",
+          "text": "Este sendero parece más rápido, pero las marcas del mapa no coinciden. Será mejor comprobarlo."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "order",
+          "prompt": "Reconstruye el aviso usando las marcas, el fragmento y el aviso de tormenta.",
+          "options": [
+            {
+              "id": "t0",
+              "text": "el puente"
+            },
+            {
+              "id": "t1",
+              "text": "está dañado"
+            },
+            {
+              "id": "t2",
+              "text": "busca el desvío"
+            },
+            {
+              "id": "d0",
+              "text": "está libre"
+            },
+            {
+              "id": "d1",
+              "text": "cruza deprisa"
+            }
+          ],
+          "answers": [
+            "t0",
+            "t1",
+            "t2"
+          ],
+          "hint": "El fragmento y el aviso describen lo ocurrido después de la tormenta."
+        }
+      ],
+      "reference": "",
+      "intro": "Para reconstruir la señal debes alcanzar las tres evidencias del arroyo."
+    },
+    {
+      "number": 4,
+      "id": "CH1_04",
+      "title": "Dos versiones de la misma historia",
+      "dialogue": [
+        {
+          "speaker": "walker",
+          "text": "Yo crucé ese puente ayer. Estaba perfectamente bien."
+        },
+        {
+          "speaker": "hero",
+          "text": "Gracias por contármelo. ¿Recuerdas a qué hora cruzaste?"
+        },
+        {
+          "speaker": "walker",
+          "text": "Ayer por la mañana, antes de la tormenta."
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Ahora entiendo! Entonces pudo haberse dañado después."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "multi",
+          "prompt": "Selecciona las DOS preguntas que permiten contrastar su relato.",
+          "options": [
+            {
+              "id": "when",
+              "text": "¿Cuándo cruzaste respecto a la tormenta?"
+            },
+            {
+              "id": "where",
+              "text": "¿Qué puente y qué tramo recorriste?"
+            },
+            {
+              "id": "blame",
+              "text": "¿Quién debería arreglar el puente?"
+            },
+            {
+              "id": "speed",
+              "text": "¿Cuánto tardaste en llegar?"
+            }
+          ],
+          "answers": [
+            "when",
+            "where"
+          ],
+          "hint": "Necesitas situar el relato en el tiempo y en el lugar."
+        },
+        {
+          "kind": "choice",
+          "prompt": "¿Cómo encajan las dos informaciones?",
+          "options": [
+            {
+              "id": "changed",
+              "text": "El puente pudo cambiar después de que ella lo cruzara."
+            },
+            {
+              "id": "false",
+              "text": "La marca reciente demuestra que su recuerdo era falso."
+            },
+            {
+              "id": "ignore",
+              "text": "Su experiencia vuelve innecesario revisar las tablas."
+            }
+          ],
+          "answers": [
+            "changed"
+          ],
+          "hint": "Las observaciones pueden ser verdaderas en momentos distintos."
+        }
+      ],
+      "reference": "Santiago 1:19",
+      "intro": ""
+    },
+    {
+      "number": 5,
+      "id": "CH1_05",
+      "title": "No tengo que hacerlo todo sola",
+      "dialogue": [
+        {
+          "speaker": "hero",
+          "text": "Creo que puedo moverla... ¡Uf! Es mucho más pesada de lo que parece."
+        },
+        {
+          "speaker": "hero",
+          "text": "Tal vez sea mejor buscar otra manera de resolverlo."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "choice",
+          "prompt": "Elige una solución que hayas preparado explorando el lugar.",
+          "options": [
+            {
+              "id": "lever",
+              "text": "Usar la palanca que encontré en la cornisa."
+            },
+            {
+              "id": "helper",
+              "text": "Coordinarme con la caminante que ofreció ayuda."
+            }
+          ],
+          "answers": [
+            "lever",
+            "helper"
+          ],
+          "hint": "Puedes buscar una herramienta o solicitar ayuda; ambas opciones son válidas.",
+          "requires": {
+            "lever": "item:lever",
+            "helper": "evidence:helper_offer"
+          }
+        }
+      ],
+      "reference": "",
+      "intro": ""
+    },
+    {
+      "number": 6,
+      "id": "CH1_06",
+      "title": "El puente que no podemos cruzar",
+      "dialogue": [
+        {
+          "speaker": "hero",
+          "text": "¡Oh, no! Justo el puente que necesitaba cruzar... ¿Y ahora? Había prometido llegar temprano."
+        },
+        {
+          "speaker": "hero",
+          "text": "Las tablas están deterioradas. Comprobaré el paso desde una distancia segura y buscaré otras marcas."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "multi",
+          "prompt": "Selecciona las DOS observaciones que justifican marcar el desvío.",
+          "options": [
+            {
+              "id": "damage",
+              "text": "Hay madera astillada y faltan tablas en el paso principal."
+            },
+            {
+              "id": "detour",
+              "text": "Las marcas recientes conducen a apoyos de piedra alrededor del puente."
+            },
+            {
+              "id": "short",
+              "text": "El puente principal es la ruta más corta del mapa antiguo."
+            },
+            {
+              "id": "memory",
+              "text": "La caminante lo cruzó antes de la tormenta."
+            }
+          ],
+          "answers": [
+            "damage",
+            "detour"
+          ],
+          "hint": "La distancia o un recuerdo antiguo no demuestran que el paso actual sea seguro."
+        }
+      ],
+      "reference": "",
+      "intro": "Investiga las tablas y utiliza las plataformas del desvío. No basta caminar por el suelo."
+    },
+    {
+      "number": 7,
+      "id": "CH1_07",
+      "title": "El viajero desanimado",
+      "dialogue": [
+        {
+          "speaker": "hero",
+          "text": "Hola. ¿Te encuentras bien?"
+        },
+        {
+          "speaker": "traveler",
+          "text": "No estoy seguro. Pensé que conocía este camino, pero ahora todo parece diferente."
+        },
+        {
+          "speaker": "hero",
+          "text": "¿Quieres contarme qué ocurrió?"
+        },
+        {
+          "speaker": "traveler",
+          "text": "Intenté cruzar el puente. Cuando vi lo dañado que estaba, regresé. Desde entonces no dejo de pensar en lo que podría haber pasado."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "choice",
+          "prompt": "¿Qué harías antes de proponer una solución?",
+          "options": [
+            {
+              "id": "listen",
+              "text": "Escuchar lo que vivió y reconocer cómo se siente."
+            },
+            {
+              "id": "reassure",
+              "text": "Asegurarle que no le pasará nada y pedirle que avance."
+            },
+            {
+              "id": "compare",
+              "text": "Contarle mis dificultades para que vea que son parecidas."
+            }
+          ],
+          "answers": [
+            "listen"
+          ],
+          "hint": "Escuchar primero te ayuda a entender su preocupación."
+        },
+        {
+          "kind": "choice",
+          "prompt": "¿Qué preocupación ha expresado realmente?",
+          "options": [
+            {
+              "id": "fear",
+              "text": "El recuerdo del peligro le hace temer volver a decidir."
+            },
+            {
+              "id": "lost",
+              "text": "No encuentra su bolsa y teme haberla dejado atrás."
+            },
+            {
+              "id": "late",
+              "text": "Le preocupa principalmente llegar antes que los demás."
+            }
+          ],
+          "answers": [
+            "fear"
+          ],
+          "hint": "Vuelve a relacionar tu respuesta con lo que él contó."
+        }
+      ],
+      "reference": "",
+      "intro": ""
+    },
+    {
+      "number": 8,
+      "id": "CH1_08",
+      "title": "Una respuesta que realmente ayude",
+      "dialogue": [
+        {
+          "speaker": "traveler",
+          "text": "Me gustaría confiar más, pero no sé qué decisión tomar."
+        },
+        {
+          "speaker": "hero",
+          "text": "Conozco un texto que me ayuda cuando necesito sabiduría. ¿Te gustaría que lo buscáramos juntos?"
+        }
+      ],
+      "stages": [
+        {
+          "kind": "choice",
+          "prompt": "Escoge una referencia que puedas explicar y aplicar a su situación.",
+          "options": [
+            {
+              "id": "wisdom",
+              "text": "Santiago 1:5 · pedir sabiduría"
+            },
+            {
+              "id": "prudence",
+              "text": "Proverbios 14:15 · examinar los pasos"
+            },
+            {
+              "id": "action",
+              "text": "Santiago 2:15, 16 · ayuda práctica"
+            }
+          ],
+          "answers": [
+            "wisdom",
+            "prudence",
+            "action"
+          ],
+          "hint": "Varias referencias pueden ser pertinentes si su aplicación es coherente."
+        },
+        {
+          "kind": "choice",
+          "prompt": "¿Qué aplicación se relaciona mejor con la referencia que elegiste?",
+          "options": [
+            {
+              "id": "ask",
+              "text": "Podemos pedir sabiduría para decidir y comprobar la ruta juntos."
+            },
+            {
+              "id": "check",
+              "text": "Podemos examinar los pasos antes de aceptar una señal antigua."
+            },
+            {
+              "id": "help",
+              "text": "Podemos acompañar nuestras palabras con ayuda concreta."
+            }
+          ],
+          "answers": [],
+          "hint": "Relaciona la idea central del texto con la aplicación.",
+          "byAnswer": {
+            "wisdom": [
+              "ask"
+            ],
+            "prudence": [
+              "check"
+            ],
+            "action": [
+              "help"
+            ]
+          }
+        },
+        {
+          "kind": "choice",
+          "prompt": "¿Qué paso práctico propones ahora?",
+          "options": [
+            {
+              "id": "together",
+              "text": "Revisar las marcas y acompañarle por el desvío comprobado."
+            },
+            {
+              "id": "promise",
+              "text": "Prometer que no volverá a sentir miedo si sigue adelante."
+            },
+            {
+              "id": "rush",
+              "text": "Cruzar sin revisar para que el miedo no crezca."
+            }
+          ],
+          "answers": [
+            "together"
+          ],
+          "hint": "La confianza puede acompañarse de prudencia y compañía."
+        }
+      ],
+      "reference": "Santiago 1:5 · Proverbios 14:15 · Santiago 2:15, 16",
+      "intro": ""
+    },
+    {
+      "number": 9,
+      "id": "CH1_09",
+      "title": "No basta con hablar",
+      "dialogue": [
+        {
+          "speaker": "travelerHappy",
+          "text": "Gracias por escucharme. Saber que no estoy solo me da fuerzas para seguir."
+        },
+        {
+          "speaker": "travelerHappy",
+          "text": "¿Crees que podríamos hacer algo para que otros no se acerquen al puente roto?"
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Claro! Podríamos reparar la señal y encender el farol del desvío."
+        },
+        {
+          "speaker": "travelerHappy",
+          "text": "Yo puedo ayudarte a buscar las piezas. Sujetaré esta cuerda para que alcances la cornisa."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "order",
+          "prompt": "Ordena la reparación antes de encender el farol.",
+          "options": [
+            {
+              "id": "t0",
+              "text": "instalar la mecha"
+            },
+            {
+              "id": "t1",
+              "text": "colocar la cubierta"
+            },
+            {
+              "id": "t2",
+              "text": "comprobar la llama"
+            },
+            {
+              "id": "d0",
+              "text": "encender sin protección"
+            }
+          ],
+          "answers": [
+            "t0",
+            "t1",
+            "t2"
+          ],
+          "hint": "Primero prepara lo que mantiene y protege la llama."
+        },
+        {
+          "kind": "choice",
+          "prompt": "¿Dónde debe señalar este primer farol?",
+          "options": [
+            {
+              "id": "detour",
+              "text": "Hacia las marcas recientes del desvío de piedra."
+            },
+            {
+              "id": "bridge",
+              "text": "Hacia las tablas del puente que parece más corto."
+            },
+            {
+              "id": "stream",
+              "text": "Hacia el arroyo para evitar que llegue nadie al puente."
+            }
+          ],
+          "answers": [
+            "detour"
+          ],
+          "hint": "La luz debe permitir seguir una alternativa comprobada."
+        }
+      ],
+      "reference": "Santiago 2:14–17",
+      "intro": "La cubierta está en la cornisa de la cuerda; la mecha, entre las plataformas del desvío."
+    },
+    {
+      "number": 10,
+      "id": "CH1_10",
+      "title": "Volvemos a encontrar a la guía",
+      "dialogue": [
+        {
+          "speaker": "guide",
+          "text": "¡Me alegra volver a verte! ¿Cómo ha ido tu viaje?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Ha sido más difícil de lo que imaginaba. Me equivoqué algunas veces y tuve miedo."
+        },
+        {
+          "speaker": "guide",
+          "text": "¿Y has aprendido algo de esas experiencias?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Que puedo reconocer cuando no sé algo, pedir ayuda y pensar antes de actuar."
+        },
+        {
+          "speaker": "guide",
+          "text": "Entonces ya has aprendido mucho. Descansa un poco; todavía te queda camino."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "reflect",
+          "prompt": "¿Qué preocupación te gustaría expresar en este descanso?",
+          "options": [
+            {
+              "id": "mistakes",
+              "text": "Me preocupa equivocarme al elegir una ruta."
+            },
+            {
+              "id": "alone",
+              "text": "A veces siento que debo hacerlo todo sola."
+            },
+            {
+              "id": "unknown",
+              "text": "Me inquieta no saber lo que viene después."
+            }
+          ],
+          "answers": [
+            "mistakes",
+            "alone",
+            "unknown"
+          ],
+          "hint": "Esta reflexión es personal; no se puntúa."
+        },
+        {
+          "kind": "reflect",
+          "prompt": "Elige una petición de sabiduría que quieras recordar.",
+          "options": [
+            {
+              "id": "think",
+              "text": "Pensar con calma antes de decidir."
+            },
+            {
+              "id": "listen",
+              "text": "Escuchar y aceptar ayuda cuando la necesite."
+            },
+            {
+              "id": "learn",
+              "text": "Aprender de lo ocurrido sin quedarme inmóvil."
+            }
+          ],
+          "answers": [
+            "think",
+            "listen",
+            "learn"
+          ],
+          "hint": "No hay una fórmula que debas repetir."
+        }
+      ],
+      "reference": "Santiago 1:5",
+      "intro": ""
+    },
+    {
+      "number": 11,
+      "id": "CH1_11",
+      "title": "El desacuerdo del segundo farol",
+      "dialogue": [
+        {
+          "speaker": "secondary",
+          "text": "Si lo colocamos junto al puente, será más rápido para todos."
+        },
+        {
+          "speaker": "hero",
+          "text": "Entiendo lo que dices, pero encontramos señales de que ese camino no es seguro."
+        },
+        {
+          "speaker": "secondary",
+          "text": "¿Y cómo lo sabes?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Revisamos el puente, hablamos con quienes pasaron por aquí y encontramos un desvío. Podemos señalizarlo juntos."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "multi",
+          "prompt": "Selecciona las TRES evidencias que conviene mostrar en el cuaderno.",
+          "options": [
+            {
+              "id": "storm",
+              "text": "La tormenta ocurrió después del paso de la caminante."
+            },
+            {
+              "id": "damage",
+              "text": "La revisión reciente encontró madera rota y tablas que faltan."
+            },
+            {
+              "id": "detour",
+              "text": "Las marcas del desvío conducen a apoyos transitables."
+            },
+            {
+              "id": "speed",
+              "text": "El trazado antiguo es más corto."
+            },
+            {
+              "id": "feeling",
+              "text": "Me siento más tranquila cuando no miro el puente."
+            }
+          ],
+          "answers": [
+            "storm",
+            "damage",
+            "detour"
+          ],
+          "hint": "Explica la decisión con observaciones relacionadas con la seguridad."
+        },
+        {
+          "kind": "choice",
+          "prompt": "¿Dónde colocarías el farol?",
+          "options": [
+            {
+              "id": "safe",
+              "text": "En la entrada del desvío, visible junto a las marcas recientes."
+            },
+            {
+              "id": "old",
+              "text": "En el acceso al puente, para aprovechar la ruta más directa."
+            },
+            {
+              "id": "hidden",
+              "text": "En el claro, lejos de las marcas, para que nadie se distraiga."
+            }
+          ],
+          "answers": [
+            "safe"
+          ],
+          "hint": "El lugar debe orientar hacia el paso que realmente comprobaron."
+        },
+        {
+          "kind": "choice",
+          "prompt": "¿Cómo explicarías el desacuerdo?",
+          "options": [
+            {
+              "id": "respect",
+              "text": "Podemos revisar juntos estas evidencias y señalizar la alternativa."
+            },
+            {
+              "id": "dismiss",
+              "text": "Ya tomé la decisión; es mejor que los demás no la cuestionen."
+            },
+            {
+              "id": "fear",
+              "text": "Si alguien pregunta, diremos que todo el bosque es peligroso."
+            }
+          ],
+          "answers": [
+            "respect"
+          ],
+          "hint": "Mostrar pruebas y escuchar evita convertir una diferencia en una pelea."
+        }
+      ],
+      "reference": "",
+      "intro": ""
+    },
+    {
+      "number": 12,
+      "id": "CH1_12",
+      "title": "La niebla y los obstáculos",
+      "dialogue": [
+        {
+          "speaker": "hero",
+          "text": "Casi no puedo ver lo que hay delante."
+        },
+        {
+          "speaker": "travelerHappy",
+          "text": "Reconozco algunos de estos árboles. Creo que hay una zona desde la que podremos orientarnos."
+        },
+        {
+          "speaker": "hero",
+          "text": "Entonces caminemos con cuidado. No tenemos que apresurarnos."
+        }
+      ],
+      "stages": [],
+      "reference": "",
+      "intro": "Has cruzado los apoyos móviles y las piedras húmedas. Registra este tramo antes de continuar."
+    },
+    {
+      "number": 13,
+      "id": "CH1_13",
+      "title": "¿Qué significa confiar?",
+      "dialogue": [
+        {
+          "speaker": "hero",
+          "text": "La inscripción me invita a pensar en la confianza y en mis decisiones."
+        },
+        {
+          "speaker": "travelerHappy",
+          "text": "Podemos recordar lo aprendido y comprobar qué camino sigue siendo seguro."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "order",
+          "prompt": "Reconstruye esta reflexión sobre la confianza. Sobran palabras.",
+          "options": [
+            {
+              "id": "t0",
+              "text": "confía"
+            },
+            {
+              "id": "t1",
+              "text": "en"
+            },
+            {
+              "id": "t2",
+              "text": "Jehová"
+            },
+            {
+              "id": "t3",
+              "text": "con"
+            },
+            {
+              "id": "t4",
+              "text": "todo"
+            },
+            {
+              "id": "t5",
+              "text": "tu"
+            },
+            {
+              "id": "t6",
+              "text": "corazón"
+            },
+            {
+              "id": "t7",
+              "text": "y"
+            },
+            {
+              "id": "t8",
+              "text": "ten"
+            },
+            {
+              "id": "t9",
+              "text": "en"
+            },
+            {
+              "id": "t10",
+              "text": "cuenta"
+            },
+            {
+              "id": "t11",
+              "text": "su"
+            },
+            {
+              "id": "t12",
+              "text": "guía"
+            },
+            {
+              "id": "t13",
+              "text": "al"
+            },
+            {
+              "id": "t14",
+              "text": "elegir"
+            },
+            {
+              "id": "t15",
+              "text": "tus"
+            },
+            {
+              "id": "t16",
+              "text": "caminos"
+            },
+            {
+              "id": "d0",
+              "text": "ignora"
+            },
+            {
+              "id": "d1",
+              "text": "apresura"
+            },
+            {
+              "id": "d2",
+              "text": "sin comprobar"
+            }
+          ],
+          "answers": [
+            "t0",
+            "t1",
+            "t2",
+            "t3",
+            "t4",
+            "t5",
+            "t6",
+            "t7",
+            "t8",
+            "t9",
+            "t10",
+            "t11",
+            "t12",
+            "t13",
+            "t14",
+            "t15",
+            "t16"
+          ],
+          "hint": "Piensa en confiar y, al mismo tiempo, tomar en cuenta la guía al decidir."
+        },
+        {
+          "kind": "choice",
+          "prompt": "Una señal antigua apunta al puente; las marcas recientes y el cuaderno indican el desvío. ¿Qué harías?",
+          "options": [
+            {
+              "id": "verified",
+              "text": "Seguir el desvío comprobado y avisar de la señal desactualizada."
+            },
+            {
+              "id": "blind",
+              "text": "Seguir la señal antigua para demostrar que no tengo dudas."
+            },
+            {
+              "id": "wait",
+              "text": "Quedarme inmóvil hasta saber con certeza todo lo que ocurrirá."
+            }
+          ],
+          "answers": [
+            "verified"
+          ],
+          "hint": "Confiar no exige ignorar datos comprobados ni renunciar a actuar con prudencia."
+        }
+      ],
+      "reference": "Proverbios 3:5, 6 · reflexión adaptada, no cita literal",
+      "intro": ""
+    },
+    {
+      "number": 14,
+      "id": "CH1_14",
+      "title": "La llegada y la sinceridad",
+      "dialogue": [
+        {
+          "speaker": "keeper",
+          "text": "Nos preocupamos al ver que no llegaban. ¿Qué ocurrió?"
+        },
+        {
+          "speaker": "hero",
+          "text": "La tormenta dañó el puente principal y tuvimos que tomar otro camino."
+        },
+        {
+          "speaker": "keeper",
+          "text": "Gracias por avisarnos. ¿Pudieron comprobar por dónde se puede pasar?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Sí. Corregimos las señales y trajimos un mapa actualizado. También reconozco que debí comunicar el retraso antes."
+        },
+        {
+          "speaker": "keeper",
+          "text": "Eso ayudará mucho a quienes tengan que cruzar mañana."
+        }
+      ],
+      "stages": [
+        {
+          "kind": "choice",
+          "prompt": "¿Cómo completarías el informe?",
+          "options": [
+            {
+              "id": "honest",
+              "text": "Explicar lo comprobado y reconocer que debí avisar antes."
+            },
+            {
+              "id": "blame",
+              "text": "Entregar el mapa y atribuir el retraso solo al viajero."
+            },
+            {
+              "id": "hide",
+              "text": "Entregar el mapa sin mencionar el puente ni lo que ocurrió."
+            }
+          ],
+          "answers": [
+            "honest"
+          ],
+          "hint": "Puedes rectificar: informar con sinceridad ayuda a quienes vendrán después."
+        },
+        {
+          "kind": "multi",
+          "prompt": "Selecciona los TRES datos útiles para actualizar el mapa.",
+          "options": [
+            {
+              "id": "bridge",
+              "text": "El puente principal está dañado."
+            },
+            {
+              "id": "route",
+              "text": "El desvío de piedra fue revisado y señalizado."
+            },
+            {
+              "id": "lamps",
+              "text": "Los dos faroles orientan hacia el camino seguro."
+            },
+            {
+              "id": "rumor",
+              "text": "Ningún puente del bosque debe volver a utilizarse."
+            },
+            {
+              "id": "promise",
+              "text": "La ruta ya no presentará ninguna dificultad."
+            }
+          ],
+          "answers": [
+            "bridge",
+            "route",
+            "lamps"
+          ],
+          "hint": "Entrega hechos concretos, sin rumores ni promesas imposibles."
+        }
+      ],
+      "reference": "",
+      "intro": ""
+    },
+    {
+      "number": 15,
+      "id": "CH1_15",
+      "title": "La linterna de la Fe",
+      "dialogue": [
+        {
+          "speaker": "keeper",
+          "text": "La guía dejó una nota y preparó esta caja de suministros para quienes completaran el recorrido."
+        },
+        {
+          "speaker": "hero",
+          "text": "Cuando comencé este viaje, pensé que tener fe significaría no volver a sentir miedo."
+        },
+        {
+          "speaker": "travelerHappy",
+          "text": "Pero hoy tuviste miedo y aun así encontraste maneras de seguir adelante."
+        },
+        {
+          "speaker": "hero",
+          "text": "Y no lo hice sola. Gracias por acompañarme."
+        }
+      ],
+      "stages": [],
+      "reference": "",
+      "intro": "Abre la caja de suministros y conserva la linterna como recuerdo de lo aprendido."
+    },
+    {
+      "number": 16,
+      "id": "CH1_16",
+      "title": "La próxima aventura",
+      "dialogue": [
+        {
+          "speaker": "hero",
+          "text": "Ahora sé que todavía me quedan muchas cosas por aprender."
+        },
+        {
+          "speaker": "travelerHappy",
+          "text": "¿Sabías que en este refugio hay una biblioteca?"
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Entonces ya sé dónde comenzará mi siguiente aventura!"
+        }
+      ],
+      "stages": [],
+      "reference": "",
+      "intro": "La biblioteca del aprendizaje te espera. El capítulo 2 quedará desbloqueado."
+    }
+  ]
+}

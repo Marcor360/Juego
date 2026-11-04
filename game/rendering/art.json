@@ -519,5 +519,228 @@
       }
     ],
     "referenceHeight": 363
+  },
+  "others": {
+    "width": 1536,
+    "height": 1024,
+    "columns": 3,
+    "rows": 2,
+    "frames": [
+      {
+        "x": 144,
+        "y": 11,
+        "width": 240,
+        "height": 484,
+        "anchorX": 256.0,
+        "anchorY": 495,
+        "cell": {
+          "x": 0,
+          "y": 0,
+          "width": 512,
+          "height": 512
+        }
+      },
+      {
+        "x": 617,
+        "y": 14,
+        "width": 251,
+        "height": 482,
+        "anchorX": 768.0,
+        "anchorY": 495,
+        "cell": {
+          "x": 512,
+          "y": 0,
+          "width": 512,
+          "height": 512
+        }
+      },
+      {
+        "x": 1079,
+        "y": 11,
+        "width": 261,
+        "height": 484,
+        "anchorX": 1280.0,
+        "anchorY": 495,
+        "cell": {
+          "x": 1024,
+          "y": 0,
+          "width": 512,
+          "height": 512
+        }
+      },
+      {
+        "x": 144,
+        "y": 522,
+        "width": 277,
+        "height": 485,
+        "anchorX": 256.0,
+        "anchorY": 1007,
+        "cell": {
+          "x": 0,
+          "y": 512,
+          "width": 512,
+          "height": 512
+        }
+      },
+      {
+        "x": 616,
+        "y": 522,
+        "width": 271,
+        "height": 486,
+        "anchorX": 768.0,
+        "anchorY": 1007,
+        "cell": {
+          "x": 512,
+          "y": 512,
+          "width": 512,
+          "height": 512
+        }
+      },
+      {
+        "x": 1072,
+        "y": 523,
+        "width": 298,
+        "height": 484,
+        "anchorX": 1280.0,
+        "anchorY": 1007,
+        "cell": {
+          "x": 1024,
+          "y": 512,
+          "width": 512,
+          "height": 512
+        }
+      }
+    ],
+    "referenceHeight": 484
+  },
+  "chest": {
+    "width": 2172,
+    "height": 724,
+    "columns": 4,
+    "rows": 1,
+    "frames": [
+      {
+        "x": 38,
+        "y": 294,
+        "width": 469,
+        "height": 355,
+        "anchorX": 271.5,
+        "anchorY": 649.0,
+        "cell": {
+          "x": 0,
+          "y": 0,
+          "width": 543,
+          "height": 724
+        }
+      },
+      {
+        "x": 584,
+        "y": 254,
+        "width": 464,
+        "height": 395,
+        "anchorX": 814.5,
+        "anchorY": 649.0,
+        "cell": {
+          "x": 543,
+          "y": 0,
+          "width": 543,
+          "height": 724
+        }
+      },
+      {
+        "x": 1126,
+        "y": 190,
+        "width": 465,
+        "height": 459,
+        "anchorX": 1357.5,
+        "anchorY": 649.0,
+        "cell": {
+          "x": 1086,
+          "y": 0,
+          "width": 543,
+          "height": 724
+        }
+      },
+      {
+        "x": 1669,
+        "y": 98,
+        "width": 466,
+        "height": 551,
+        "anchorX": 1900.5,
+        "anchorY": 649.0,
+        "cell": {
+          "x": 1629,
+          "y": 0,
+          "width": 543,
+          "height": 724
+        }
+      }
+    ],
+    "referenceHeight": 355
+  },
+  "terrain": {
+    "width": 2172,
+    "height": 724,
+    "columns": 4,
+    "rows": 1,
+    "frames": [
+      {
+        "x": 14,
+        "y": 293,
+        "width": 611,
+        "height": 264,
+        "anchorX": 320.0,
+        "anchorY": 552.0,
+        "cell": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 724
+        }
+      },
+      {
+        "x": 656,
+        "y": 308,
+        "width": 600,
+        "height": 217,
+        "anchorX": 955.0,
+        "anchorY": 552.0,
+        "cell": {
+          "x": 640,
+          "y": 0,
+          "width": 630,
+          "height": 724
+        }
+      },
+      {
+        "x": 1300,
+        "y": 119,
+        "width": 296,
+        "height": 444,
+        "anchorX": 1445.0,
+        "anchorY": 552.0,
+        "cell": {
+          "x": 1270,
+          "y": 0,
+          "width": 350,
+          "height": 724
+        }
+      },
+      {
+        "x": 1623,
+        "y": 227,
+        "width": 534,
+        "height": 320,
+        "anchorX": 1896.0,
+        "anchorY": 552.0,
+        "cell": {
+          "x": 1620,
+          "y": 0,
+          "width": 552,
+          "height": 724
+        }
+      }
+    ],
+    "referenceHeight": 264
   }
 }

@@ -2,11 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { URL } from "node:url";
-import {
-  tileSourceEdge,
-  BACKDROP,
-  backdropTiles,
-} from "../game/rendering/tiles.ts";
+import { tileSourceEdge } from "../game/rendering/tiles.ts";
+import { zones, WIDTH, objects } from "../game/levels/forest.ts";
 import {
   dialogueSpeaker,
   speakerNames,
@@ -22,6 +19,9 @@ test("new art atlases have distinct registered frames inside their real image di
     props: "props/v2/forest-props.png",
     portraits: "characters/v2/portraits.png",
     treasures: "props/v2/treasures.png",
+    others: "characters/v3/others.png",
+    chest: "props/v3/chest.png",
+    terrain: "props/v3/terrain.png",
   };
   for (const [key, path] of Object.entries(paths)) {
     const d = art[key],
@@ -57,14 +57,20 @@ test("dialogues identify the grateful traveler instead of the heroine", () => {
   assert.equal(speakerNames.travelerHappy, "El viajero");
   assert.equal(portraitFrame("travelerHappy"), 5);
   assert.equal(portraitFrame("traveler"), 4);
-  assert.equal(dialogueSpeaker("guide", 1), "hero");
-  assert.equal(dialogueSpeaker("guide", 2), "guide");
+  assert.equal(dialogueSpeaker("guide"), "guide");
+  assert.equal(dialogueSpeaker("hero"), "hero");
 });
 
-test("background overlap fades entirely before the previous image ends and covers the whole camera range", () => {
-  assert.equal(BACKDROP.width - BACKDROP.step, BACKDROP.fade);
-  const tiles = backdropTiles(3300);
-  const right = (3300 - 480) * 0.12 + 480;
-  assert((tiles.at(-1) ?? 0) * BACKDROP.step + BACKDROP.width >= right);
-  assert.equal(tiles[0], 0);
+test("six original zone backgrounds cover the extended world and every narrative object", () => {
+  assert.equal(zones[0].start, 0);
+  assert.equal(zones.at(-1)?.end, WIDTH);
+  zones.forEach((zone, i) => {
+    if (i) assert.equal(zones[i - 1].end, zone.start);
+    const png = readFileSync(
+      new URL(`../assets/backgrounds/v3/${zone.id}.png`, import.meta.url),
+    );
+    assert(png.readUInt32BE(16) >= 960);
+    assert(png.readUInt32BE(20) >= 540);
+  });
+  assert(objects.every((o) => o.x >= 0 && o.x <= WIDTH));
 });
