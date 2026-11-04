@@ -159,7 +159,8 @@ export default function Game() {
     [challenge, setChallenge] = useState(1),
     [journalTab, setJournalTab] = useState<
       "missions" | "map" | "evidence" | "reflections"
-    >("missions");
+    >("missions"),
+    [cameraSector, setCameraSector] = useState(0);
   const x = useSharedValue(120),
     y = useSharedValue(226),
     camera = useSharedValue(0),
@@ -416,10 +417,16 @@ export default function Game() {
     let id: number,
       last = 0,
       accumulator = 0,
+      lastHudAt = -Infinity,
+      lastNearLabel = "",
+      lastZoneName = zones[0].name,
+      lastCameraSector = 0,
       cancelled = false;
     const loop = (now: number) => {
       if (cancelled) return;
-      const dt = Math.min((now - last) / 1000 || 0, 1 / 15);
+      // Catch up after low-FPS frames without simulating an unlimited backlog.
+      // A 15-FPS cap caused visible slow motion on slower devices.
+      const dt = Math.min(Math.max(0, (now - last) / 1000 || 0), 0.2);
       last = now;
       time.value += dt;
       const state = live.current;
@@ -429,7 +436,7 @@ export default function Game() {
         !state.dialogue &&
         rewardAt.current < 0;
       if (playing) {
-        accumulator = Math.min(accumulator + dt, 1 / 15);
+        accumulator = Math.min(accumulator + dt, 0.2);
         while (accumulator >= 1 / 120) {
           world.step(1 / 120);
           accumulator -= 1 / 120;
@@ -448,9 +455,25 @@ export default function Game() {
           }
           if (changed) refresh();
         }
-        setNear(world.nearby()?.label ?? "");
-        const z = zones.find((z) => world.x >= z.start && world.x < z.end);
-        if (z) setZone(z.name);
+        // HUD and view-window state need not rerender on every animation frame.
+        if (now - lastHudAt >= 100) {
+          lastHudAt = now;
+          const label = world.nearby()?.label ?? "";
+          if (label !== lastNearLabel) {
+            lastNearLabel = label;
+            setNear(label);
+          }
+          const z = zones.find((z) => world.x >= z.start && world.x < z.end);
+          if (z && z.name !== lastZoneName) {
+            lastZoneName = z.name;
+            setZone(z.name);
+          }
+          const sector = Math.floor(world.camera / 240);
+          if (sector !== lastCameraSector) {
+            lastCameraSector = sector;
+            setCameraSector(sector);
+          }
+        }
         if (
           world.moving &&
           world.grounded &&
@@ -601,6 +624,7 @@ export default function Game() {
           width={width}
           height={height}
           menu={screen !== "play"}
+          cameraSector={cameraSector}
           {...{
             x,
             y,
@@ -1012,6 +1036,25 @@ export default function Game() {
                               .join(" · ")}
                           </Text>
                         )}
+                        {!hasMission(progress, 1) && (
+                          <Text style={styles.muted}>
+                            Para completar la preparación, practica los cuatro
+                            controles anteriores. Cuando todos tengan ✓,
+                            utiliza el botón Finalizar preparación. También
+                            puedes conversar con el cuaderno físico al inicio.
+                          </Text>
+                        )}
+                        {!hasMission(progress, 1) &&
+                          Object.values(progress.tutorial).every(Boolean) && (
+                            <Button
+                              gold
+                              label="Finalizar preparación"
+                              onPress={() => {
+                                setPanel(null);
+                                say(getScene(1).dialogue, () => complete(1));
+                              }}
+                            />
+                          )}
                         {missionTitles.map((title, i) => (
                           <Text
                             key={title}
