@@ -186,12 +186,18 @@ export default function Game() {
     soundRef = useRef(sound);
   soundRef.current = sound;
   useEffect(() => {
-    loadSave().then((s) => {
-      setSave(s);
-      saveRef.current = s;
-      if (s) setSettings(s.settings);
-      setReady(true);
-    });
+    loadSave()
+      .then(({ save: s, notice }) => {
+        setSave(s);
+        saveRef.current = s;
+        if (s) setSettings(s.settings);
+        if (notice) setMessage(notice);
+        setReady(true);
+      })
+      .catch(() => {
+        setMessage("No se pudo preparar el guardado local. Vuelve a intentarlo.");
+        setReady(true);
+      });
   }, []);
   useEffect(() => {
     if (!message) return;
