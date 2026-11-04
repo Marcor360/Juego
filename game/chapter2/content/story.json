@@ -1,0 +1,1596 @@
+{
+  "version": 1,
+  "scenes": [
+    {
+      "number": 1,
+      "id": "CH2_01",
+      "title": "UNA PUERTA AL CONOCIMIENTO",
+      "dialogue": [
+        {
+          "speaker": "traveler",
+          "text": "¡Qué sorpresa verte aquí! Pensé que después de atravesar el bosque querrías descansar."
+        },
+        {
+          "speaker": "hero",
+          "text": "Lo hice un rato, pero cuando supe que había una biblioteca, no pude resistirme."
+        },
+        {
+          "speaker": "traveler",
+          "text": "¿Vienes a buscar algo en especial?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Quiero aprender a investigar mejor. A veces recuerdo un texto, pero no sé exactamente dónde encontrarlo."
+        },
+        {
+          "speaker": "traveler",
+          "text": "Entonces has venido al lugar indicado. Escuché que están preparando una sala para ayudar a otros viajeros a estudiar."
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Qué buena idea! Tal vez también pueda colaborar."
+        },
+        {
+          "speaker": "traveler",
+          "text": "Busca a la bibliotecaria. Seguro que estará encantada de conocerte."
+        }
+      ],
+      "closing": [],
+      "reference": "",
+      "questions": []
+    },
+    {
+      "number": 2,
+      "id": "CH2_02",
+      "title": "LA BIBLIOTECARIA Y EL CONOCIMIENTO",
+      "dialogue": [
+        {
+          "speaker": "librarian",
+          "text": "¡Bienvenida! Me dijeron que una joven ayudó a reparar las señales del bosque. ¿Eras tú?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Sí, aunque no lo hice sola. Conocí a personas que me ayudaron muchísimo."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Me alegra escuchar eso. Dime, ¿qué te trae a nuestra biblioteca?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Quiero conocer mejor las Escrituras y aprender a utilizarlas cuando alguien necesite ayuda."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Es un propósito muy bonito. Vamos a comenzar con una pregunta."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Proverbios 2 compara la búsqueda de sabiduría con buscar un tesoro. ¿Por qué crees que utiliza esa comparación?"
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "librarian",
+          "text": "Aquí no se trata de competir para demostrar quién sabe más. Queremos aprender a utilizar bien lo que Jehová nos enseña."
+        },
+        {
+          "speaker": "hero",
+          "text": "Entonces comenzaré buscando con cuidado, como quien busca algo muy valioso."
+        }
+      ],
+      "reference": "Proverbios 2:1-6",
+      "questions": [
+        {
+          "id": "wisdom",
+          "kind": "single",
+          "prompt": "¿Por qué se compara la sabiduría con un tesoro?",
+          "options": [
+            {
+              "id": "wisdom_0",
+              "text": "Porque el conocimiento se obtiene sin esfuerzo.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "wisdom_1",
+              "text": "Porque es valiosa y merece una búsqueda constante.",
+              "feedback": "La sabiduría es valiosa; buscarla con constancia requiere tiempo y esfuerzo."
+            },
+            {
+              "id": "wisdom_2",
+              "text": "Porque solo algunas personas pueden aprender.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["wisdom_1"],
+          "explanation": "La sabiduría es valiosa; buscarla con constancia requiere tiempo y esfuerzo.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "Proverbios 2:1-6"
+        },
+        {
+          "id": "source",
+          "kind": "single",
+          "prompt": "Según Proverbios 2:6, ¿de dónde viene la verdadera sabiduría?",
+          "options": [
+            {
+              "id": "source_0",
+              "text": "De quienes saben más que todos.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "source_1",
+              "text": "De Jehová.",
+              "feedback": "El pasaje atribuye a Jehová la sabiduría y el conocimiento."
+            },
+            {
+              "id": "source_2",
+              "text": "De memorizar muchos libros.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["source_1"],
+          "explanation": "El pasaje atribuye a Jehová la sabiduría y el conocimiento.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "Proverbios 2:6"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "id": "CH2_03",
+      "title": "EL CATÁLOGO DESORDENADO",
+      "dialogue": [
+        {
+          "speaker": "librarian",
+          "text": "Antes de abrir la sala de consulta necesitamos organizar algunas fichas del catálogo."
+        },
+        {
+          "speaker": "hero",
+          "text": "¿Qué debo hacer?"
+        },
+        {
+          "speaker": "librarian",
+          "text": "Hay referencias bíblicas, ayudas de estudio y notas de investigación. Cada una cumple una función diferente."
+        },
+        {
+          "speaker": "hero",
+          "text": "Entonces primero debo identificar qué estoy buscando."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Exactamente. Prueba con esta referencia: Hechos 17:11."
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "librarian",
+          "text": "¡Muy bien! Localizar una referencia es el primer paso. Ahora iremos a descubrir qué nos enseña."
+        }
+      ],
+      "reference": "",
+      "questions": [
+        {
+          "id": "catalogue",
+          "kind": "classify",
+          "prompt": "Organiza las fichas del catálogo. Arrastra una ficha a su categoría o selecciónala y pulsa la categoría.",
+          "options": [
+            {
+              "id": "catalogue_0",
+              "text": "Hechos · libro bíblico"
+            },
+            {
+              "id": "catalogue_1",
+              "text": "Índice de temas · ayuda de estudio"
+            },
+            {
+              "id": "catalogue_2",
+              "text": "Observación sobre una visita · nota personal"
+            }
+          ],
+          "groups": [
+            {
+              "id": "group_0",
+              "text": "Libros bíblicos"
+            },
+            {
+              "id": "group_1",
+              "text": "Ayudas de estudio"
+            },
+            {
+              "id": "group_2",
+              "text": "Notas de investigación"
+            }
+          ],
+          "answer": [
+            "catalogue_0=>group_0",
+            "catalogue_1=>group_1",
+            "catalogue_2=>group_2"
+          ],
+          "explanation": "Clasifica cada ficha por la función y la evidencia que muestra; que un dato no sea pertinente no significa que sea falso.",
+          "hints": [
+            "Lee el tipo y la fuente de cada ficha.",
+            "Distingue un dato comprobado de una opinión o una afirmación sin fuente.",
+            "La función y las evidencias de la propia ficha indican su categoría."
+          ]
+        },
+        {
+          "id": "acts_section",
+          "kind": "single",
+          "prompt": "¿A qué sección de la Biblia pertenece Hechos?",
+          "options": [
+            {
+              "id": "acts_section_0",
+              "text": "Escrituras Hebreoarameas.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "acts_section_1",
+              "text": "Escrituras Griegas Cristianas.",
+              "feedback": "Hechos forma parte de las Escrituras Griegas Cristianas."
+            },
+            {
+              "id": "acts_section_2",
+              "text": "No pertenece a la Biblia.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["acts_section_1"],
+          "explanation": "Hechos forma parte de las Escrituras Griegas Cristianas.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "id": "CH2_04",
+      "title": "LAS ESTANTERÍAS SUPERIORES",
+      "dialogue": [
+        {
+          "speaker": "assistant",
+          "text": "¿Vienes por el archivo de investigación?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Sí. La bibliotecaria me pidió buscar algunas referencias."
+        },
+        {
+          "speaker": "assistant",
+          "text": "El elevador de libros está detenido. Para llegar arriba tendrás que utilizar las escaleras y los balcones."
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Vaya! Parece que aquí también tendré que superar algunos obstáculos."
+        },
+        {
+          "speaker": "assistant",
+          "text": "Con cuidado. Las plataformas señaladas en azul están fijas, pero algunos mecanismos se desplazan."
+        },
+        {
+          "speaker": "hero",
+          "text": "Gracias por avisarme. Prefiero observar bien antes de comenzar."
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "hero",
+          "text": "¡Lo conseguí! Ahora entiendo por qué tienen tantos pasillos."
+        },
+        {
+          "speaker": "assistant",
+          "text": "Y todavía quedan varios pisos. Pero por ahora ya tienes lo que necesitabas."
+        }
+      ],
+      "reference": "",
+      "questions": []
+    },
+    {
+      "number": 5,
+      "id": "CH2_05",
+      "title": "EL EJEMPLO DE LOS BEREANOS",
+      "dialogue": [
+        {
+          "speaker": "librarian",
+          "text": "¿Encontraste la referencia?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Sí. Habla de unas personas de Berea que escucharon lo que enseñaban Pablo y Silas."
+        },
+        {
+          "speaker": "librarian",
+          "text": "¿Qué hicieron después de escuchar?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Examinaron cuidadosamente las Escrituras para comprobar lo que estaban aprendiendo."
+        },
+        {
+          "speaker": "librarian",
+          "text": "¿Y qué podríamos aprender de su ejemplo?"
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "librarian",
+          "text": "Los bereanos tenían interés en aprender y dedicaban tiempo a examinar cuidadosamente lo que escuchaban."
+        },
+        {
+          "speaker": "hero",
+          "text": "Entonces, cuando tenga una pregunta, no debería conformarme con recordar algo a medias. Es mejor investigar."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Exactamente. Y también podemos pedir ayuda cuando algo no está claro."
+        }
+      ],
+      "reference": "Hechos 17:11",
+      "questions": [
+        {
+          "id": "bereans",
+          "kind": "single",
+          "prompt": "¿Qué aprendemos del ejemplo de los bereanos?",
+          "options": [
+            {
+              "id": "bereans_0",
+              "text": "Aceptar inmediatamente cualquier explicación.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "bereans_1",
+              "text": "Investigar con interés y comprobar usando las Escrituras.",
+              "feedback": "Los bereanos escucharon con interés y examinaron cuidadosamente las Escrituras."
+            },
+            {
+              "id": "bereans_2",
+              "text": "Evitar escuchar ideas que no conocemos.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["bereans_1"],
+          "explanation": "Los bereanos escucharon con interés y examinaron cuidadosamente las Escrituras.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "Hechos 17:11"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "id": "CH2_06",
+      "title": "LA SALA SIN LUZ",
+      "dialogue": [
+        {
+          "speaker": "hero",
+          "text": "Está demasiado oscuro para distinguir las marcas del suelo."
+        },
+        {
+          "speaker": "assistant",
+          "text": "Estamos reparando las lámparas. El interruptor está al otro lado de este pasillo."
+        },
+        {
+          "speaker": "hero",
+          "text": "Traigo una pequeña linterna desde mi viaje por el bosque. Tal vez pueda utilizarla."
+        },
+        {
+          "speaker": "assistant",
+          "text": "¡Excelente! La necesitarás para distinguir los escalones. Avanza con cuidado."
+        }
+      ],
+      "closing": [],
+      "reference": "",
+      "questions": []
+    },
+    {
+      "number": 7,
+      "id": "CH2_07",
+      "title": "PARA QUÉ SIRVEN LAS ESCRITURAS",
+      "dialogue": [
+        {
+          "speaker": "librarian",
+          "text": "Ya sabes cómo buscar una referencia. Ahora veamos cómo comprender su utilidad."
+        },
+        {
+          "speaker": "hero",
+          "text": "De acuerdo. ¿Por dónde empezamos?"
+        },
+        {
+          "speaker": "librarian",
+          "text": "Lee 2 Timoteo 3:16, 17. ¿Qué nos enseña sobre las Escrituras?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Que pueden enseñarnos y ayudarnos a corregir lo que sea necesario."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Exactamente. No solo nos permiten adquirir información; también pueden ayudarnos a mejorar nuestra conducta."
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "hero",
+          "text": "Ahora lo entiendo. No se trata de llenar mi cuaderno de referencias, sino de aprender a ponerlas en práctica."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Exactamente. El conocimiento debería influir positivamente en nuestra manera de vivir."
+        }
+      ],
+      "reference": "2 Timoteo 3:16, 17",
+      "questions": [
+        {
+          "id": "scriptures",
+          "kind": "single",
+          "prompt": "¿Qué utilidad de las Escrituras se menciona en el pasaje?",
+          "options": [
+            {
+              "id": "scriptures_0",
+              "text": "Aprender todos los acontecimientos futuros.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "scriptures_1",
+              "text": "Enseñar, rectificar y prepararnos para buenas obras.",
+              "feedback": "El pasaje relaciona la enseñanza y la corrección con estar preparados para buenas obras."
+            },
+            {
+              "id": "scriptures_2",
+              "text": "Evitar tener que tomar decisiones.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["scriptures_1"],
+          "explanation": "El pasaje relaciona la enseñanza y la corrección con estar preparados para buenas obras.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "2 Timoteo 3:16, 17"
+        },
+        {
+          "id": "uses",
+          "kind": "match",
+          "prompt": "Relaciona cada situación con su utilidad.",
+          "options": [
+            {
+              "id": "uses_0",
+              "text": "Conocer una enseñanza bíblica"
+            },
+            {
+              "id": "uses_1",
+              "text": "Corregir una conducta equivocada"
+            },
+            {
+              "id": "uses_2",
+              "text": "Aprender cómo ayudar mejor"
+            }
+          ],
+          "groups": [
+            {
+              "id": "group_0",
+              "text": "Enseñar"
+            },
+            {
+              "id": "group_1",
+              "text": "Rectificar"
+            },
+            {
+              "id": "group_2",
+              "text": "Prepararse para buenas obras"
+            }
+          ],
+          "answer": ["uses_0=>group_0", "uses_1=>group_1", "uses_2=>group_2"],
+          "explanation": "Clasifica cada ficha por la función y la evidencia que muestra; que un dato no sea pertinente no significa que sea falso.",
+          "hints": [
+            "Lee el tipo y la fuente de cada ficha.",
+            "Distingue un dato comprobado de una opinión o una afirmación sin fuente.",
+            "La función y las evidencias de la propia ficha indican su categoría."
+          ]
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "id": "CH2_08",
+      "title": "LA PRIMERA PREGUNTA DIFÍCIL",
+      "dialogue": [
+        {
+          "speaker": "visitor",
+          "text": "Disculpa, ¿puedo hacerte una pregunta?"
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Por supuesto! ¿En qué puedo ayudarte?"
+        },
+        {
+          "speaker": "visitor",
+          "text": "Te he visto estudiando durante un buen rato. ¿Por qué confías tanto en lo que dice la Biblia?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Es una buena pregunta. ¿Qué es lo que más te gustaría saber?"
+        },
+        {
+          "speaker": "visitor",
+          "text": "Me interesa comprender qué razones tienes para creer lo que estás aprendiendo."
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "visitor",
+          "text": "Eso me parece bien. No quiero discutir; solo entender."
+        },
+        {
+          "speaker": "hero",
+          "text": "Y me parece importante que puedas hacer preguntas con confianza."
+        },
+        {
+          "speaker": "visitor",
+          "text": "Gracias por escucharme."
+        }
+      ],
+      "reference": "1 Pedro 3:15",
+      "questions": [
+        {
+          "id": "respect",
+          "kind": "single",
+          "prompt": "¿Cómo continuarías la conversación?",
+          "options": [
+            {
+              "id": "respect_0",
+              "text": "Porque yo sé que tengo razón.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "respect_1",
+              "text": "Me alegra que lo preguntes. Podemos examinar juntos algunas razones y textos bíblicos.",
+              "feedback": "El visitante quería comprender, no discutir. Podemos escuchar su pregunta y examinar razones con respeto."
+            },
+            {
+              "id": "respect_2",
+              "text": "No deberías cuestionar estas cosas.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["respect_1"],
+          "explanation": "El visitante quería comprender, no discutir. Podemos escuchar su pregunta y examinar razones con respeto.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "1 Pedro 3:15"
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "id": "CH2_09",
+      "title": "¿DÓNDE ESTÁ LA RESPUESTA?",
+      "dialogue": [
+        {
+          "speaker": "visitor",
+          "text": "Hay algo más. Una vez escuché a alguien decir que la Biblia promete que, si tenemos fe, siempre conoceremos todas las respuestas."
+        },
+        {
+          "speaker": "hero",
+          "text": "¿Recuerdas qué texto utilizó?"
+        },
+        {
+          "speaker": "visitor",
+          "text": "No. Solo recuerdo la idea."
+        },
+        {
+          "speaker": "hero",
+          "text": "Entonces prefiero no atribuir esa afirmación a la Biblia sin comprobarla. Podemos investigar juntos."
+        },
+        {
+          "speaker": "visitor",
+          "text": "Me gusta eso. Prefiero una respuesta bien fundamentada a una explicación apresurada."
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "hero",
+          "text": "Hebreos 11 habla de la fe, pero no deberíamos utilizarlo para asegurar algo que no dice."
+        },
+        {
+          "speaker": "visitor",
+          "text": "Ahora comprendo por qué es importante revisar las referencias."
+        }
+      ],
+      "reference": "Hebreos 11:1",
+      "questions": [
+        {
+          "id": "context",
+          "kind": "single",
+          "prompt": "Si alguien recuerda una idea, pero no su referencia, ¿qué es mejor hacer?",
+          "options": [
+            {
+              "id": "context_0",
+              "text": "Repetirla como cita bíblica.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "context_1",
+              "text": "Cambiar palabras hasta que parezca un versículo.",
+              "feedback": "Relaciona esta opción con el objetivo y el contexto de la pregunta."
+            },
+            {
+              "id": "context_2",
+              "text": "Buscar la referencia y comprobar qué expresa realmente.",
+              "feedback": "Hebreos 11 habla de la fe; no debemos atribuirle una promesa de conocer todas las respuestas."
+            }
+          ],
+          "answer": ["context_2"],
+          "explanation": "Hebreos 11 habla de la fe; no debemos atribuirle una promesa de conocer todas las respuestas.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "Hebreos 11:1"
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "id": "CH2_10",
+      "title": "APRENDER A ESCUCHAR",
+      "dialogue": [
+        {
+          "speaker": "student",
+          "text": "Hola, ¿puedes ayudarme? Llevo un rato tratando de entender algo."
+        },
+        {
+          "speaker": "hero",
+          "text": "Claro. ¿Qué estás estudiando?"
+        },
+        {
+          "speaker": "student",
+          "text": "Estoy leyendo una parte de la Biblia, pero..."
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "student",
+          "text": "El problema no es encontrar el texto. Puedo leerlo, pero me cuesta comprender cómo se relaciona con el resto del pasaje."
+        },
+        {
+          "speaker": "hero",
+          "text": "Ah, ahora entiendo. Entonces necesitas ayuda para comprender el contexto."
+        },
+        {
+          "speaker": "student",
+          "text": "¡Exactamente! Eso es lo que quería decir."
+        },
+        {
+          "speaker": "hero",
+          "text": "Vamos a revisarlo juntas, sin apresurarnos."
+        }
+      ],
+      "reference": "Proverbios 18:13",
+      "questions": [
+        {
+          "id": "listen",
+          "kind": "single",
+          "prompt": "La estudiante empieza a explicar: «Estoy leyendo una parte de la Biblia, pero...». ¿Qué harías?",
+          "options": [
+            {
+              "id": "listen_0",
+              "text": "Interrumpirla para recomendar un texto.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "listen_1",
+              "text": "Dejar que termine de explicar lo que no comprende.",
+              "feedback": "Su dificultad era comprender el contexto, no localizar el libro. Escuchar primero permite ayudarla."
+            },
+            {
+              "id": "listen_2",
+              "text": "Suponer que necesita encontrar un libro.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["listen_1"],
+          "explanation": "Su dificultad era comprender el contexto, no localizar el libro. Escuchar primero permite ayudarla.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "Proverbios 18:13"
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "id": "CH2_11",
+      "title": "UNA INVESTIGACIÓN COMPLETA",
+      "dialogue": [
+        {
+          "speaker": "student",
+          "text": "¿Alguna vez has leído algo y has tenido que pedir ayuda para entenderlo?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Claro. Y eso me recuerda una conversación que aparece en el libro de Hechos."
+        },
+        {
+          "speaker": "student",
+          "text": "¿Qué ocurrió?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Un hombre estaba leyendo al profeta Isaías. Felipe se acercó y se interesó por saber si comprendía lo que leía."
+        },
+        {
+          "speaker": "student",
+          "text": "¿Y pudo ayudarlo?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Sí. Primero escuchó su pregunta y después utilizó las Escrituras para explicarle las buenas noticias acerca de Jesús."
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "student",
+          "text": "¡Muchas gracias! Me ayudó que no intentaras darme una respuesta antes de escuchar mi pregunta."
+        },
+        {
+          "speaker": "hero",
+          "text": "Y a mí me ayudó volver a leer el ejemplo de Felipe. Las dos aprendimos algo."
+        },
+        {
+          "speaker": "student",
+          "text": "Creo que ahora podré continuar investigando por mi cuenta."
+        }
+      ],
+      "reference": "Hechos 8:30-35",
+      "questions": [
+        {
+          "id": "find_acts",
+          "kind": "single",
+          "prompt": "¿Qué referencia permite examinar el encuentro de Felipe con el lector de Isaías?",
+          "options": [
+            {
+              "id": "find_acts_0",
+              "text": "Hechos 8:30-35",
+              "feedback": "En Hechos 8:30-35 Felipe se interesa por si el hombre comprende lo que lee."
+            },
+            {
+              "id": "find_acts_1",
+              "text": "Proverbios 18:15",
+              "feedback": "Relaciona esta opción con el objetivo y el contexto de la pregunta."
+            },
+            {
+              "id": "find_acts_2",
+              "text": "Hebreos 11:1",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["find_acts_0"],
+          "explanation": "En Hechos 8:30-35 Felipe se interesa por si el hombre comprende lo que lee.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "Hechos 8:30-35"
+        },
+        {
+          "id": "philip",
+          "kind": "single",
+          "prompt": "¿Qué hizo Felipe?",
+          "options": [
+            {
+              "id": "philip_0",
+              "text": "Respondió sin escuchar.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "philip_1",
+              "text": "Comprobó si comprendía lo que leía y lo ayudó a entenderlo.",
+              "feedback": "Felipe escuchó y utilizó las Escrituras para explicar las buenas noticias acerca de Jesús."
+            },
+            {
+              "id": "philip_2",
+              "text": "Le pidió que dejara de leer.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["philip_1"],
+          "explanation": "Felipe escuchó y utilizó las Escrituras para explicar las buenas noticias acerca de Jesús.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "Hechos 8:30-35"
+        },
+        {
+          "id": "apply",
+          "kind": "single",
+          "prompt": "¿Cómo aplicarías lo aprendido?",
+          "options": [
+            {
+              "id": "apply_0",
+              "text": "Escuchar la pregunta, revisar el contexto y explicar con sencillez.",
+              "feedback": "Una explicación útil responde a la pregunta real y relaciona el texto con su contexto."
+            },
+            {
+              "id": "apply_1",
+              "text": "Acumular referencias sin relacionarlas.",
+              "feedback": "Relaciona esta opción con el objetivo y el contexto de la pregunta."
+            },
+            {
+              "id": "apply_2",
+              "text": "Suponer que cualquier explicación larga es mejor.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["apply_0"],
+          "explanation": "Una explicación útil responde a la pregunta real y relaciona el texto con su contexto.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "id": "CH2_12",
+      "title": "EL LABERINTO DE LAS IDEAS",
+      "dialogue": [
+        {
+          "speaker": "researcher",
+          "text": "¡Vaya! Hay tanta información aquí que podríamos pasar años leyendo."
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Es increíble! Nunca había visto una biblioteca tan grande."
+        },
+        {
+          "speaker": "researcher",
+          "text": "Pero dime, si encuentras muchas ideas diferentes sobre el mismo tema, ¿cómo decides cuáles aceptar?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Supongo que primero tendría que saber qué quiero investigar y comprobar qué fundamento tiene cada afirmación."
+        },
+        {
+          "speaker": "researcher",
+          "text": "Interesante. ¿Y qué harías si alguien presenta una idea que parece muy convincente, pero contradice lo que tú has aprendido?"
+        },
+        {
+          "speaker": "hero",
+          "text": "No quisiera rechazarla sin entenderla, ni aceptarla simplemente porque suena interesante. Preferiría examinar sus argumentos."
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "researcher",
+          "text": "Me ha gustado hablar contigo. No hemos tenido que convertir nuestras diferencias en una discusión."
+        },
+        {
+          "speaker": "hero",
+          "text": "Yo también aprendí algo. Escuchar otras preguntas me ayuda a investigar mejor y explicar con más claridad lo que creo."
+        },
+        {
+          "speaker": "researcher",
+          "text": "Espero volver a conversar contigo algún día."
+        }
+      ],
+      "reference": "Colosenses 2:8; Proverbios 18:17; 1 Tesalonicenses 5:21",
+      "questions": [
+        {
+          "id": "debate_a",
+          "kind": "single",
+          "prompt": "¿Deberíamos leer todos los libros para responder una pregunta concreta?",
+          "options": [
+            {
+              "id": "debate_a_0",
+              "text": "Toda información es igual de importante.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "debate_a_1",
+              "text": "Consultaría un solo libro sin investigar.",
+              "feedback": "Relaciona esta opción con el objetivo y el contexto de la pregunta."
+            },
+            {
+              "id": "debate_a_2",
+              "text": "Definiría la pregunta y buscaría fuentes pertinentes.",
+              "feedback": "Una investigación comienza por definir qué necesitamos conocer."
+            }
+          ],
+          "answer": ["debate_a_2"],
+          "explanation": "Una investigación comienza por definir qué necesitamos conocer.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        },
+        {
+          "id": "debate_b",
+          "kind": "single",
+          "prompt": "Muchas personas repiten una afirmación. ¿Basta su popularidad?",
+          "options": [
+            {
+              "id": "debate_b_0",
+              "text": "La mayoría siempre tiene razón.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "debate_b_1",
+              "text": "La afirmación merece examinarse.",
+              "feedback": "Ni la popularidad prueba una idea, ni la hace falsa: examina sus fundamentos."
+            },
+            {
+              "id": "debate_b_2",
+              "text": "Toda idea popular es falsa.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["debate_b_1"],
+          "explanation": "Ni la popularidad prueba una idea, ni la hace falsa: examina sus fundamentos.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        },
+        {
+          "id": "debate_c",
+          "kind": "single",
+          "prompt": "¿Colosenses 2:8 significa que todo conocimiento fuera de la Biblia es malo?",
+          "options": [
+            {
+              "id": "debate_c_0",
+              "text": "Todo conocimiento externo debe rechazarse.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "debate_c_1",
+              "text": "Advierte contra razonamientos engañosos que no están de acuerdo con Cristo.",
+              "feedback": "El problema no es aprender sobre temas diversos, sino aceptar razonamientos engañosos sin examinarlos."
+            },
+            {
+              "id": "debate_c_2",
+              "text": "No importa si algo es engañoso.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["debate_c_1"],
+          "explanation": "El problema no es aprender sobre temas diversos, sino aceptar razonamientos engañosos sin examinarlos.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "Colosenses 2:8"
+        },
+        {
+          "id": "debate_d",
+          "kind": "single",
+          "prompt": "Dos explicaciones discrepan y la primera parecía convincente. ¿Cuál aceptarías?",
+          "options": [
+            {
+              "id": "debate_d_0",
+              "text": "La que leí primero.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "debate_d_1",
+              "text": "La segunda por contradecirla.",
+              "feedback": "Relaciona esta opción con el objetivo y el contexto de la pregunta."
+            },
+            {
+              "id": "debate_d_2",
+              "text": "Examinaría ambas, su contexto y las evidencias.",
+              "feedback": "Escuchar una sola explicación puede ser insuficiente. Contrasta fuentes y contexto."
+            }
+          ],
+          "answer": ["debate_d_2"],
+          "explanation": "Escuchar una sola explicación puede ser insuficiente. Contrasta fuentes y contexto.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "Proverbios 18:17"
+        },
+        {
+          "id": "debate_e",
+          "kind": "single",
+          "prompt": "Te preguntan algo que no has investigado. ¿Qué responderías?",
+          "options": [
+            {
+              "id": "debate_e_0",
+              "text": "Inventaría algo convincente.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "debate_e_1",
+              "text": "Cambiaría de tema.",
+              "feedback": "Relaciona esta opción con el objetivo y el contexto de la pregunta."
+            },
+            {
+              "id": "debate_e_2",
+              "text": "Reconocería que necesito investigar más.",
+              "feedback": "La sinceridad permite seguir investigando sin presentar suposiciones como hechos."
+            }
+          ],
+          "answer": ["debate_e_2"],
+          "explanation": "La sinceridad permite seguir investigando sin presentar suposiciones como hechos.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        },
+        {
+          "id": "debate_f",
+          "kind": "classify",
+          "prompt": "Clasifica estas afirmaciones ficticias usando sus evidencias.",
+          "options": [
+            {
+              "id": "debate_f_0",
+              "text": "El registro firmado dice que la sala abrió a las nueve."
+            },
+            {
+              "id": "debate_f_1",
+              "text": "Para mí, el salón lavanda es el más bonito."
+            },
+            {
+              "id": "debate_f_2",
+              "text": "Alguien dice que existe un túnel, sin documentos ni testigos."
+            }
+          ],
+          "groups": [
+            {
+              "id": "group_0",
+              "text": "Dato comprobado"
+            },
+            {
+              "id": "group_1",
+              "text": "Opinión"
+            },
+            {
+              "id": "group_2",
+              "text": "Información pendiente de verificar"
+            }
+          ],
+          "answer": [
+            "debate_f_0=>group_0",
+            "debate_f_1=>group_1",
+            "debate_f_2=>group_2"
+          ],
+          "explanation": "Clasifica cada ficha por la función y la evidencia que muestra; que un dato no sea pertinente no significa que sea falso.",
+          "hints": [
+            "Lee el tipo y la fuente de cada ficha.",
+            "Distingue un dato comprobado de una opinión o una afirmación sin fuente.",
+            "La función y las evidencias de la propia ficha indican su categoría."
+          ]
+        },
+        {
+          "id": "debate_g",
+          "kind": "single",
+          "prompt": "Un documento no tiene autor, fecha ni referencias. ¿Qué harías?",
+          "options": [
+            {
+              "id": "debate_g_0",
+              "text": "Buscaría su origen y fundamentos.",
+              "feedback": "La ausencia de datos de procedencia obliga a investigar, no a suponer su veracidad."
+            },
+            {
+              "id": "debate_g_1",
+              "text": "Lo trataría como una fuente confirmada.",
+              "feedback": "Relaciona esta opción con el objetivo y el contexto de la pregunta."
+            },
+            {
+              "id": "debate_g_2",
+              "text": "Lo rechazaría sin examinarlo.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["debate_g_0"],
+          "explanation": "La ausencia de datos de procedencia obliga a investigar, no a suponer su veracidad.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        },
+        {
+          "id": "debate_h",
+          "kind": "single",
+          "prompt": "Un libro trata otro tema. ¿Eso significa que es falso?",
+          "options": [
+            {
+              "id": "debate_h_0",
+              "text": "Siempre.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "debate_h_1",
+              "text": "No necesariamente: puede ser válido pero no pertinente ahora.",
+              "feedback": "Pertinencia y veracidad son cuestiones diferentes."
+            },
+            {
+              "id": "debate_h_2",
+              "text": "Todo libro es pertinente para cualquier pregunta.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["debate_h_1"],
+          "explanation": "Pertinencia y veracidad son cuestiones diferentes.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        },
+        {
+          "id": "debate_i",
+          "kind": "single",
+          "prompt": "Una explicación usa palabras complicadas. ¿Eso demuestra que es correcta?",
+          "options": [
+            {
+              "id": "debate_i_0",
+              "text": "Sí, si suena especializada.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "debate_i_1",
+              "text": "Las palabras difíciles sustituyen las fuentes.",
+              "feedback": "Relaciona esta opción con el objetivo y el contexto de la pregunta."
+            },
+            {
+              "id": "debate_i_2",
+              "text": "No: hacen falta evidencias.",
+              "feedback": "La complejidad del lenguaje no sustituye los argumentos ni las fuentes."
+            }
+          ],
+          "answer": ["debate_i_2"],
+          "explanation": "La complejidad del lenguaje no sustituye los argumentos ni las fuentes.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        },
+        {
+          "id": "debate_j",
+          "kind": "single",
+          "prompt": "Una información confirma lo que yo pensaba. ¿Necesito comprobarla?",
+          "options": [
+            {
+              "id": "debate_j_0",
+              "text": "Sí, también debo examinarla.",
+              "feedback": "Examinar las afirmaciones favorables evita aceptar información solo por confirmar nuestras expectativas."
+            },
+            {
+              "id": "debate_j_1",
+              "text": "No, porque coincide conmigo.",
+              "feedback": "Relaciona esta opción con el objetivo y el contexto de la pregunta."
+            },
+            {
+              "id": "debate_j_2",
+              "text": "Solo revisaría las ideas distintas.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["debate_j_0"],
+          "explanation": "Examinar las afirmaciones favorables evita aceptar información solo por confirmar nuestras expectativas.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        },
+        {
+          "id": "debate_k",
+          "kind": "single",
+          "prompt": "Dos personas discrepan. ¿Cómo continuar con respeto?",
+          "options": [
+            {
+              "id": "debate_k_0",
+              "text": "Atacando a quien discrepa.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "debate_k_1",
+              "text": "Escuchando argumentos y revisando fuentes.",
+              "feedback": "El diálogo se centra en razones, contexto y fuentes; no en ataques personales."
+            },
+            {
+              "id": "debate_k_2",
+              "text": "Decidiendo quién habla con más seguridad.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["debate_k_1"],
+          "explanation": "El diálogo se centra en razones, contexto y fuentes; no en ataques personales.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        },
+        {
+          "id": "debate_l",
+          "kind": "single",
+          "prompt": "Una cita parece fuera de contexto. ¿Qué harías?",
+          "options": [
+            {
+              "id": "debate_l_0",
+              "text": "Repetirla sin cambios.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "debate_l_1",
+              "text": "Recortarla todavía más.",
+              "feedback": "Relaciona esta opción con el objetivo y el contexto de la pregunta."
+            },
+            {
+              "id": "debate_l_2",
+              "text": "Consultar el pasaje y comprobar su contexto.",
+              "feedback": "El contexto ayuda a comprobar si la explicación corresponde con el pasaje completo."
+            }
+          ],
+          "answer": ["debate_l_2"],
+          "explanation": "El contexto ayuda a comprobar si la explicación corresponde con el pasaje completo.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": ""
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "id": "CH2_13",
+      "title": "LA SALA TRANQUILA",
+      "dialogue": [
+        {
+          "speaker": "librarian",
+          "text": "Parece que encontraste muchas más cosas de las que buscabas."
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Sí! Había tantas ideas diferentes que por un momento no sabía por dónde comenzar."
+        },
+        {
+          "speaker": "librarian",
+          "text": "¿Y qué te ayudó a encontrar una respuesta?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Recordar cuál era mi pregunta, examinar las fuentes y no dejarme llevar solamente por lo convincente que sonaba una idea."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Has aprendido algo importante: no toda la información tiene el mismo valor para cada investigación. También necesitas discernimiento para saber qué aceptar y cómo utilizarlo."
+        },
+        {
+          "speaker": "hero",
+          "text": "Y descubrí que puedo conversar con alguien que piensa diferente sin perder el respeto ni dejar de investigar."
+        }
+      ],
+      "closing": [],
+      "reference": "Proverbios 18:15",
+      "questions": [
+        {
+          "id": "reflection",
+          "kind": "reflect",
+          "prompt": "¿Qué te gustaría seguir mejorando?",
+          "options": [
+            {
+              "id": "ref_0",
+              "text": "Encontrar referencias con mayor rapidez."
+            },
+            {
+              "id": "ref_1",
+              "text": "Escuchar antes de responder."
+            },
+            {
+              "id": "ref_2",
+              "text": "Comprender los textos en su contexto."
+            },
+            {
+              "id": "ref_3",
+              "text": "Investigar más cuando tenga dudas."
+            }
+          ],
+          "answer": [],
+          "explanation": "Tu reflexión personal queda en el cuaderno. Todas las opciones son válidas.",
+          "hints": ["Elige lo que te gustaría practicar."]
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "id": "CH2_14",
+      "title": "EL ÚLTIMO PISO",
+      "dialogue": [
+        {
+          "speaker": "assistant",
+          "text": "La gran sala está casi lista. Pero necesito que revises el acceso superior."
+        },
+        {
+          "speaker": "hero",
+          "text": "¿Hay algún problema?"
+        },
+        {
+          "speaker": "assistant",
+          "text": "El elevador está funcionando otra vez, aunque algunos mecanismos se desplazan. Tendrás que coordinar bien tus movimientos."
+        },
+        {
+          "speaker": "hero",
+          "text": "Después de cruzar el bosque, creo que puedo intentarlo."
+        },
+        {
+          "speaker": "assistant",
+          "text": "Recuerda que puedes detenerte y observar el movimiento antes de avanzar."
+        }
+      ],
+      "closing": [],
+      "reference": "",
+      "questions": []
+    },
+    {
+      "number": 15,
+      "id": "CH2_15",
+      "title": "LA PRUEBA DEL CONOCIMIENTO",
+      "dialogue": [
+        {
+          "speaker": "visitor",
+          "text": "¡Hola de nuevo! La última vez me ayudaste a investigar una pregunta. ¿Puedo hacerte otra?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Claro. ¿Qué te gustaría saber?"
+        },
+        {
+          "speaker": "visitor",
+          "text": "A veces encuentro textos que no comprendo. ¿Cómo puedo saber si los estoy interpretando correctamente?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Es una buena pregunta. Creo que podemos seguir varios pasos para investigar con cuidado."
+        },
+        {
+          "speaker": "visitor",
+          "text": "¿Por dónde comenzarías?"
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "hero",
+          "text": "Preferiría decirte que todavía necesito investigar. No sería correcto darte una explicación que no puedo fundamentar."
+        },
+        {
+          "speaker": "visitor",
+          "text": "Te agradezco esa sinceridad."
+        },
+        {
+          "speaker": "hero",
+          "text": "También podemos consultar una ayuda de estudio y continuar investigando juntos."
+        },
+        {
+          "speaker": "visitor",
+          "text": "Me gusta esa idea. No necesito que alguien sepa absolutamente todo; me ayuda más saber cómo encontrar respuestas bien fundamentadas."
+        }
+      ],
+      "reference": "2 Timoteo 2:15",
+      "questions": [
+        {
+          "id": "research_order",
+          "kind": "order",
+          "prompt": "Ordena los pasos para investigar con cuidado.",
+          "options": [
+            {
+              "id": "research_order_0",
+              "text": "Comprender la pregunta"
+            },
+            {
+              "id": "research_order_1",
+              "text": "Leer el texto y examinar su contexto"
+            },
+            {
+              "id": "research_order_2",
+              "text": "Consultar referencias pertinentes y preparar una explicación clara"
+            }
+          ],
+          "answer": [
+            "research_order_0",
+            "research_order_1",
+            "research_order_2"
+          ],
+          "explanation": "Primero comprende lo que buscas; luego examina y relaciona la información antes de explicarla.",
+          "hints": [
+            "Identifica el primer paso de la actividad.",
+            "Comprender la pregunta precede a buscar una explicación.",
+            "Comprobar debe ir antes de presentar una conclusión."
+          ]
+        },
+        {
+          "id": "honesty",
+          "kind": "single",
+          "prompt": "¿Qué harías si, después de investigar, todavía no supieras la respuesta?",
+          "options": [
+            {
+              "id": "honesty_0",
+              "text": "Inventar una explicación convincente.",
+              "feedback": "Vuelve a distinguir la información observada de lo que estás suponiendo."
+            },
+            {
+              "id": "honesty_1",
+              "text": "Reconocer que necesito investigar más y buscar una ayuda confiable.",
+              "feedback": "Reconocer lo que falta investigar es más responsable que ofrecer una explicación sin fundamento."
+            },
+            {
+              "id": "honesty_2",
+              "text": "Cambiar de tema.",
+              "feedback": "Escuchar o comprobar una fuente puede ayudarte a revisar esta alternativa."
+            }
+          ],
+          "answer": ["honesty_1"],
+          "explanation": "Reconocer lo que falta investigar es más responsable que ofrecer una explicación sin fundamento.",
+          "hints": [
+            "Consulta la referencia o las notas del cuaderno.",
+            "Piensa qué acción responde a la pregunta sin añadir afirmaciones.",
+            "Revisa las evidencias y el contexto antes de elegir."
+          ],
+          "reference": "2 Timoteo 2:15"
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "id": "CH2_16",
+      "title": "EL GRAN DESAFÍO DE LOS 66 LIBROS",
+      "dialogue": [
+        {
+          "speaker": "librarian",
+          "text": "¡Felicitaciones! Has ayudado a preparar la biblioteca, investigar preguntas y orientar a nuestros visitantes."
+        },
+        {
+          "speaker": "hero",
+          "text": "Me ha gustado mucho. Aunque hay algo que todavía quiero mejorar."
+        },
+        {
+          "speaker": "librarian",
+          "text": "¿Qué cosa?"
+        },
+        {
+          "speaker": "hero",
+          "text": "Me gustaría encontrar los libros de la Biblia con más rapidez. A veces recuerdo un texto, pero tengo que buscar bastante para localizarlo."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Entonces tengo un último desafío para ti."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Aquí están representados los 66 libros de la Biblia, pero sus tarjetas están desordenadas."
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Son muchas!"
+        },
+        {
+          "speaker": "librarian",
+          "text": "Así es. ¿Crees que puedas colocarlas todas en el orden correcto?"
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Quiero intentarlo!"
+        },
+        {
+          "speaker": "librarian",
+          "text": "Puedes elegir cuánto tiempo tendrás para completar el reto. La meta es la misma en todos los niveles."
+        }
+      ],
+      "closing": [
+        {
+          "speaker": "librarian",
+          "text": "¡Excelente! ¡Los 66 libros están en el orden correcto!"
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Lo conseguí! Pensé que me confundiría con tantos nombres."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Te has esforzado por aprender a encontrar las referencias y utilizar las Escrituras."
+        },
+        {
+          "speaker": "hero",
+          "text": "Ahora puedo localizar los libros con más confianza. ¡Y todavía quiero seguir practicando!"
+        },
+        {
+          "speaker": "librarian",
+          "text": "Eso me alegra. El conocimiento es valioso, especialmente cuando lo utilizamos bien y seguimos aprendiendo."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Quiero regalarte este cuaderno para que sigas registrando lo que investigues."
+        },
+        {
+          "speaker": "hero",
+          "text": "¡Muchas gracias! Lo utilizaré para recordar lo que voy aprendiendo."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Que te acompañe en tus próximas aventuras."
+        },
+        {
+          "speaker": "hero",
+          "text": "Qué hermoso paisaje... Aunque ese puente parece bastante alto."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Conduce al siguiente tramo del camino."
+        },
+        {
+          "speaker": "hero",
+          "text": "Después de todo lo que he aprendido, creo que estoy mejor preparada para afrontar lo que venga."
+        }
+      ],
+      "reference": "",
+      "questions": [],
+      "timeout": [
+        {
+          "speaker": "hero",
+          "text": "¡Oh! Se terminó el tiempo y todavía me faltaban algunos libros."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Has conseguido colocar varios correctamente. Puedes seguir practicando y volver a intentarlo."
+        },
+        {
+          "speaker": "hero",
+          "text": "Creo que esta vez recordaré mejor algunas posiciones."
+        },
+        {
+          "speaker": "librarian",
+          "text": "Puedes repetir con la misma dificultad o elegir otra. Cada intento es una oportunidad para familiarizarte más con la Biblia."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "welcome_sign": {
+    "title": "La biblioteca del aprendizaje",
+    "text": "Un lugar para preguntar, investigar y compartir. Entra por la puerta central. Los visitantes pasean y leen; puedes acercarte a saludarlos."
+  },
+  "intro_book": {
+    "title": "Tu cuaderno de investigación",
+    "text": "Muévete en cuatro direcciones con las flechas, WASD o la cruceta táctil. Rodea ambos lados de la mesa y abre el mapa. E o el botón de acción permiten conversar, leer y atravesar puertas. Aquí no necesitas saltar."
+  },
+  "ref_bereans": {
+    "title": "Hechos 17:11 · Investigar con cuidado",
+    "text": "Los bereanos examinaban las Escrituras para comprobar lo que recibían. Investigar implica leer el contexto, comprobar las fuentes y no aceptar una idea solo porque alguien la presenta con seguridad."
+  },
+  "ref_scriptures": {
+    "title": "2 Timoteo 3:16, 17 · Aprender y aplicar",
+    "text": "Las Escrituras son una base para enseñar, corregir y prepararse para hacer lo que está bien. El estudio cobra sentido cuando lo aprendido influye en nuestras decisiones."
+  },
+  "ref_faith": {
+    "title": "Hebreos 11:1 · Una confianza con fundamento",
+    "text": "La fe no equivale a creer cualquier afirmación. Reflexiona en la relación entre confianza, pruebas y las cosas que todavía no vemos."
+  },
+  "ref_philip": {
+    "title": "Hechos 8:30-35 · Ayudar a comprender",
+    "text": "Felipe escuchó, hizo una pregunta y ayudó al lector a comprender lo que estaba leyendo. Para ayudar a otra persona conviene conocer su pregunta, leer con ella y explicar con paciencia."
+  },
+  "floor_mark_a": {
+    "title": "La primera marca",
+    "text": "La linterna deja ver una marca junto al escalón. La Fe te ayuda a avanzar, pero todavía necesitas observar dónde pisas."
+  },
+  "floor_mark_b": {
+    "title": "La segunda marca",
+    "text": "Las marcas señalan el paso seguro. Busca ahora el interruptor al norte del pasillo. Comprender el camino complementa la confianza para recorrerlo."
+  },
+  "acts_card": {
+    "title": "La ficha de Hechos",
+    "text": "Una ficha de catálogo identifica un libro y permite ubicarlo. Con ambos mecanismos activos ya puedes utilizar el elevador para devolverla al catálogo."
+  },
+  "doc_primary": {
+    "title": "Fuente principal",
+    "text": "Documento A · Un pasaje bíblico completo con su contexto y referencia identificada. Es la base para analizar la idea del debate. Lee lo que realmente dice antes de sacar una conclusión."
+  },
+  "doc_support": {
+    "title": "Fuente de apoyo",
+    "text": "Documento B · Una explicación que identifica el pasaje y ayuda a entender su contexto. Puede apoyar la investigación; debe compararse con la fuente principal."
+  },
+  "doc_general": {
+    "title": "Información general",
+    "text": "Documento C · Datos generales sobre lugares y costumbres. Aportan contexto, pero no prueban por sí solos la conclusión bíblica que se está discutiendo."
+  },
+  "doc_opinion": {
+    "title": "Una opinión personal",
+    "text": "Documento D · Un visitante cuenta cómo interpreta la idea según su experiencia. Su opinión merece respeto; no sustituye las pruebas ni una fuente verificable."
+  },
+  "doc_pending": {
+    "title": "Una afirmación pendiente",
+    "text": "Documento E · Una frase impactante circula sin autor, referencia ni contexto. Antes de repetirla, busca su origen y comprueba si existe evidencia suficiente."
+  },
+  "horizon": {
+    "title": "Un nuevo camino",
+    "text": "Más allá de las montañas se distingue un puente. La Fe y el Conocimiento te acompañarán cuando llegue el momento de continuar. El capítulo 3 está desbloqueado para una próxima entrega."
+  }
+}

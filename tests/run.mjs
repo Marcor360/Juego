@@ -10,3 +10,5 @@ import "./menu.test.ts";
 
 import "./repository.test.ts";
 import "./runtime.test.ts";
+
+import "./chapter2.test.ts";

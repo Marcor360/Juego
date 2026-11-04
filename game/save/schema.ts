@@ -1,3 +1,5 @@
+import { validateCampaign } from "../chapter2/campaign.ts";
+import type { LibraryState } from "../chapter2/state.ts";
 import {
   freshProgress,
   missionId,
@@ -22,9 +24,11 @@ export type Settings = {
   reducedMotion: boolean;
 };
 export type Save = {
-  schemaVersion: 2;
+  schemaVersion: 2 | 3;
+  activeChapter?: 1 | 2;
+  library?: LibraryState;
   gameId: "precursora";
-  level: 1;
+  level: 1 | 2;
   checkpoint: CheckpointId;
   position: number;
   health: number;
@@ -63,6 +67,8 @@ const ids = (v: unknown, allowed: string[]): v is string[] =>
   new Set(v).size === v.length &&
   v.every((x) => allowed.includes(x));
 export function validateSave(raw: unknown): Save {
+  if ((raw as Save)?.schemaVersion === 3)
+    return validateCampaign(raw, validateSave);
   if ((raw as any)?.schemaVersion === 1) {
     const old = validateLegacySave(raw);
     return {

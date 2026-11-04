@@ -1,0 +1,464 @@
+[
+  {
+    "id": "book_01",
+    "order": 1,
+    "name": "Génesis",
+    "abbreviation": "Gé",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_02",
+    "order": 2,
+    "name": "Éxodo",
+    "abbreviation": "Éx",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_03",
+    "order": 3,
+    "name": "Levítico",
+    "abbreviation": "Le",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_04",
+    "order": 4,
+    "name": "Números",
+    "abbreviation": "Nú",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_05",
+    "order": 5,
+    "name": "Deuteronomio",
+    "abbreviation": "Dt",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_06",
+    "order": 6,
+    "name": "Josué",
+    "abbreviation": "Jos",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_07",
+    "order": 7,
+    "name": "Jueces",
+    "abbreviation": "Jue",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_08",
+    "order": 8,
+    "name": "Rut",
+    "abbreviation": "Rut",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_09",
+    "order": 9,
+    "name": "1 Samuel",
+    "abbreviation": "1Sa",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_10",
+    "order": 10,
+    "name": "2 Samuel",
+    "abbreviation": "2Sa",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_11",
+    "order": 11,
+    "name": "1 Reyes",
+    "abbreviation": "1Re",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_12",
+    "order": 12,
+    "name": "2 Reyes",
+    "abbreviation": "2Re",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_13",
+    "order": 13,
+    "name": "1 Crónicas",
+    "abbreviation": "1Cr",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_14",
+    "order": 14,
+    "name": "2 Crónicas",
+    "abbreviation": "2Cr",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_15",
+    "order": 15,
+    "name": "Esdras",
+    "abbreviation": "Esd",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_16",
+    "order": 16,
+    "name": "Nehemías",
+    "abbreviation": "Ne",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_17",
+    "order": 17,
+    "name": "Ester",
+    "abbreviation": "Est",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_18",
+    "order": 18,
+    "name": "Job",
+    "abbreviation": "Job",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_19",
+    "order": 19,
+    "name": "Salmos",
+    "abbreviation": "Sl",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_20",
+    "order": 20,
+    "name": "Proverbios",
+    "abbreviation": "Pr",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_21",
+    "order": 21,
+    "name": "Eclesiastés",
+    "abbreviation": "Ec",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_22",
+    "order": 22,
+    "name": "El Cantar de los Cantares",
+    "abbreviation": "Can",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_23",
+    "order": 23,
+    "name": "Isaías",
+    "abbreviation": "Is",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_24",
+    "order": 24,
+    "name": "Jeremías",
+    "abbreviation": "Jer",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_25",
+    "order": 25,
+    "name": "Lamentaciones",
+    "abbreviation": "Lam",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_26",
+    "order": 26,
+    "name": "Ezequiel",
+    "abbreviation": "Eze",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_27",
+    "order": 27,
+    "name": "Daniel",
+    "abbreviation": "Da",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_28",
+    "order": 28,
+    "name": "Oseas",
+    "abbreviation": "Os",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_29",
+    "order": 29,
+    "name": "Joel",
+    "abbreviation": "Joe",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_30",
+    "order": 30,
+    "name": "Amós",
+    "abbreviation": "Am",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_31",
+    "order": 31,
+    "name": "Abdías",
+    "abbreviation": "Abd",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_32",
+    "order": 32,
+    "name": "Jonás",
+    "abbreviation": "Jon",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_33",
+    "order": 33,
+    "name": "Miqueas",
+    "abbreviation": "Miq",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_34",
+    "order": 34,
+    "name": "Nahúm",
+    "abbreviation": "Na",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_35",
+    "order": 35,
+    "name": "Habacuc",
+    "abbreviation": "Hab",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_36",
+    "order": 36,
+    "name": "Sofonías",
+    "abbreviation": "Sof",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_37",
+    "order": 37,
+    "name": "Ageo",
+    "abbreviation": "Ag",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_38",
+    "order": 38,
+    "name": "Zacarías",
+    "abbreviation": "Zac",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_39",
+    "order": 39,
+    "name": "Malaquías",
+    "abbreviation": "Mal",
+    "section": "hebrew"
+  },
+  {
+    "id": "book_40",
+    "order": 40,
+    "name": "Mateo",
+    "abbreviation": "Mt",
+    "section": "greek"
+  },
+  {
+    "id": "book_41",
+    "order": 41,
+    "name": "Marcos",
+    "abbreviation": "Mr",
+    "section": "greek"
+  },
+  {
+    "id": "book_42",
+    "order": 42,
+    "name": "Lucas",
+    "abbreviation": "Lu",
+    "section": "greek"
+  },
+  {
+    "id": "book_43",
+    "order": 43,
+    "name": "Juan",
+    "abbreviation": "Jn",
+    "section": "greek"
+  },
+  {
+    "id": "book_44",
+    "order": 44,
+    "name": "Hechos",
+    "abbreviation": "Hch",
+    "section": "greek"
+  },
+  {
+    "id": "book_45",
+    "order": 45,
+    "name": "Romanos",
+    "abbreviation": "Ro",
+    "section": "greek"
+  },
+  {
+    "id": "book_46",
+    "order": 46,
+    "name": "1 Corintios",
+    "abbreviation": "1Co",
+    "section": "greek"
+  },
+  {
+    "id": "book_47",
+    "order": 47,
+    "name": "2 Corintios",
+    "abbreviation": "2Co",
+    "section": "greek"
+  },
+  {
+    "id": "book_48",
+    "order": 48,
+    "name": "Gálatas",
+    "abbreviation": "Gál",
+    "section": "greek"
+  },
+  {
+    "id": "book_49",
+    "order": 49,
+    "name": "Efesios",
+    "abbreviation": "Ef",
+    "section": "greek"
+  },
+  {
+    "id": "book_50",
+    "order": 50,
+    "name": "Filipenses",
+    "abbreviation": "Flp",
+    "section": "greek"
+  },
+  {
+    "id": "book_51",
+    "order": 51,
+    "name": "Colosenses",
+    "abbreviation": "Col",
+    "section": "greek"
+  },
+  {
+    "id": "book_52",
+    "order": 52,
+    "name": "1 Tesalonicenses",
+    "abbreviation": "1Te",
+    "section": "greek"
+  },
+  {
+    "id": "book_53",
+    "order": 53,
+    "name": "2 Tesalonicenses",
+    "abbreviation": "2Te",
+    "section": "greek"
+  },
+  {
+    "id": "book_54",
+    "order": 54,
+    "name": "1 Timoteo",
+    "abbreviation": "1Ti",
+    "section": "greek"
+  },
+  {
+    "id": "book_55",
+    "order": 55,
+    "name": "2 Timoteo",
+    "abbreviation": "2Ti",
+    "section": "greek"
+  },
+  {
+    "id": "book_56",
+    "order": 56,
+    "name": "Tito",
+    "abbreviation": "Tit",
+    "section": "greek"
+  },
+  {
+    "id": "book_57",
+    "order": 57,
+    "name": "Filemón",
+    "abbreviation": "Flm",
+    "section": "greek"
+  },
+  {
+    "id": "book_58",
+    "order": 58,
+    "name": "Hebreos",
+    "abbreviation": "Heb",
+    "section": "greek"
+  },
+  {
+    "id": "book_59",
+    "order": 59,
+    "name": "Santiago",
+    "abbreviation": "Snt",
+    "section": "greek"
+  },
+  {
+    "id": "book_60",
+    "order": 60,
+    "name": "1 Pedro",
+    "abbreviation": "1Pe",
+    "section": "greek"
+  },
+  {
+    "id": "book_61",
+    "order": 61,
+    "name": "2 Pedro",
+    "abbreviation": "2Pe",
+    "section": "greek"
+  },
+  {
+    "id": "book_62",
+    "order": 62,
+    "name": "1 Juan",
+    "abbreviation": "1Jn",
+    "section": "greek"
+  },
+  {
+    "id": "book_63",
+    "order": 63,
+    "name": "2 Juan",
+    "abbreviation": "2Jn",
+    "section": "greek"
+  },
+  {
+    "id": "book_64",
+    "order": 64,
+    "name": "3 Juan",
+    "abbreviation": "3Jn",
+    "section": "greek"
+  },
+  {
+    "id": "book_65",
+    "order": 65,
+    "name": "Judas",
+    "abbreviation": "Jud",
+    "section": "greek"
+  },
+  {
+    "id": "book_66",
+    "order": 66,
+    "name": "Apocalipsis",
+    "abbreviation": "Ap",
+    "section": "greek"
+  }
+]
