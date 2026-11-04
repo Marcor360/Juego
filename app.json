@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "El camino de una Precursora",
+    "slug": "el-camino-de-una-precursora",
+    "version": "0.1.0",
+    "orientation": "landscape",
+    "scheme": "precursora",
+    "userInterfaceStyle": "light",
+    "web": { "bundler": "metro", "output": "single" },
+    "plugins": ["expo-router"],
+    "ios": { "supportsTablet": true },
+    "android": { "package": "com.marcor360.precursora" }
+  }
+}
