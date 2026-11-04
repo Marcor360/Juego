@@ -47,6 +47,7 @@ export type SceneProps = {
   width: number;
   height: number;
   menu?: boolean;
+  cameraSector: number;
   x: SharedValue<number>;
   y: SharedValue<number>;
   camera: SharedValue<number>;
@@ -344,6 +345,12 @@ export default function Scene(p: SceneProps) {
     { translateY: p.menu ? 247 : p.y.value },
     { scale: p.menu ? 3.65 : 1 },
   ]);
+  // Render only geometry and objects close to the visible camera window.
+  // Keep a 240px prefetch margin to avoid pop-in as the camera moves.
+  const viewStart = Math.max(0, p.cameraSector * 240 - 240);
+  const viewEnd = Math.min(WIDTH, p.cameraSector * 240 + 960);
+  const inView = (at: number, width = 0) =>
+    at + width >= viewStart && at <= viewEnd;
   const groundSegments = [];
   let from = 0;
   for (const gap of gaps) {
@@ -375,12 +382,13 @@ export default function Scene(p: SceneProps) {
         ) : (
           <>
             {[entrance, stream, bridge, clearing, mist, refuge].map(
-              (image, i) => (
-                <Background key={i} image={image} index={i} camera={p.camera} />
-              ),
+              (image, i) =>
+                zones[i].end >= viewStart && zones[i].start <= viewEnd ? (
+                  <Background key={i} image={image} index={i} camera={p.camera} />
+                ) : null,
             )}
             <Group transform={world}>
-              {gaps.map((g) => (
+              {gaps.filter((g) => inView(g.x, g.w)).map((g) => (
                 <Group key={g.x}>
                   <Rect
                     x={g.x}
@@ -408,7 +416,7 @@ export default function Scene(p: SceneProps) {
                   ))}
                 </Group>
               ))}
-              {groundSegments.map((g) => (
+              {groundSegments.filter((g) => inView(g.x, g.w)).map((g) => (
                 <Group
                   key={g.x}
                   clip={{ x: g.x, y: 226, width: g.w, height: 44 }}
@@ -449,7 +457,7 @@ export default function Scene(p: SceneProps) {
                   )}
                 </Group>
               ))}
-              {rightLimit(p.progress) < 7988 && (
+              {rightLimit(p.progress) < 7988 && inView(rightLimit(p.progress), 52) && (
                 <Group
                   transform={[
                     { translateX: rightLimit(p.progress) + 28 },
@@ -465,10 +473,10 @@ export default function Scene(p: SceneProps) {
                   />
                 </Group>
               )}
-              {activePlatforms(p.progress).map((r) => (
+              {activePlatforms(p.progress).filter((r) => inView(r.x - (r.move?.amplitude ?? 0), r.w + 2 * (r.move?.amplitude ?? 0))).map((r) => (
                 <Ledge key={r.id} r={r} time={p.simulation} image={terrain} />
               ))}
-              {hazards.map((h) => (
+              {hazards.filter((h) => inView(h.x, h.w)).map((h) => (
                 <Path
                   key={h.id}
                   path={`M ${h.x} ${h.y} Q ${h.x + 3} ${h.y - 12} ${h.x + 7} ${h.y - 5} Q ${h.x + 10} ${h.y - 11} ${h.x + h.w} ${h.y} Z`}
@@ -476,7 +484,7 @@ export default function Scene(p: SceneProps) {
                 />
               ))}
               {objects
-                .filter((o) => objectVisible(o, p.progress))
+                .filter((o) => objectVisible(o, p.progress) && inView(o.x, 48))
                 .map((o) => {
                   if (o.kind === "light")
                     return (
@@ -676,13 +684,15 @@ export default function Scene(p: SceneProps) {
                   return null;
                 })}
               {/* Both farols remain visible when their speakers move on. */}
-              <Group transform={[{ translateX: 4905 }, { translateY: 226 }]}>
-                <ForestProp
-                  image={props}
-                  index={hasMission(p.progress, 11) ? 2 : 1}
-                  height={45}
-                />
-              </Group>
+              {inView(4905, 45) && (
+                <Group transform={[{ translateX: 4905 }, { translateY: 226 }]}>
+                  <ForestProp
+                    image={props}
+                    index={hasMission(p.progress, 11) ? 2 : 1}
+                    height={45}
+                  />
+                </Group>
+              )}
               {hasMission(p.progress, 7) && (
                 <Actor
                   kind="npcs"
