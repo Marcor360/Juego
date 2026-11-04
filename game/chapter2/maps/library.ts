@@ -678,7 +678,7 @@ export const rooms: Record<RoomId, Room> = {
     floor: 1,
     w: 640,
     h: 480,
-    tile: 2,
+    tile: 0,
     furniture: [
       prop("window", 3, 320, 115, 110, 120, false),
       prop("rest_bench", 7, 145, 250, 100, 68),

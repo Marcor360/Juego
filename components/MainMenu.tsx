@@ -349,7 +349,7 @@ export default function MainMenu({
           />
           <View pointerEvents="none" style={s.emblem}>
             <OliveSprig color={theme.accent} />
-            <UIIcon name="book" size={19} color={theme.ink} />
+            <UIIcon name="book" size={19} color="#232323" />
             <OliveSprig color={theme.accent} mirrored />
           </View>
           <Text style={[s.prefix, { color: theme.ink }]}>El camino de una</Text>
@@ -605,7 +605,7 @@ const s = StyleSheet.create({
     gap: 7,
   },
   line: { flex: 1, height: 0.4 },
-  diamond: { width: 2.5, height: 2.5, transform: [{ rotate: "45deg" }] },
+  diamond: { width: 2.5, height: 2.5, borderRadius: 1.25 },
   actions: { position: "absolute", top: 120, left: 16, right: 16, gap: 5 },
   button: {
     height: 25,

@@ -39,7 +39,7 @@ export default function Portrait({
           borderColor: "#bfa579",
         }}
       >
-        <Text style={{ fontSize: size * 0.5, color: "#96794b" }}>✧</Text>
+        <Text style={{ fontSize: size * 0.5, color: "#96794b" }}>●</Text>
       </View>
     );
   if (speaker === "walker" || speaker === "secondary" || speaker === "keeper") {

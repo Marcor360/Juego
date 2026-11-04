@@ -256,7 +256,7 @@ function HopeLight({
   return (
     <Group transform={transform}>
       <SoftGlow x={0} y={0} r={18} opacity={0.55} />
-      <Path path="M 0 -6 L 3 0 L 0 6 L -3 0 Z" color="#fff1bb" />
+      <Circle cx={0} cy={0} r={2.5} color="#fff1bb" />
       <Circle cx={0} cy={0} r={1} color="#fffef2" />
     </Group>
   );
@@ -675,8 +675,12 @@ export default function Scene(p: SceneProps) {
                         ]}
                       >
                         <Path
+                          path="M -8 -6 L 0 -4 L 8 -6 L 8 4 L 0 6 L -8 4 Z"
+                          color={o.id === "scripture" ? "#222325" : "#806244"}
+                        />
+                        <Path
                           path="M -7 -5 L 0 -3 L 7 -5 L 7 3 L 0 5 L -7 3 Z"
-                          color="#e3cf9f"
+                          color="#efe6ce"
                         />
                         <Path
                           path="M 0 -3 L 0 5"

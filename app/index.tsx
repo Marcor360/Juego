@@ -750,7 +750,7 @@ export default function Game() {
                 {chapters.map((title, i) => (
                   <View key={title} style={styles.chapter}>
                     <Text style={styles.body}>
-                      {save?.unlockedChapters.includes(i + 1) ? "✧" : "🔒"}{" "}
+                      {save?.unlockedChapters.includes(i + 1) ? "●" : "🔒"}{" "}
                       {String(i + 1).padStart(2, "0")} · {title}
                     </Text>
                     {i === 0 ? (
@@ -1235,7 +1235,7 @@ export default function Game() {
                         {progress.reflections.length ? (
                           progress.reflections.map((r, i) => (
                             <Text key={i} style={styles.body}>
-                              ✧ {r}
+                              ● {r}
                             </Text>
                           ))
                         ) : (

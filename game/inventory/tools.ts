@@ -4,7 +4,7 @@ export const faith = {
   description:
     "Una pequeña linterna que recuerda que puedes seguir adelante con confianza.",
   ability: "Permite iluminar senderos y consultar marcas en zonas sin luz.",
-  icon: "✧",
+  icon: "●",
 };
 
 export const knowledge = {

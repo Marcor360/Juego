@@ -19,6 +19,9 @@ La biblioteca incluye 16 escenas secuenciales, 13 salas conectadas, investigaci�
 
 ## NPC y arte
 
+La [dirección artística vigente](ART_DIRECTION.md) sustituye los adornos y materiales anteriores: Biblia negra lisa, ausencia de cruces/estrellas ornamentales y biblioteca de madera, piedra crema, pizarra gris y textiles salvia. Las capturas de evidencia se actualizan con esta revisión.
+
+
 Se generaron atlas originales para 24 pasos de la protagonista (6 por dirección), 9 acciones, 6 NPC narrativos con 4 poses, 4 visitantes ambientales con 4 poses, 9 retratos, 8 muebles, 8 objetos y 8 módulos de suelo/decoración. La fachada y el paisaje del balcón son capas propias. No se copió arte de videojuegos ni interfaces de bibliotecas existentes.
 
 Los recortes se registran según los tamaños y límites alfa reales de cada archivo mediante `scripts/register-chapter2-art.py`; el script no altera píxeles. Los muebles y puertas se dibujan por separado. El edificio completo se usa únicamente como fachada exterior, sin sustituir las salas jugables.
@@ -68,6 +71,7 @@ El recorrido continuo comienza con una **partida migrada válida que ya posee Fe
 Capturas de la aplicación ejecutándose, sin retocar:
 
 - [Patio con visitantes](evidence/chapter2/courtyard.png).
+- [Interior con madera natural y Biblias negras](evidence/chapter2/library-interior.png).
 - [Laberinto y estanterías](evidence/chapter2/maze.png).
 - [Tablero y cronómetro pausado](evidence/chapter2/book-board.png).
 - [Diálogo en móvil con el retrato de la visitante](evidence/chapter2/mobile-dialogue.png).
@@ -85,3 +89,9 @@ La política de red permite el transporte Git a github.com, pero bloquea api.git
 - La verificación editorial de JW.ORG sigue pendiente: la red devolvió 403. [Tabla con preguntas, respuestas y fuentes propuestas](CHAPTER_2_EDITORIAL.md). No se etiqueta ningún pasaje como verificado ni se inventan citas literales.
 - La validación web no sustituye pruebas de rendimiento, sonido, áreas seguras y gestos en Android/iOS físicos. No se generan binarios firmados ni se publica a tiendas.
 - La duración y dificultad para jugadores requieren sesiones humanas. El reloj de 10/6/3 minutos corresponde al tablero, no a una duración garantizada de todo el capítulo.
+
+## Revisión de materiales y símbolos
+
+Se sustituyeron once recursos visibles: fachada, mobiliario, módulos de suelo, objetos, acciones de la protagonista, NPC narrativos, visitantes, dos atlas de cofres/tesoros, elementos del bosque y cielo del menú final. Se registraron nuevamente sus recortes. La Biblia utiliza cubierta negra; el cuaderno de investigación conserva cuero marrón para distinguirlo. Las estrellas/cruces ornamentales se quitaron y las partículas de recogida son redondas. La sala tranquila usa suelo de madera y una alfombra salvia.
+
+Comprobación de esta revisión: TypeScript, 52 pruebas y exportación web correctos; render de cinco salas sin errores JavaScript, pruebas de paneles y móvil del capítulo 2, cuatro tamaños de gráficos del bosque y las tres portadas en cuatro tamaños correctos. No cambia el esquema de guardado ni los requisitos de las misiones.

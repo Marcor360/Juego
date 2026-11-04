@@ -81,7 +81,7 @@ Los esquemas 2 y 3 usan la clave estable `precursora-save-v2` para conservar la 
 - `assets/backgrounds/v3/`, `assets/characters/v3/` y `assets/props/v3/`: seis fondos, personajes adicionales, terreno, letreros, rama y cofre nuevos. Se conservan las poses v2 de la protagonista, guía y viajero.
 - `game/rendering/art.json`: recortes y anclajes de los atlas activos. `scripts/register-art.py` analiza sus límites alfa sin cambiar píxeles; es una herramienta opcional de arte con Python y Pillow.
 
-El arte se creó con asistencia generativa para el proyecto. El audio es original sintetizado. Los textos de los retos son reflexiones adaptadas con referencia, no citas bíblicas literales.
+La [dirección artística vigente](docs/ART_DIRECTION.md) establece Biblia negra, ausencia de cruces/estrellas ornamentales y materiales naturales para la biblioteca. El arte se creó con asistencia generativa para el proyecto. El audio es original sintetizado. Los textos de los retos son reflexiones adaptadas con referencia, no citas bíblicas literales.
 
 ## Pruebas
 

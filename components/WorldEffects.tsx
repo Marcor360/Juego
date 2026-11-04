@@ -65,10 +65,7 @@ function Spark({
   });
   return (
     <Group opacity={alpha} transform={transform}>
-      <Path
-        path="M 0 -3 L .8 -.8 L 3 0 L .8 .8 L 0 3 L -.8 .8 L -3 0 L -.8 -.8 Z"
-        color={i % 2 ? "#fff2be" : "#e5c6ed"}
-      />
+      <Circle cx={0} cy={0} r={1.5} color={i % 2 ? "#fff2be" : "#e5c6ed"} />
     </Group>
   );
 }

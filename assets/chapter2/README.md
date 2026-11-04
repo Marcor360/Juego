@@ -9,3 +9,5 @@ Ocho atlas: protagonista (24 pasos), acciones (9 poses), NPC narrativos (24 pose
 Los cinco temas y cinco efectos WAV son síntesis original, sin muestras ni grabaciones externas. Pueden reproducirse con `python scripts/generate-library-audio.py` (biblioteca estándar de Python).
 
 Las referencias y el estado de su comprobación se documentan en `docs/CHAPTER_2_EDITORIAL.md`.
+
+Dirección vigente: [Biblia negra, biblioteca natural y arte sin símbolos ornamentales](../../docs/ART_DIRECTION.md). El edificio y mobiliario usan nogal, piedra crema, pizarra y salvia; la lavanda queda como acento de vestuario/interfaz.
