@@ -4,6 +4,7 @@ export type UIIconName =
   | "left"
   | "book"
   | "upload"
+  | "download"
   | "settings"
   | "info"
   | "bag"
@@ -130,7 +131,7 @@ export default function UIIcon({
             </Text>
           </View>
         )}
-        {name === "upload" && (
+        {(name === "upload" || name === "download") && (
           <>
             <View
               style={{
@@ -159,9 +160,11 @@ export default function UIIcon({
                 borderTopWidth: 2,
                 borderLeftWidth: 2,
                 borderColor: color,
-                transform: [{ rotate: "45deg" }],
+                transform: [
+                  { rotate: name === "download" ? "225deg" : "45deg" },
+                ],
                 position: "absolute",
-                top: 1,
+                top: name === "download" ? 5 : 1,
               }}
             />
           </>

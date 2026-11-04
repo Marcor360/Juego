@@ -5,10 +5,11 @@ Entorno: Node 24.22.1, Expo SDK 54, Skia 2.2.12. Esta versión reemplaza el bosq
 | Comprobación | Alcance |
 | --- | --- |
 | `npm run typecheck` | Tipos del proyecto |
-| `npm test` | 19 pruebas: progresión, evidencias, decisiones, salud, físicas, guardado, migración y arte |
+| `npm test` | 21 pruebas: progresión, evidencias, decisiones, salud, físicas, guardado, migración y arte |
 | `npm run build:web` | Exportación web y recursos locales CanvasKit |
 | `expo export --platform android --platform ios` | Bundles Hermes de ambas plataformas; no equivale a prueba en teléfono |
 | `tests/browser-v3.cjs` | Tutorial, 16 escenas, desafío por etapas, recompensa, exportación, importación válida y rechazo de archivo incompatible |
+| `tests/menu-browser.cjs` | Tres portadas, vestuarios, controles y guardado en cuatro tamaños de pantalla |
 | `tests/chest-browser.cjs` | Cuerpo sólido, apertura animada y Fe permanente en escritorio y táctil |
 | `tests/replay-browser.cjs` | Repetición sin sobrescribir y continuación de la partida principal |
 | `tests/graphics-browser.cjs` | Canvas, cuaderno y escalado en 1280×720, 812×375, 667×375 y 390×844 |
@@ -45,3 +46,7 @@ Los fondos cambian por zona con fundido y desplazamiento; no repiten el gran ár
 - El capítulo 2 está desbloqueable, pero aún no es jugable. No se implementaron los capítulos 2–7.
 
 No se publicó el entorno ni una aplicación firmada para tiendas durante esta revisión.
+
+## Rediseño del menú
+
+Se agregaron tres paisajes y seis poses de menú, incluida la protagonista con pantalón en la variante intermedia. La selección visual depende de las escenas realmente completadas, sin migrar ni alterar los datos de partida. El menú vertical mantiene controles ampliados y usa un retrato enmarcado cuando falta altura para el cuerpo completo. La tipografía nueva se incluye con su licencia OFL. Ver `docs/MENU.md`.
