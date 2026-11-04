@@ -1,6 +1,8 @@
 import { GROUND, WIDTH, platforms, objects } from "../levels/forest.ts";
-import { freshProgress, type Progress } from "../missions/progress.ts";
+import { collect, freshProgress, type Progress } from "../missions/progress.ts";
+export type PickupEvent = { id: string; x: number; y: number };
 export class World {
+  private pickups: PickupEvent[] = [];
   x = 65;
   y = GROUND;
   vy = 0;
@@ -62,10 +64,23 @@ export class World {
       this.grounded = true;
     }
     this.y = ny;
+    if (this.progress.guide)
+      for (const o of objects) {
+        if (
+          o.kind === "light" &&
+          !this.progress.lights.includes(o.id) &&
+          Math.abs(o.x - this.x) <= 19 &&
+          Math.abs(o.y - (this.y - 18)) <= 23
+        ) {
+          collect(this.progress, o.id);
+          this.pickups.push({ id: o.id, x: o.x, y: o.y });
+        }
+      }
     const target = Math.max(0, Math.min(WIDTH - 480, this.x - 180));
     this.camera += (target - this.camera) * (1 - Math.exp(-7 * dt));
   }
   restore(checkpoint: number) {
+    this.pickups = [];
     this.x = checkpoint;
     this.y = Math.min(
       GROUND,
@@ -78,9 +93,19 @@ export class World {
     this.camera = Math.max(0, Math.min(WIDTH - 480, this.x - 180));
     this.release();
   }
+  drainPickups() {
+    const events = this.pickups;
+    this.pickups = [];
+    return events;
+  }
   nearby() {
     return objects.find(
-      (o) => Math.abs(o.x - this.x) < 35 && Math.abs(o.y - this.y) < 48,
+      (o) =>
+        o.kind !== "light" &&
+        !(o.kind === "lamp" && this.progress.lamps.includes(o.id)) &&
+        !(o.kind === "chest" && this.progress.complete) &&
+        Math.abs(o.x - this.x) < 35 &&
+        Math.abs(o.y - this.y) < 48,
     );
   }
   release() {

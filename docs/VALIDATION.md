@@ -1,37 +1,34 @@
-# Validación del prototipo
+# Validación del prototipo actual
 
-Ejecutada en el entorno actual con Node 24.22.1 y npm 11.9.0.
+Ejecutada en el entorno de desarrollo con Node 24.22.1 y npm 11.9.0.
 
 | Comprobación | Resultado |
 | --- | --- |
-| `npm ci --no-audit --no-fund` | Correcta; hook de CanvasKit ejecutado |
 | `npm run typecheck` | Correcta |
-| `npm test` | 9 pruebas aprobadas, 0 fallidas, 0 omitidas |
+| `npm test` | 14 pruebas aprobadas, 0 fallidas, 0 omitidas |
 | `expo export --platform web` | Correcta |
 | `expo export --platform android --platform ios` | Ambos bundles Hermes generados |
-| Inicio de Expo sin CI, puerto 8082 | Menú mostrado en Chromium, sin errores de página |
-| `tests/browser.cjs`, partida nueva | Recorrido completo aprobado |
-| Mismo test desde checkpoint del viajero | Aprobado |
+| `tests/browser.cjs` | Bosque completo, recompensa, descarga JSON, recarga e importaciones válida e inválida aprobadas |
+| `tests/adventure-browser.cjs` | Recogida automática y retrato alegre aprobados con teclado y eventos táctiles de Chromium |
 
-El recorrido automatizado comenzó en el menú, habló con la guía, recogió las tres luces (incluida la plataforma elevada), encendió ambos faroles, ayudó al viajero, ordenó las palabras, abrió el cofre y comprobó Fe y capítulos `[1,2]` en la partida. Después descargó JSON, recargó, continuó, rechazó una importación incompatible conservando la partida y restauró el archivo válido. No hubo errores JavaScript de página.
+## Mecánicas y arte verificados
 
-Las primeras pruebas detectaron rutas de sprites no resueltas en web y un margen de salto insuficiente en las ruinas; se corrigieron y el recorrido completo pasó después de esos cambios.
+El recorrido completo empezó en el menú, habló con la guía, obtuvo las tres luces al acercarse (incluida la plataforma elevada), encendió ambos faroles, ayudó al viajero, ordenó las palabras y abrió el cofre. La partida conservó Fe y capítulos `[1,2]`. Se descargó JSON, se continuó tras recargar, se rechazó una importación incompatible sin perder el progreso y se restauró un archivo válido. No hubo errores de JavaScript de página.
 
-Los archivos de arte originales, `manifest.json` y `LEEME.md` permanecen sin cambios. Las dimensiones de todas las láminas y cuadros se compararon con el manifiesto; la calidad visual de sus poses sigue siendo provisional.
+La prueba táctil mantuvo pulsado el control derecho mediante eventos reales `touchStart`/`touchEnd` de Chromium. La luz se recogió sin tocar E; no se abrió ningún diálogo de recogida. Las pruebas también verificaron que una luz elevada no se recoja desde el suelo, que no se duplique y que requiera el primer encuentro.
 
-## Revisión visual y de CanvasKit
+El agradecimiento del viajero muestra su retrato alegre y el nombre «El viajero», tanto en escritorio como en web táctil. El mapeo de hablantes y el índice del retrato tienen pruebas de regresión.
 
-- Se sustituyeron los árboles geométricos y el dibujo manual con `PictureRecorder`/pinturas descartadas por fondos ilustrados y capas de sprites con imágenes fijas. Los fotogramas actualizan offsets numéricos, sin transportar imágenes nativas dentro de valores derivados.
-- El WASM servido tiene un nombre con la versión instalada y una prueba compara su SHA-256 con la dependencia para evitar incompatibilidades por caché.
-- Se probaron menús, retratos, doce ciclos de pausa/inventario y ventanas 667×375, 1920×1080 y 2560×1440, sin errores de página ni solicitudes de recursos fallidas.
-- Tres recargas de Fast Refresh seguidas de apertura/cierre de ajustes no reprodujeron el aborto de CanvasKit reportado. Esto verifica las rutas probadas; no establece una causa única para todos los posibles fallos del motor gráfico.
-- El acertijo limpia la orientación del intento anterior al seleccionar otra palabra. La última pose de reposo se dibuja con una ventana que excluye una línea aislada del recurso original.
+El arte v2 incluye 12 poses nuevas de la protagonista, 8 poses de guía/viajero, 6 retratos y 8 objetos ilustrados. Se inspeccionaron sus distribuciones y límites alfa. La prueba de metadatos compara los PNG reales, sus celdas, recortes y anclajes. Las animaciones usan fotogramas distintos de esos atlases; no son únicamente transformaciones de una imagen fija.
 
-## Límites de esta validación
+Los fondos superponen franjas con un fundido de entrada de 64 píxeles lógicos. El suelo alterna franjas reflejadas cuyos bordes de origen coinciden. Las pruebas verifican cobertura del intervalo de cámara y continuidad geométrica de las uniones. Las plataformas conservan extremos completos y los faroles usan una escala común en sus estados apagado/encendido.
 
-- Generar bundles Android/iOS no demuestra ejecución, persistencia ni rendimiento en dispositivos físicos. Estas pruebas siguen pendientes.
-- No se ha validado la duración objetivo de 8–12 minutos mediante sesiones con jugadores.
-- Los paisajes y personajes secundarios ahora son ilustraciones pixel art con asistencia generativa. Falta una auditoría artística de continuidad entre fondos y poses y una auditoría de accesibilidad.
-- La idea de Proverbios 3:5 está marcada como adaptación pendiente de verificación editorial.
-- El capítulo 2 se desbloquea, pero los capítulos 2–7 aún no tienen escenarios jugables.
-- Se guardaron `install_script` y `start_skill` en el borrador. No se publicó el entorno ni se validó una restauración en una tarea nueva.
+El binario CanvasKit servido tiene la versión instalada en su nombre; una prueba compara su SHA-256 con la dependencia para evitar mezclar JavaScript y WASM de otra versión. Los personajes utilizan buffers de transformaciones de Skia y una imagen fija por atlas, sin transferir imágenes nativas entre fotogramas.
+
+## Límites
+
+- Los bundles Android/iOS no demuestran ejecución, guardado ni rendimiento en dispositivos físicos. La prueba táctil se ejecutó en Chromium, no en una app nativa instalada.
+- La duración objetivo de 8–12 minutos todavía requiere sesiones con jugadores.
+- El arte se creó con asistencia generativa y necesita revisión artística de continuidad entre poses y una auditoría de accesibilidad.
+- Proverbios 3:5 sigue marcado como adaptación pendiente de verificación editorial.
+- Los capítulos 2–7 aún no tienen escenarios jugables.

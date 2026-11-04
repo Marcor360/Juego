@@ -9,9 +9,7 @@ import {
   ScrollView,
   Switch,
   AppState,
-  Image as NativeImage,
 } from "react-native";
-import { Asset } from "expo-asset";
 import { useFonts } from "expo-font";
 import { useSharedValue } from "react-native-reanimated";
 import {
@@ -24,6 +22,13 @@ import { useGameAudio } from "../game/audio/useGameAudio";
 import { World } from "../game/engine/world";
 import { chapters } from "../game/levels/forest";
 import { collect, objective } from "../game/missions/progress";
+import {
+  dialogueSpeaker,
+  speakerNames,
+  type Speaker,
+} from "../game/dialogues/presentation";
+import ItemArt from "../components/ItemArt";
+import Portrait from "../components/Portrait";
 import content from "../game/dialogues/content.json";
 import { faith } from "../game/inventory/tools";
 import { newSave, defaultSettings, type Save } from "../game/save/schema";
@@ -119,6 +124,7 @@ export default function Game() {
     [dialogue, setDialogue] = useState<{
       lines: string[];
       index: number;
+      speaker: Speaker;
       done?: () => void;
     } | null>(null),
     [words, setWords] = useState<number[]>([]),
@@ -135,7 +141,9 @@ export default function Game() {
     camera = useSharedValue(0),
     time = useSharedValue(0),
     motion = useSharedValue(0),
-    action = useSharedValue(0);
+    action = useSharedValue(0),
+    falling = useSharedValue(0);
+  const pickup = useSharedValue({ x: 0, y: 0, at: -10 });
   const completionStart = useRef(0);
   const live = useRef({ screen, panel, dialogue, settings });
   live.current = { screen, panel, dialogue, settings };
@@ -148,6 +156,14 @@ export default function Game() {
       setReady(true);
     });
   }, []);
+  useEffect(() => {
+    if (!message.startsWith("✧")) return;
+    const timer = setTimeout(
+      () => setMessage((current) => (current === message ? "" : current)),
+      6500,
+    );
+    return () => clearTimeout(timer);
+  }, [message]);
   async function persist() {
     const old = saveRef.current;
     const s: Save = {
@@ -182,10 +198,14 @@ export default function Game() {
     setProgress(JSON.parse(JSON.stringify(world.progress)));
     void persist();
   }
-  function say(lines: string[], done?: () => void) {
+  function say(
+    lines: string[],
+    done?: () => void,
+    speaker: Speaker = "narrator",
+  ) {
     soundRef.current("interaction");
     world.release();
-    setDialogue({ lines, index: 0, done });
+    setDialogue({ lines, index: 0, done, speaker });
   }
   function resume(s: Save) {
     world.progress = JSON.parse(JSON.stringify(s.missions));
@@ -227,22 +247,18 @@ export default function Game() {
     if (!o) return;
     const p = world.progress;
     if (o.kind === "guide") {
-      say(content.guide, () => {
-        p.guide = true;
-        refresh();
-      });
+      say(
+        content.guide,
+        () => {
+          p.guide = true;
+          refresh();
+        },
+        "guide",
+      );
       return;
     }
     if (!p.guide) {
       setMessage("Primero habla con la guía del bosque.");
-      return;
-    }
-    if (o.kind === "light") {
-      if (!p.lights.includes(o.id)) {
-        collect(p, o.id);
-        refresh();
-        say([content.reflections[Number(o.id.slice(-1)) - 1]]);
-      }
       return;
     }
     if (o.kind === "lamp") {
@@ -266,9 +282,13 @@ export default function Game() {
     if (o.kind === "traveler") {
       if (p.lamps.length < 2) return;
       if (p.traveler) {
-        say([
-          "Gracias por escucharme. Ya no siento que deba recorrer este camino a solas.",
-        ]);
+        say(
+          [
+            "Gracias por escucharme. Ya no siento que deba recorrer este camino a solas.",
+          ],
+          undefined,
+          "travelerHappy",
+        );
         return;
       }
       world.release();
@@ -315,8 +335,16 @@ export default function Game() {
           world.step(1 / 120);
           acc -= 1 / 120;
         }
+        for (const event of world.drainPickups()) {
+          pickup.value = { x: event.x, y: event.y, at: time.value };
+          setMessage(
+            `✧ ${world.progress.lights.length}/3 · ${content.reflections[Number(event.id.slice(-1)) - 1]}`,
+          );
+          refresh();
+        }
         x.value = world.x;
         y.value = world.y;
+        falling.value = world.vy > 0 ? 1 : 0;
         camera.value = world.camera;
         motion.value = !world.grounded ? 2 : world.moving ? world.facing : 0;
         if (world.moving && world.grounded && now - lastStep.current > 340) {
@@ -330,6 +358,7 @@ export default function Game() {
         }
       } else {
         world.release();
+        motion.value = 0;
         acc = 0;
       }
       action.value =
@@ -339,10 +368,11 @@ export default function Game() {
             : Date.now() - completionStart.current < 1800
               ? 5
               : 6
-          : l.dialogue
+          : l.dialogue &&
+              dialogueSpeaker(l.dialogue.speaker, l.dialogue.index) === "hero"
             ? 3
             : 0;
-      if (!l.settings.reducedMotion) time.value += dt;
+      time.value += dt;
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -477,6 +507,15 @@ export default function Game() {
           action={action}
           progress={progress}
           reducedMotion={settings.reducedMotion}
+          pickup={pickup}
+          talking={
+            dialogue
+              ? dialogueSpeaker(dialogue.speaker, dialogue.index)
+              : panel === "traveler"
+                ? "traveler"
+                : null
+          }
+          falling={falling}
         />
         <View
           pointerEvents="box-none"
@@ -493,25 +532,7 @@ export default function Game() {
           {screen === "menu" && (
             <View style={styles.menu}>
               <View style={styles.bookMark} accessibilityElementsHidden>
-                <Text style={styles.olive}>❧</Text>
-                <View style={styles.bookPages}>
-                  {[0, 1].map((side) => (
-                    <View
-                      key={side}
-                      style={[
-                        styles.bookPage,
-                        { transform: [{ rotate: side ? "7deg" : "-7deg" }] },
-                      ]}
-                    >
-                      {[0, 1, 2, 3].map((line) => (
-                        <View key={line} style={styles.bookLine} />
-                      ))}
-                    </View>
-                  ))}
-                </View>
-                <Text style={[styles.olive, { transform: [{ scaleX: -1 }] }]}>
-                  ❧
-                </Text>
+                <ItemArt index={3} size={78} />
               </View>
               <Text style={[styles.title, { fontSize: 29 }]}>
                 El camino de una
@@ -683,47 +704,18 @@ export default function Game() {
                     gap: 12,
                   }}
                 >
-                  <View style={styles.portraitFrame}>
-                    <NativeImage
-                      source={{
-                        uri: Asset.fromModule(
-                          dialogue.lines === content.guide &&
-                            dialogue.index !== 1 &&
-                            dialogue.index !== 4
-                            ? require("../assets/characters/forest-npcs.png")
-                            : require("../assets/frames/talk/talk_00.png"),
-                        ).uri,
-                      }}
-                      style={
-                        dialogue.lines === content.guide &&
-                        dialogue.index !== 1 &&
-                        dialogue.index !== 4
-                          ? {
-                              width: 240,
-                              height: 120,
-                              position: "absolute",
-                              left: -25,
-                              top: -14,
-                            }
-                          : {
-                              width: 128,
-                              height: 160,
-                              position: "absolute",
-                              left: -32,
-                              top: -18,
-                            }
-                      }
-                      resizeMode="stretch"
-                    />
-                  </View>
+                  <Portrait
+                    speaker={dialogueSpeaker(dialogue.speaker, dialogue.index)}
+                    size={66}
+                  />
                   <View>
                     <Text style={styles.overline}>EL BOSQUE DE LAS DUDAS</Text>
                     <Text style={styles.speaker}>
-                      {dialogue.lines === content.guide
-                        ? dialogue.index === 1 || dialogue.index === 4
-                          ? "La precursora"
-                          : "La guía del bosque"
-                        : "Un momento en el camino"}
+                      {
+                        speakerNames[
+                          dialogueSpeaker(dialogue.speaker, dialogue.index)
+                        ]
+                      }
                     </Text>
                   </View>
                 </View>
@@ -847,6 +839,11 @@ export default function Game() {
                   {panel === "inventory" && (
                     <>
                       <Text style={styles.heading}>Tus herramientas</Text>
+                      {(save?.tools.includes("fe") || progress.complete) && (
+                        <View style={{ alignItems: "center" }}>
+                          <ItemArt index={2} size={125} />
+                        </View>
+                      )}
                       <Text style={styles.body}>
                         {save?.tools.includes("fe") || progress.complete
                           ? `${faith.icon} ${faith.name}\n\n${faith.description}\n\n${faith.ability}`
@@ -856,7 +853,16 @@ export default function Game() {
                   )}
                   {panel === "traveler" && (
                     <>
-                      <Text style={styles.heading}>El claro del viajero</Text>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          gap: 14,
+                          alignItems: "center",
+                        }}
+                      >
+                        <Portrait speaker="traveler" size={66} />
+                        <Text style={styles.heading}>El claro del viajero</Text>
+                      </View>
                       <Text style={styles.body}>
                         «He intentado avanzar, pero tengo miedo de equivocarme.
                         Siento que no puedo seguir».
@@ -877,9 +883,13 @@ export default function Game() {
                           world.progress.traveler = true;
                           refresh();
                           setPanel(null);
-                          say([
-                            "Gracias por escucharme. Saber que no estoy solo me da fuerzas para seguir.",
-                          ]);
+                          say(
+                            [
+                              "Gracias por escucharme. Saber que no estoy solo me da fuerzas para seguir.",
+                            ],
+                            undefined,
+                            "travelerHappy",
+                          );
                         }}
                       />
                       <Button
