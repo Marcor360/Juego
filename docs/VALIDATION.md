@@ -5,10 +5,11 @@ Entorno: Node 24.22.1, Expo SDK 54, Skia 2.2.12. Esta versión reemplaza el bosq
 | Comprobación | Alcance |
 | --- | --- |
 | `npm run typecheck` | Tipos del proyecto |
-| `npm test` | 21 pruebas: progresión, evidencias, decisiones, salud, físicas, guardado, migración y arte |
+| `npm test` | 39 pruebas: progresión, evidencias, decisiones, salud, físicas, guardado, migración y arte |
 | `npm run build:web` | Exportación web y recursos locales CanvasKit |
 | `expo export --platform android --platform ios` | Bundles Hermes de ambas plataformas; no equivale a prueba en teléfono |
 | `tests/browser-v3.cjs` | Tutorial, 16 escenas, desafío por etapas, recompensa, exportación, importación válida y rechazo de archivo incompatible |
+| `tests/stability-browser.cjs` | Recuperación y fallos de almacenamiento reales, tutorial táctil sin volver al libro, pausa inmediata en seis zonas |
 | `tests/menu-browser.cjs` | Tres portadas, vestuarios, controles y guardado en cuatro tamaños de pantalla |
 | `tests/chest-browser.cjs` | Cuerpo sólido, apertura animada y Fe permanente en escritorio y táctil |
 | `tests/replay-browser.cjs` | Repetición sin sobrescribir y continuación de la partida principal |
@@ -50,3 +51,9 @@ No se publicó el entorno ni una aplicación firmada para tiendas durante esta r
 ## Rediseño del menú
 
 Se agregaron tres paisajes y seis poses de menú, incluida la protagonista con pantalón en la variante intermedia. La selección visual depende de las escenas realmente completadas, sin migrar ni alterar los datos de partida. El menú vertical mantiene controles ampliados y usa un retrato enmarcado cuando falta altura para el cuerpo completo. La tipografía nueva se incluye con su licencia OFL. Ver `docs/MENU.md`.
+
+## Revisión del PR #1
+
+Se verificaron los respaldos y la recuperación con almacenamiento simulado en pruebas unitarias y con `localStorage` real en navegador, incluyendo errores al escribir la copia. Una escritura fallida no reemplaza los datos previos ni anuncia éxito. Se conservan sesiones descargables y los avisos requieren cierre explícito.
+
+Se comprobó el cierre del tutorial desde el cuaderno con controles táctiles reales lejos del libro, además del recorrido original. Se capturaron las seis zonas pausando inmediatamente tras importar checkpoints lejanos y se verificó que los fondos conservaran detalle visible. El recorte de teselas y la equivalencia de movimiento a 5–120 FPS tienen pruebas de lógica; esos valores no son una medición del rendimiento de un teléfono. Las 16 escenas y las tres variantes de menú pasaron sus pruebas de navegador.

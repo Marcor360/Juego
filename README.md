@@ -23,7 +23,7 @@ El `postinstall` prepara CanvasKit desde la dependencia instalada. Se sirve `pub
 
 ## Menús que acompañan el viaje
 
-Tres portadas originales cambian con el avance del capítulo: **Amanecer**, **En camino** (tras la escena 8, con pantalón lavanda y botas) y **Nuevos horizontes** (tras el epílogo). Incluyen retratos animados, paisajes propios, tarjeta de diario, detalles de olivo y tipografía Cormorant Garamond con licencia OFL. En móvil vertical, los controles se reorganizan para seguir siendo legibles. Ver [diseño del menú](docs/MENU.md).
+Tres portadas originales cambian con el avance del capítulo: **Amanecer**, **En camino** (tras la escena 8, con pantalón de vestir lavanda y zapatos formales) y **Nuevos horizontes** (tras el epílogo). Incluyen retratos animados, paisajes propios, tarjeta de diario, detalles de olivo y tipografía Cormorant Garamond con licencia OFL. En móvil vertical, los controles se reorganizan para seguir siendo legibles. Ver [diseño del menú](docs/MENU.md).
 
 ## Capítulo 1 v3
 
@@ -46,7 +46,7 @@ Controles: **A/D o flechas** para caminar, **Espacio** para saltar, **E** para c
 
 AsyncStorage guarda al completar escenas, recoger pistas/materiales, activar checkpoints, recibir daño y salir al menú. En web se pueden descargar e importar partidas JSON validadas antes de reemplazar el progreso. El archivo contiene versión, checkpoint, posición segura, corazones, misiones, evidencias, decisiones, materiales, reflexiones, inventario, capítulos y ajustes.
 
-El esquema 2 usa la clave `precursora-save-v2`. Las partidas válidas de la versión anterior se migran desde `precursora-save-v1`, que permanece como respaldo: conservan la Fe y el capítulo 2 obtenidos, pero comienzan las 16 escenas nuevas desde la entrada. Repetir un capítulo no sobrescribe la partida principal hasta terminarlo.
+El esquema 2 usa la clave `precursora-save-v2`. Se conserva el guardado válido anterior en `precursora-save-v2-last-good`. Si la partida reciente está dañada, se intenta recuperar una copia local o la versión anterior. Los candidatos dañados se archivan antes de reemplazarlos, y una lectura o un respaldo fallidos bloquean la sobrescritura. Los avisos se mantienen hasta leerlos; la sesión actual puede descargarse incluso si el almacenamiento falla. Las partidas válidas de la versión anterior se migran desde `precursora-save-v1`, que permanece como respaldo: conservan la Fe y el capítulo 2 obtenidos, pero comienzan las 16 escenas nuevas desde la entrada. Repetir un capítulo no sobrescribe la partida principal hasta terminarlo.
 
 ## Arquitectura y arte
 
@@ -75,6 +75,7 @@ node tests/browser-v3.cjs
 node tests/graphics-browser.cjs
 node tests/replay-browser.cjs
 node tests/menu-browser.cjs
+node tests/stability-browser.cjs
 ```
 
 `GAME_URL`, `PLAYWRIGHT_MODULE` y `CHROMIUM_PATH` permiten configurar el servidor y las herramientas. En el entorno de desarrollo: Playwright `/opt/codex/cua_node/lib/node_modules/playwright`, Chromium `/usr/bin/chromium`.

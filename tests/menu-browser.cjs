@@ -19,7 +19,7 @@ const phases = [
     id: "middle",
     name: "En camino",
     save: fixtures[8],
-    outfit: "Pantalón lavanda y botas de camino",
+    outfit: "Pantalón de vestir lavanda y zapatos formales",
   },
   {
     id: "ending",

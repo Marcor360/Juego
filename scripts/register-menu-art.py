@@ -2,9 +2,12 @@
 from pathlib import Path
 from statistics import median
 import json
+import sys
 from PIL import Image
 root=Path(__file__).resolve().parents[1]
-im=Image.open(root/'assets/menu/hero.png').convert('RGBA')
+source=sys.argv[1] if len(sys.argv)>1 else 'assets/menu/hero.png'
+destination=sys.argv[2] if len(sys.argv)>2 else 'game/rendering/menu-art.json'
+im=Image.open(root/source).convert('RGBA')
 frames=[]
 for i in range(6):
     x0=round((i%3)*im.width/3);x1=round((i%3+1)*im.width/3)
@@ -16,5 +19,5 @@ for i in range(6):
     frames.append({'x':x0+l,'y':y0+t,'width':r-l,'height':b-t,'anchorX':(x0+l+x0+r)/2,'anchorY':y0+b,'cell':{'x':x0,'y':y0,'width':x1-x0,'height':y1-y0}})
 # Per-frame feet registration avoids a visible bounce when the row switches to a blink.
 data={'width':im.width,'height':im.height,'columns':3,'rows':2,'referenceHeight':median(f['height'] for f in frames[:3]),'frames':frames,'variants':{'beginning':[0,3],'middle':[1,4],'ending':[2,5]}}
-(root/'game/rendering/menu-art.json').write_text(json.dumps(data,indent=2)+'\n')
+(root/destination).write_text(json.dumps(data,indent=2)+'\n')
 print({'dimensions':im.size,'frames':len(frames),'height':data['referenceHeight']})

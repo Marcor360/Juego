@@ -5,7 +5,7 @@ El menú principal tiene tres composiciones originales y cambia automáticamente
 | Variante | Momento | Protagonista | Paisaje |
 | --- | --- | --- | --- |
 | Amanecer | Antes de completar la escena 8 | Blusa azul, falda lavanda y mochila | Árbol florido, pueblo, montañas y amanecer |
-| En camino | Escena 8 completada y capítulo sin terminar | La misma protagonista con pantalón lavanda, botas y mochila | Arroyo y puente de piedra entre árboles |
+| En camino | Escena 8 completada y capítulo sin terminar | La misma protagonista con pantalón de vestir lavanda, zapatos formales y mochila | Arroyo y puente de piedra entre árboles |
 | Nuevos horizontes | Escena 16 completada | Falda lavanda y linterna de la Fe | Valle al anochecer, primeras estrellas y luces del pueblo |
 
 Las recompensas importadas de una versión antigua no adelantan el aspecto de cierre si las escenas nuevas todavía no se han jugado. No se muestran graduación ni recompensas de capítulos futuros.
@@ -23,15 +23,16 @@ El parpadeo alterna dos fotogramas reales por vestuario, registrados con apoyo e
 ## Recursos
 
 - `assets/menu/beginning.png`, `middle.png`, `ending.png`: fondos originales sin texto ni botones incrustados.
-- `assets/menu/hero.png`: seis poses con transparencia, tres vestuarios por dos estados de ojos.
-- `game/rendering/menu-art.json`: dimensiones reales, celdas, límites alfa y anclajes. Se regenera con `python scripts/register-menu-art.py` (Pillow opcional; no modifica las imágenes).
+- `assets/menu/hero.png`: seis poses originales con transparencia. Las portadas inicial y de cierre conservan este recurso.
+- `assets/menu/hero-formal.png`: vestuario intermedio corregido en dos poses, con pantalón de vestir lavanda de corte recto y raya, y zapatos formales crema de tacón bajo. El menú usa sus celdas centrales para el estado normal y el parpadeo.
+- `game/rendering/menu-art.json` y `menu-formal-art.json`: dimensiones reales, celdas, límites alfa y anclajes. El segundo se regenera con `python scripts/register-menu-art.py assets/menu/hero-formal.png game/rendering/menu-formal-art.json` (Pillow opcional; no modifica las imágenes).
 - `assets/fonts/CormorantGaramond.ttf`: fuente Cormorant Garamond, distribuida junto a su licencia SIL OFL. Pixelify se conserva para las etiquetas de viaje.
 
 El arte fue creado con asistencia generativa para este proyecto. Las animaciones y los controles se implementan por separado mediante React Native y Reanimated.
 
 ## Verificación
 
-- `npm run typecheck` y `npm test` (21 pruebas).
+- `npm run typecheck` y `npm test` (39 pruebas).
 - Exportaciones web, Android e iOS.
 - `tests/menu-browser.cjs`: las tres variantes en 1280×720, 667×375, 390×844 y 600×800; verifica vestuario asociado, botones dentro de la pantalla, Continuar deshabilitado, ajustes, créditos, descarga y retorno al menú tras guardar. Comprueba errores de página y recursos ausentes.
 - `tests/browser-v3.cjs`: regresión de las 16 escenas con teclado y controles táctiles web.

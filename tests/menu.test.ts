@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { URL } from "node:url";
 import { menuThemeForSave } from "../game/menu/themes.ts";
 import { newSave } from "../game/save/schema.ts";
 test("menu outfits follow actual story milestones without unlocking final art from old rewards", () => {
@@ -25,26 +26,31 @@ test("menu outfits follow actual story milestones without unlocking final art fr
 });
 test("menu atlas registers six real poses with stable feet, and each phase has a dedicated background", () => {
   const root = new URL("../", import.meta.url);
-  const art = JSON.parse(
-    readFileSync(new URL("game/rendering/menu-art.json", root), "utf8"),
-  );
-  const png = readFileSync(new URL("assets/menu/hero.png", root));
-  assert.equal(art.width, png.readUInt32BE(16));
-  assert.equal(art.height, png.readUInt32BE(20));
-  assert.equal(art.frames.length, 6);
-  for (const [id, indices] of Object.entries(art.variants) as [
-    string,
-    number[],
-  ][]) {
-    assert.equal(indices.length, 2);
-    for (const index of indices) {
-      const f = art.frames[index];
-      assert(f.width > 100 && f.height > 300);
-      assert(f.x >= f.cell.x && f.x + f.width <= f.cell.x + f.cell.width);
-      assert(f.y >= f.cell.y && f.y + f.height <= f.cell.y + f.cell.height);
-      assert.equal(f.anchorY, f.y + f.height);
+  for (const variant of [
+    { meta: "menu-art.json", png: "hero.png" },
+    { meta: "menu-formal-art.json", png: "hero-formal.png" },
+  ]) {
+    const art = JSON.parse(
+      readFileSync(new URL("game/rendering/" + variant.meta, root), "utf8"),
+    );
+    const png = readFileSync(new URL("assets/menu/" + variant.png, root));
+    assert.equal(art.width, png.readUInt32BE(16));
+    assert.equal(art.height, png.readUInt32BE(20));
+    assert.equal(art.frames.length, 6);
+    for (const [id, indices] of Object.entries(art.variants) as [
+      string,
+      number[],
+    ][]) {
+      assert.equal(indices.length, 2);
+      for (const index of indices) {
+        const f = art.frames[index];
+        assert(f.width > 100 && f.height > 300);
+        assert(f.x >= f.cell.x && f.x + f.width <= f.cell.x + f.cell.width);
+        assert(f.y >= f.cell.y && f.y + f.height <= f.cell.y + f.cell.height);
+        assert.equal(f.anchorY, f.y + f.height);
+      }
+      const bg = readFileSync(new URL(`assets/menu/${id}.png`, root));
+      assert(bg.readUInt32BE(16) >= 960 && bg.readUInt32BE(20) >= 540);
     }
-    const bg = readFileSync(new URL(`assets/menu/${id}.png`, root));
-    assert(bg.readUInt32BE(16) >= 960 && bg.readUInt32BE(20) >= 540);
   }
 });
