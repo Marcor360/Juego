@@ -1,5 +1,6 @@
 import art from "../game/rendering/art.json";
 import { tileTransform } from "../game/rendering/tiles";
+import { viewWindow, intersects, groundTiles } from "../game/rendering/view";
 import { Asset } from "expo-asset";
 import {
   Canvas,
@@ -345,12 +346,9 @@ export default function Scene(p: SceneProps) {
     { translateY: p.menu ? 247 : p.y.value },
     { scale: p.menu ? 3.65 : 1 },
   ]);
-  // Render only geometry and objects close to the visible camera window.
-  // Keep a 240px prefetch margin to avoid pop-in as the camera moves.
-  const viewStart = Math.max(0, p.cameraSector * 240 - 240);
-  const viewEnd = Math.min(WIDTH, p.cameraSector * 240 + 960);
-  const inView = (at: number, width = 0) =>
-    at + width >= viewStart && at <= viewEnd;
+  const viewport = viewWindow(p.cameraSector, WIDTH);
+  const { start: viewStart, end: viewEnd } = viewport;
+  const inView = (at: number, width = 0) => intersects(viewport, at, width);
   const groundSegments = [];
   let from = 0;
   for (const gap of gaps) {
@@ -384,63 +382,61 @@ export default function Scene(p: SceneProps) {
             {[entrance, stream, bridge, clearing, mist, refuge].map(
               (image, i) =>
                 zones[i].end >= viewStart && zones[i].start <= viewEnd ? (
-                  <Background key={i} image={image} index={i} camera={p.camera} />
+                  <Background
+                    key={i}
+                    image={image}
+                    index={i}
+                    camera={p.camera}
+                  />
                 ) : null,
             )}
             <Group transform={world}>
-              {gaps.filter((g) => inView(g.x, g.w)).map((g) => (
-                <Group key={g.x}>
-                  <Rect
-                    x={g.x}
-                    y={226}
-                    width={g.w}
-                    height={44}
-                    color="#16474a"
-                  />
-                  <Rect x={g.x} y={245} width={g.w} height={25}>
-                    <LinearGradient
-                      start={vec(0, 245)}
-                      end={vec(0, 270)}
-                      colors={["#578d85", "#162f3a"]}
-                    />
-                  </Rect>
-                  {[0, 1, 2].map((i) => (
+              {gaps
+                .filter((g) => inView(g.x, g.w))
+                .map((g) => (
+                  <Group key={g.x}>
                     <Rect
-                      key={i}
-                      x={g.x + 4}
-                      y={247 + i * 6}
-                      width={g.w - 8}
-                      height={0.6}
-                      color="#a7d2bf66"
+                      x={g.x}
+                      y={226}
+                      width={g.w}
+                      height={44}
+                      color="#16474a"
                     />
-                  ))}
-                </Group>
-              ))}
-              {groundSegments.filter((g) => inView(g.x, g.w)).map((g) => (
-                <Group
-                  key={g.x}
-                  clip={{ x: g.x, y: 226, width: g.w, height: 44 }}
-                >
-                  <Rect
-                    x={g.x}
-                    y={226}
-                    width={g.w}
-                    height={44}
-                    color="#554530"
-                  />
-                  {Array.from(
-                    {
-                      length:
-                        Math.ceil((g.x + g.w) / 240) - Math.floor(g.x / 240),
-                    },
-                    (_, offset) => (
-                      <Group
-                        key={offset}
-                        transform={tileTransform(
-                          Math.floor(g.x / 240) + offset,
-                          240,
-                        )}
-                      >
+                    <Rect x={g.x} y={245} width={g.w} height={25}>
+                      <LinearGradient
+                        start={vec(0, 245)}
+                        end={vec(0, 270)}
+                        colors={["#578d85", "#162f3a"]}
+                      />
+                    </Rect>
+                    {[0, 1, 2].map((i) => (
+                      <Rect
+                        key={i}
+                        x={g.x + 4}
+                        y={247 + i * 6}
+                        width={g.w - 8}
+                        height={0.6}
+                        color="#a7d2bf66"
+                      />
+                    ))}
+                  </Group>
+                ))}
+              {groundSegments
+                .filter((g) => inView(g.x, g.w))
+                .map((g) => (
+                  <Group
+                    key={g.x}
+                    clip={{ x: g.x, y: 226, width: g.w, height: 44 }}
+                  >
+                    <Rect
+                      x={g.x}
+                      y={226}
+                      width={g.w}
+                      height={44}
+                      color="#554530"
+                    />
+                    {groundTiles(g, viewport).map((i) => (
+                      <Group key={i} transform={tileTransform(i, 240)}>
                         {ground && (
                           <Image
                             image={ground}
@@ -453,36 +449,45 @@ export default function Scene(p: SceneProps) {
                           />
                         )}
                       </Group>
-                    ),
-                  )}
-                </Group>
-              ))}
-              {rightLimit(p.progress) < 7988 && inView(rightLimit(p.progress), 52) && (
-                <Group
-                  transform={[
-                    { translateX: rightLimit(p.progress) + 28 },
-                    { translateY: 226 },
-                  ]}
-                >
-                  <Prop
-                    image={terrain}
-                    pack="terrain"
-                    index={3}
-                    width={52}
-                    height={65}
+                    ))}
+                  </Group>
+                ))}
+              {rightLimit(p.progress) < 7988 &&
+                inView(rightLimit(p.progress), 52) && (
+                  <Group
+                    transform={[
+                      { translateX: rightLimit(p.progress) + 28 },
+                      { translateY: 226 },
+                    ]}
+                  >
+                    <Prop
+                      image={terrain}
+                      pack="terrain"
+                      index={3}
+                      width={52}
+                      height={65}
+                    />
+                  </Group>
+                )}
+              {activePlatforms(p.progress)
+                .filter((r) =>
+                  inView(
+                    r.x - (r.move?.amplitude ?? 0),
+                    r.w + 2 * (r.move?.amplitude ?? 0),
+                  ),
+                )
+                .map((r) => (
+                  <Ledge key={r.id} r={r} time={p.simulation} image={terrain} />
+                ))}
+              {hazards
+                .filter((h) => inView(h.x, h.w))
+                .map((h) => (
+                  <Path
+                    key={h.id}
+                    path={`M ${h.x} ${h.y} Q ${h.x + 3} ${h.y - 12} ${h.x + 7} ${h.y - 5} Q ${h.x + 10} ${h.y - 11} ${h.x + h.w} ${h.y} Z`}
+                    color="#77553e"
                   />
-                </Group>
-              )}
-              {activePlatforms(p.progress).filter((r) => inView(r.x - (r.move?.amplitude ?? 0), r.w + 2 * (r.move?.amplitude ?? 0))).map((r) => (
-                <Ledge key={r.id} r={r} time={p.simulation} image={terrain} />
-              ))}
-              {hazards.filter((h) => inView(h.x, h.w)).map((h) => (
-                <Path
-                  key={h.id}
-                  path={`M ${h.x} ${h.y} Q ${h.x + 3} ${h.y - 12} ${h.x + 7} ${h.y - 5} Q ${h.x + 10} ${h.y - 11} ${h.x + h.w} ${h.y} Z`}
-                  color="#77553e"
-                />
-              ))}
+                ))}
               {objects
                 .filter((o) => objectVisible(o, p.progress) && inView(o.x, 48))
                 .map((o) => {

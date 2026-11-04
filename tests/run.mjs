@@ -7,3 +7,6 @@ import "./art.test.ts";
 import "./routes.test.ts";
 
 import "./menu.test.ts";
+
+import "./repository.test.ts";
+import "./runtime.test.ts";

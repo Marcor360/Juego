@@ -31,7 +31,7 @@ El arte fue creado con asistencia generativa para este proyecto. Las animaciones
 
 ## Verificación
 
-- `npm run typecheck` y `npm test` (21 pruebas).
+- `npm run typecheck` y `npm test` (39 pruebas).
 - Exportaciones web, Android e iOS.
 - `tests/menu-browser.cjs`: las tres variantes en 1280×720, 667×375, 390×844 y 600×800; verifica vestuario asociado, botones dentro de la pantalla, Continuar deshabilitado, ajustes, créditos, descarga y retorno al menú tras guardar. Comprueba errores de página y recursos ausentes.
 - `tests/browser-v3.cjs`: regresión de las 16 escenas con teclado y controles táctiles web.

@@ -1,7 +1,7 @@
 # Propuesta de estabilización: Capítulo 1
 
-**Rama:** `fix/ch1-progress-performance-20261104`  
-**Base:** `main`  
+**Rama:** `fix/ch1-progress-performance-20261104`
+**Base:** `main`, incorporado en esta rama durante la revisión
 **Alcance:** correcciones técnicas sin modificar preguntas bíblicas, diálogos ni su evaluación.
 
 ## Correcciones incluidas en este PR
@@ -13,16 +13,28 @@
 5. **Partidas locales:** validar cada candidato de forma independiente. Si la partida v2 está dañada, intentar conservar un respaldo y recuperar la v1 cuando exista; informar al jugador sin borrar datos automáticamente.
 6. **Pruebas/CI:** añadir pruebas unitarias del decodificador de partidas y ejecutar TypeScript, pruebas de lógica y exportación web en los PR.
 
+## Correcciones añadidas tras revisar el PR
+
+- Integración de `main`: se conservan los tres menús nuevos, sus ilustraciones, los vestuarios y la composición vertical.
+- El estado de cámara y HUD se sincroniza inmediatamente al restaurar o reaparecer. El margen del renderer no depende de esperar 100 ms durante un diálogo o una pausa.
+- Los segmentos largos del suelo también se recortan por teselas; no basta con descartar segmentos enteros alejados.
+- Un reloj físico acotado conserva la fracción de tiempo entre fotogramas, con pruebas equivalentes a 5, 10, 15, 30, 60 y 120 FPS.
+- El repositorio de guardado inyecta el almacenamiento para probar el flujo completo, además del decodificador. Conserva el último candidato válido y archiva candidatos dañados sin reemplazar el primer respaldo existente.
+- Una lectura fallida no bloquea los candidatos independientes. Si falla el respaldo, se rechaza la escritura que sobrescribiría los datos. La sesión más reciente permanece disponible para descarga.
+- Los avisos importantes se mantienen hasta leerlos y no se anuncia «Partida guardada» cuando la escritura falla. Se controlan también los errores al guardar ajustes.
+- Se corrigió la importación de `URL` en la prueba de menús para evitar la incompatibilidad entre tipos DOM y Node en CI.
+- No faltaban ilustraciones para este alcance. Se comprobaron fondos, suelo, plataformas, personajes y portadas en navegador, sin generar recursos redundantes.
+
 ## Criterios de aceptación
 
-- [ ] El primer tutorial se completa usando el cuaderno, sin requerir encontrar otra vez el libro si ya se practicaron los controles.
-- [ ] Los cuatro indicadores del tutorial se conservan tras guardar y continuar.
-- [ ] Una partida v2 válida carga sin cambios.
-- [ ] Una partida v2 inválida no impide recuperar una v1 válida; se muestra aviso.
-- [ ] Las 16 escenas existentes y el cofre siguen funcionando.
-- [ ] No aparecen huecos de fondo al avanzar por límites de sectores de cámara.
-- [ ] En móvil se conserva la respuesta a saltar e interactuar.
-- [ ] `npm run typecheck`, `npm test` y `npm run build:web` en verde.
+- [x] El primer tutorial se completa usando el cuaderno, sin requerir encontrar otra vez el libro si ya se practicaron los controles.
+- [x] Los cuatro indicadores del tutorial se conservan tras guardar y continuar.
+- [x] Una partida v2 válida carga sin cambios.
+- [x] Una partida v2 inválida no impide recuperar una v1 válida; se muestra aviso.
+- [x] Las 16 escenas existentes y el cofre siguen funcionando.
+- [x] No aparecen huecos de fondo al avanzar por límites de sectores de cámara.
+- [x] En web táctil se conserva la respuesta a saltar e interactuar; falta validar teléfonos nativos físicos.
+- [x] `npm run typecheck`, `npm test` (39 pruebas) y `npm run build:web` aprobados localmente. El estado remoto de CI se revisa después de subir la rama.
 
 ## Siguientes PR (no incluidos)
 

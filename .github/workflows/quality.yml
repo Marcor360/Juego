@@ -11,6 +11,9 @@ jobs:
   verificar:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      EXPO_NO_TELEMETRY: "1"
+      EXPO_OFFLINE: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

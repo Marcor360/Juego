@@ -24,6 +24,7 @@ import ChallengePanel from "../components/ChallengePanel";
 import UIIcon, { type UIIconName } from "../components/UIIcon";
 import { useGameAudio } from "../game/audio/useGameAudio";
 import { World } from "../game/engine/world";
+import { FixedStepClock, MAX_FRAME_SECONDS } from "../game/engine/ticker";
 import {
   chapters,
   zones,
@@ -164,7 +165,8 @@ export default function Game() {
     [journalTab, setJournalTab] = useState<
       "missions" | "map" | "evidence" | "reflections"
     >("missions"),
-    [cameraSector, setCameraSector] = useState(0);
+    [cameraSector, setCameraSector] = useState(0),
+    [storageNotice, setStorageNotice] = useState("");
   const x = useSharedValue(120),
     y = useSharedValue(226),
     camera = useSharedValue(0),
@@ -177,6 +179,8 @@ export default function Game() {
     companionY = useSharedValue(226),
     chestFrame = useSharedValue(0),
     pickup = useSharedValue({ x: 0, y: 0, at: -10 });
+  const hudCache = useRef({ near: "", zone: zones[0].name, sector: 0 });
+  const lastSaveError = useRef("");
   const replayOriginal = useRef<Save | null>(null);
   const saveRef = useRef<Save | null>(null),
     rewardAt = useRef(-1),
@@ -195,11 +199,13 @@ export default function Game() {
         setSave(s);
         saveRef.current = s;
         if (s) setSettings(s.settings);
-        if (notice) setMessage(notice);
+        if (notice) setStorageNotice(notice);
         setReady(true);
       })
       .catch(() => {
-        setMessage("No se pudo preparar el guardado local. Vuelve a intentarlo.");
+        setStorageNotice(
+          "No se pudo preparar el guardado local. Puedes descargar tu progreso antes de cerrar.",
+        );
         setReady(true);
       });
   }, []);
@@ -208,6 +214,26 @@ export default function Game() {
     const id = setTimeout(() => setMessage(""), 6500);
     return () => clearTimeout(id);
   }, [message]);
+  function syncHud() {
+    const cache = hudCache.current,
+      label = world.nearby()?.label ?? "",
+      name =
+        zones.find((z) => world.x >= z.start && world.x < z.end)?.name ??
+        zones[0].name,
+      sector = Math.floor(world.camera / 240);
+    if (label !== cache.near) {
+      cache.near = label;
+      setNear(label);
+    }
+    if (name !== cache.zone) {
+      cache.zone = name;
+      setZone(name);
+    }
+    if (sector !== cache.sector) {
+      cache.sector = sector;
+      setCameraSector(sector);
+    }
+  }
   async function persist() {
     if (replayOriginal.current && !hasMission(world.progress, 16)) {
       saveRef.current = replayOriginal.current;
@@ -240,14 +266,23 @@ export default function Game() {
       };
     try {
       await storeSave(s);
-      saveRef.current = s;
-      setSave(s);
+      if (lastSaveError.current)
+        setStorageNotice(
+          "Se restableció el guardado local. Tu progreso actual está guardado.",
+        );
+      lastSaveError.current = "";
     } catch (e) {
-      setMessage("No se pudo guardar: " + (e as Error).message);
+      lastSaveError.current = "No se pudo guardar: " + (e as Error).message;
+      setStorageNotice(lastSaveError.current);
+      setMessage(lastSaveError.current);
     }
+    // Even if disk is unavailable, the latest session remains downloadable.
+    saveRef.current = s;
+    setSave(s);
     return s;
   }
   function refresh() {
+    syncHud();
     setProgress(JSON.parse(JSON.stringify(world.progress)));
     setHealth(world.health);
     void persist();
@@ -273,6 +308,7 @@ export default function Game() {
     world.health = s.health;
     world.restore(s.position);
     world.drainEvents();
+    syncHud();
     chestFrame.value = hasMission(world.progress, 15) ? 3 : 0;
     rewardAt.current = -1;
     setProgress({ ...world.progress });
@@ -426,17 +462,17 @@ export default function Game() {
   useEffect(() => {
     let id: number,
       last = 0,
-      accumulator = 0,
       lastHudAt = -Infinity,
-      lastNearLabel = "",
-      lastZoneName = zones[0].name,
-      lastCameraSector = 0,
       cancelled = false;
+    const ticker = new FixedStepClock();
     const loop = (now: number) => {
       if (cancelled) return;
       // Catch up after low-FPS frames without simulating an unlimited backlog.
       // A 15-FPS cap caused visible slow motion on slower devices.
-      const dt = Math.min(Math.max(0, (now - last) / 1000 || 0), 0.2);
+      const dt = Math.min(
+        Math.max(0, (now - last) / 1000 || 0),
+        MAX_FRAME_SECONDS,
+      );
       last = now;
       time.value += dt;
       const state = live.current;
@@ -446,11 +482,7 @@ export default function Game() {
         !state.dialogue &&
         rewardAt.current < 0;
       if (playing) {
-        accumulator = Math.min(accumulator + dt, 0.2);
-        while (accumulator >= 1 / 120) {
-          world.step(1 / 120);
-          accumulator -= 1 / 120;
-        }
+        ticker.advance(dt, (step) => world.step(step));
         const events = world.drainEvents();
         if (events.length) {
           let changed = false;
@@ -468,21 +500,7 @@ export default function Game() {
         // HUD and view-window state need not rerender on every animation frame.
         if (now - lastHudAt >= 100) {
           lastHudAt = now;
-          const label = world.nearby()?.label ?? "";
-          if (label !== lastNearLabel) {
-            lastNearLabel = label;
-            setNear(label);
-          }
-          const z = zones.find((z) => world.x >= z.start && world.x < z.end);
-          if (z && z.name !== lastZoneName) {
-            lastZoneName = z.name;
-            setZone(z.name);
-          }
-          const sector = Math.floor(world.camera / 240);
-          if (sector !== lastCameraSector) {
-            lastCameraSector = sector;
-            setCameraSector(sector);
-          }
+          syncHud();
         }
         if (
           world.moving &&
@@ -493,7 +511,7 @@ export default function Game() {
           stepAt.current = time.value;
         }
       }
-      if (!playing) accumulator = 0;
+      if (!playing) ticker.reset();
       x.value = world.x;
       y.value = world.y;
       camera.value = world.camera;
@@ -856,6 +874,35 @@ export default function Game() {
             )}
           </>
         )}
+        {screen === "menu" && !panel && !dialogue && storageNotice !== "" && (
+          <View
+            accessibilityRole="alert"
+            style={{
+              position: "absolute",
+              left: stageWidth * 0.04,
+              top: stageHeight * 0.14,
+              width: portraitMenu ? stageWidth * 0.92 : stageWidth * 0.42,
+              maxHeight: stageHeight * 0.55,
+              padding: 12,
+              gap: 8,
+              backgroundColor: "#203d3df5",
+              borderColor: "#bea778",
+              borderWidth: 1,
+              borderRadius: 8,
+            }}
+          >
+            <ScrollView>
+              <Text style={{ color: "#fff0cf", fontSize: 13, lineHeight: 19 }}>
+                {storageNotice}
+              </Text>
+            </ScrollView>
+            <Button
+              small
+              label="Entendido"
+              onPress={() => setStorageNotice("")}
+            />
+          </View>
+        )}
         {message !== "" && !dialogue && !panel && (
           <View
             pointerEvents="none"
@@ -1016,9 +1063,9 @@ export default function Game() {
                         {!hasMission(progress, 1) && (
                           <Text style={styles.muted}>
                             Para completar la preparación, practica los cuatro
-                            controles anteriores. Cuando todos tengan ✓,
-                            utiliza el botón Finalizar preparación. También
-                            puedes conversar con el cuaderno físico al inicio.
+                            controles anteriores. Cuando todos tengan ✓, utiliza
+                            el botón Finalizar preparación. También puedes
+                            conversar con el cuaderno físico al inicio.
                           </Text>
                         )}
                         {!hasMission(progress, 1) &&
@@ -1269,7 +1316,9 @@ export default function Game() {
                         setPanel(null);
                         setScreen("menu");
                         setMessage(
-                          "Partida guardada. Puedes descargar una copia antes de cerrar.",
+                          lastSaveError.current
+                            ? "Tu progreso sigue en esta sesión, pero no se guardó en el dispositivo. Descarga una copia antes de cerrar."
+                            : "Partida guardada. Puedes descargar una copia antes de cerrar.",
                         );
                       }}
                     />
@@ -1340,10 +1389,14 @@ export default function Game() {
                     onPress={() => {
                       if (panel === "settings" && saveRef.current) {
                         const s = { ...saveRef.current, settings };
-                        void storeSave(s).then(() => {
-                          saveRef.current = s;
-                          setSave(s);
-                        });
+                        saveRef.current = s;
+                        setSave(s);
+                        void storeSave(s).catch((e) =>
+                          setStorageNotice(
+                            "No se pudieron guardar los ajustes: " +
+                              (e as Error).message,
+                          ),
+                        );
                       }
                       setPanel(null);
                     }}
