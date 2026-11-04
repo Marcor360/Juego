@@ -23,7 +23,7 @@ El `postinstall` prepara CanvasKit desde la dependencia instalada. Se sirve `pub
 
 ## Menús que acompañan el viaje
 
-Tres portadas originales cambian con el avance del capítulo: **Amanecer**, **En camino** (tras la escena 8, con pantalón lavanda y botas) y **Nuevos horizontes** (tras el epílogo). Incluyen retratos animados, paisajes propios, tarjeta de diario, detalles de olivo y tipografía Cormorant Garamond con licencia OFL. En móvil vertical, los controles se reorganizan para seguir siendo legibles. Ver [diseño del menú](docs/MENU.md).
+Tres portadas originales cambian con el avance del capítulo: **Amanecer**, **En camino** (tras la escena 8, con pantalón de vestir lavanda y zapatos formales) y **Nuevos horizontes** (tras el epílogo). Incluyen retratos animados, paisajes propios, tarjeta de diario, detalles de olivo y tipografía Cormorant Garamond con licencia OFL. En móvil vertical, los controles se reorganizan para seguir siendo legibles. Ver [diseño del menú](docs/MENU.md).
 
 ## Capítulo 1 v3
 

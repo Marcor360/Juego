@@ -25,7 +25,7 @@ export const menuThemes = {
     gold: "#ba995d",
     paper: "#f4f0dfed",
     accent: "#657e6c",
-    outfit: "Pantalón lavanda y botas de camino",
+    outfit: "Pantalón de vestir lavanda y zapatos formales",
   },
   ending: {
     id: "ending",

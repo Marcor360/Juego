@@ -13,13 +13,15 @@ import Animated, {
 import { menuThemeForSave, menuThemes } from "../game/menu/themes";
 import type { Save } from "../game/save/schema";
 import UIIcon, { type UIIconName } from "./UIIcon";
-import art from "../game/rendering/menu-art.json";
+import originalArt from "../game/rendering/menu-art.json";
+import formalArt from "../game/rendering/menu-formal-art.json";
 const backgrounds = {
   beginning: require("../assets/menu/beginning.png"),
   middle: require("../assets/menu/middle.png"),
   ending: require("../assets/menu/ending.png"),
 };
-const heroSource = require("../assets/menu/hero.png");
+const originalHeroSource = require("../assets/menu/hero.png");
+const formalHeroSource = require("../assets/menu/hero-formal.png");
 function MenuAction({
   label,
   text,
@@ -182,6 +184,9 @@ export default function MainMenu({
   const themeId = menuThemeForSave(save),
     theme = menuThemes[themeId],
     column = themeId === "beginning" ? 0 : themeId === "middle" ? 1 : 2;
+  const art = themeId === "middle" ? formalArt : originalArt;
+  const heroSource =
+    themeId === "middle" ? formalHeroSource : originalHeroSource;
   const portrait = height > width,
     logicalHeight = height / (width / 480),
     paperScale = portrait
