@@ -9,12 +9,16 @@ import {
   ScrollView,
   Switch,
   AppState,
+  Image as NativeImage,
 } from "react-native";
+import { Asset } from "expo-asset";
+import { useFonts } from "expo-font";
 import { useSharedValue } from "react-native-reanimated";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import UIIcon, { type UIIconName } from "../components/UIIcon";
 import Scene from "../components/SceneLoader";
 import { useGameAudio } from "../game/audio/useGameAudio";
 import { World } from "../game/engine/world";
@@ -48,30 +52,54 @@ function Button({
   gold?: boolean;
   small?: boolean;
 }) {
+  const iconNames: Record<string, UIIconName> = {
+    "▶": "play",
+    "▤": "book",
+    "↥": "upload",
+    "⚙": "settings",
+    "ⓘ": "info",
+    "◇": "bag",
+  };
+  const icon = label === "Pausa" ? "pause" : iconNames[label[0]];
+  const displayLabel =
+    icon && label !== "Pausa" ? label.slice(1).trim() : label;
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label.replace(/\s+/g, " ")}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed, hovered }: any) => [
         styles.button,
         gold && styles.gold,
         small && styles.small,
-        disabled && { opacity: 0.45 },
+        disabled && { opacity: 0.5 },
         (pressed || hovered) &&
           !disabled && {
-            backgroundColor: "#f9d791",
+            backgroundColor: "#ffe5b2",
             transform: [{ translateY: 1 }],
           },
       ]}
     >
-      <Text style={[styles.buttonText, small && { fontSize: 13 }]}>
-        {label}
-      </Text>
+      <View
+        pointerEvents="none"
+        style={{
+          flexDirection: "row",
+          gap: 10,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {icon && <UIIcon name={icon} size={small ? 16 : 19} />}
+        <Text style={[styles.buttonText, small && { fontSize: 15 }]}>
+          {displayLabel}
+        </Text>
+      </View>
     </Pressable>
   );
 }
 export default function Game() {
+  useFonts({ Pixelify: require("../assets/fonts/PixelifySans.ttf") });
   const insets = useSafeAreaInsets(),
     size = useWindowDimensions(),
     width = Math.min(
@@ -258,6 +286,7 @@ export default function Game() {
       }
       world.release();
       setWords([]);
+      setMessage("");
       setPanel("riddle");
       return;
     }
@@ -415,7 +444,15 @@ export default function Game() {
       }}
       style={styles.touch}
     >
-      <Text style={styles.touchText}>{label}</Text>
+      {label === "◀" || label === "▶" ? (
+        <UIIcon
+          name={label === "◀" ? "left" : "play"}
+          size={21}
+          color="#f6e8c7"
+        />
+      ) : (
+        <Text style={styles.touchText}>{label}</Text>
+      )}
     </Pressable>
   );
   return (
@@ -441,448 +478,539 @@ export default function Game() {
           progress={progress}
           reducedMotion={settings.reducedMotion}
         />
-        {screen === "menu" && (
-          <View style={styles.menu}>
-            <Text style={styles.book}>❧ ▤ ❧</Text>
-            <Text
-              style={[styles.title, { fontSize: Math.max(19, width * 0.026) }]}
-            >
-              El camino de una
-            </Text>
-            <View style={styles.ribbon}>
-              <Text
-                style={[
-                  styles.precursora,
-                  { fontSize: Math.max(27, width * 0.046) },
-                ]}
-              >
-                Precursora
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.subtitle,
-                { fontSize: Math.max(10, width * 0.013) },
-              ]}
-            >
-              Una aventura de fe, aprendizaje y perseverancia
-            </Text>
-            <View style={{ width: "80%", gap: height < 430 ? 4 : 9 }}>
-              <Button
-                label="▶  Comenzar aventura"
-                gold
-                onPress={start}
-                disabled={!ready}
-              />
-              <Button
-                label="▤  Continuar"
-                onPress={() => save && resume(save)}
-                disabled={!ready || !save}
-              />
-              {Platform.OS === "web" && (
-                <Button
-                  label="↥  Cargar partida"
-                  onPress={() => void importGame()}
-                  disabled={!ready}
-                />
-              )}
-              <View style={styles.row}>
-                <Button
-                  label="⚙  Ajustes"
-                  small
-                  onPress={() => setPanel("settings")}
-                />
-                <Button
-                  label="ⓘ  Créditos"
-                  small
-                  onPress={() => setPanel("credits")}
-                />
-              </View>
-            </View>
-            <Text style={styles.prototype}>
-              PROTOTIPO · ARTE DE ESCENARIO PROVISIONAL
-            </Text>
-          </View>
-        )}
-        {screen === "chapters" && (
-          <View style={styles.shade}>
-            <View style={[styles.paper, { width: "76%", maxHeight: "92%" }]}>
-              <Text style={styles.heading}>Tu diario de viaje</Text>
-              <Text style={styles.body}>Cada paso tiene su tiempo.</Text>
-              <ScrollView>
-                {chapters.map((c, i) => (
-                  <View key={c} style={styles.chapter}>
-                    <Text style={styles.body}>
-                      {i + 1}. {c}
-                    </Text>
-                    {i === 0 ? (
-                      <Button
-                        small
-                        label={
-                          save?.missions.complete
-                            ? "Repetir bosque"
-                            : "Explorar"
-                        }
-                        onPress={() => {
-                          const s = save ?? newSave();
-                          if (s.missions.complete) {
-                            world.progress = newSave().missions;
-                            world.x = 65;
-                            world.y = 226;
-                            world.camera = 0;
-                            world.release();
-                            setProgress({ ...world.progress });
-                            setScreen("play");
-                          } else resume(s);
-                        }}
-                      />
-                    ) : (
-                      <Text style={styles.muted}>
-                        {i === 1 && save?.missions.complete
-                          ? "Desbloqueado · Próximamente"
-                          : "🔒 Un nuevo sendero espera"}
-                      </Text>
-                    )}
-                  </View>
-                ))}
-              </ScrollView>
-              <Button
-                label="Volver al inicio"
-                small
-                onPress={() => setScreen("menu")}
-              />
-            </View>
-          </View>
-        )}
-        {screen === "play" && (
-          <>
-            <View style={styles.hud}>
-              <View style={styles.objective}>
-                <Text style={styles.overline}>
-                  CAPÍTULO I · EL BOSQUE DE LAS DUDAS
-                </Text>
-                <Text style={styles.objectiveText}>{objective(progress)}</Text>
-              </View>
-              <View style={styles.row}>
-                <Button
-                  small
-                  label="▤ Diario"
-                  onPress={() => {
-                    world.release();
-                    setScreen("chapters");
-                    void persist();
-                  }}
-                />
-                <Button small label="◇" onPress={() => setPanel("inventory")} />
-                <Button small label="Ⅱ" onPress={() => setPanel("pause")} />
-              </View>
-            </View>
-            {near && !controlsBlocked && (
-              <View style={styles.prompt}>
-                <Text style={styles.objectiveText}>E · Interactuar</Text>
-              </View>
-            )}
-            <View style={styles.controls}>
-              <View style={styles.row}>
-                {touch("◀", "left")}
-                {touch("▶", "right")}
-              </View>
-              <View style={styles.row}>
-                {touch("↑", "jump")}
-                <Pressable
-                  accessibilityRole="button"
-                  disabled={!!panel}
-                  onPress={interact}
-                  style={styles.touch}
-                >
-                  <Text style={styles.touchText}>E</Text>
-                </Pressable>
-              </View>
-            </View>
-          </>
-        )}
-        {!!message && !panel && !dialogue && (
-          <Pressable onPress={() => setMessage("")} style={styles.toast}>
-            <Text style={styles.toastText}>{message} ×</Text>
-          </Pressable>
-        )}
-        {dialogue && (
-          <View style={styles.shade}>
-            <View style={[styles.paper, { width: "70%" }]}>
-              <Text style={styles.overline}>EL BOSQUE DE LAS DUDAS</Text>
-              <Text style={styles.dialogue}>
-                {dialogue.lines[dialogue.index]}
-              </Text>
-              <Button
-                label={
-                  dialogue.index === dialogue.lines.length - 1
-                    ? "Seguir mi camino →"
-                    : "Continuar →"
-                }
-                gold
-                onPress={interact}
-              />
-            </View>
-          </View>
-        )}
-        {panel && (
-          <View style={styles.shade}>
-            <View style={[styles.paper, { maxHeight: "92%" }]}>
-              <ScrollView contentContainerStyle={{ gap: 12 }}>
-                {panel === "settings" && (
-                  <>
-                    <Text style={styles.heading}>Ajustes</Text>
-                    <Text style={styles.body}>Efectos visuales reducidos</Text>
-                    <Switch
-                      accessibilityLabel="Reducir efectos visuales"
-                      value={settings.reducedMotion}
-                      onValueChange={(v) =>
-                        setSettings((s) => ({ ...s, reducedMotion: v }))
-                      }
-                    />
-                    {(["music", "effects"] as const).map((k) => (
-                      <View key={k}>
-                        <Text style={styles.body}>
-                          {k === "music" ? "Música" : "Efectos"} ·{" "}
-                          {Math.round(settings[k] * 100)}%
-                        </Text>
-                        <View style={styles.row}>
-                          <Button
-                            small
-                            label="−"
-                            onPress={() =>
-                              setSettings((s) => ({
-                                ...s,
-                                [k]: Math.max(0, s[k] - 0.1),
-                              }))
-                            }
-                          />
-                          <Button
-                            small
-                            label="+"
-                            onPress={() =>
-                              setSettings((s) => ({
-                                ...s,
-                                [k]: Math.min(1, s[k] + 0.1),
-                              }))
-                            }
-                          />
-                        </View>
-                      </View>
-                    ))}
-                    <Text style={styles.muted}>
-                      Audio original sintetizado para este prototipo. Los
-                      ajustes se conservan en la partida.
-                    </Text>
-                  </>
-                )}
-                {panel === "credits" && (
-                  <>
-                    <Text style={styles.heading}>
-                      Hecho para un camino especial
-                    </Text>
-                    <Text style={styles.body}>
-                      El camino de una Precursora{"\n\n"}Una aventura de fe,
-                      aprendizaje y perseverancia.{"\n\n"}Personaje: paquete
-                      visual proporcionado por Marcor360. Escenarios y
-                      personajes secundarios: gráficos temporales para este
-                      prototipo. Motor: Expo, React Native y Skia.{"\n\n"}Sin
-                      anuncios, compras ni cuentas.
-                    </Text>
-                  </>
-                )}
-                {panel === "pause" && (
-                  <>
-                    <Text style={styles.heading}>Un respiro en el camino</Text>
-                    <Button
-                      label="Continuar aventura"
-                      gold
-                      onPress={() => setPanel(null)}
-                    />
-                    <Button
-                      label="Ajustes"
-                      onPress={() => setPanel("settings")}
-                    />
-                    {Platform.OS === "web" && (
-                      <Button
-                        label="Descargar partida"
-                        onPress={() => void exportGame()}
-                      />
-                    )}
-                    <Button
-                      label="Guardar y volver al inicio"
-                      onPress={async () => {
-                        await persist();
-                        setPanel(null);
-                        setDialogue(null);
-                        setScreen("menu");
-                        setMessage(
-                          "Partida guardada. En web puedes descargar una copia desde el menú.",
-                        );
-                      }}
-                    />
-                  </>
-                )}
-                {panel === "inventory" && (
-                  <>
-                    <Text style={styles.heading}>Tus herramientas</Text>
-                    <Text style={styles.body}>
-                      {save?.tools.includes("fe") || progress.complete
-                        ? `${faith.icon} ${faith.name}\n\n${faith.description}\n\n${faith.ability}`
-                        : "Cada experiencia te ayudará a descubrir una nueva herramienta. Sigue explorando."}
-                    </Text>
-                  </>
-                )}
-                {panel === "traveler" && (
-                  <>
-                    <Text style={styles.heading}>El claro del viajero</Text>
-                    <Text style={styles.body}>
-                      «He intentado avanzar, pero tengo miedo de equivocarme.
-                      Siento que no puedo seguir».
-                    </Text>
-                    <Button
-                      label="No deberías sentirte así."
-                      onPress={() => {
-                        setPanel(null);
-                        say([
-                          "A veces, antes de dar consejos, necesitamos escuchar y reconocer cómo se siente la otra persona. Intenta hablar con el viajero de nuevo.",
-                        ]);
-                      }}
-                    />
-                    <Button
-                      label="Entiendo que tengas miedo. Podemos dar un paso juntos."
-                      gold
-                      onPress={() => {
-                        world.progress.traveler = true;
-                        refresh();
-                        setPanel(null);
-                        say([
-                          "Gracias por escucharme. Saber que no estoy solo me da fuerzas para seguir.",
-                        ]);
-                      }}
-                    />
-                    <Button
-                      label="Seguro que no es tan difícil."
-                      onPress={() => {
-                        setPanel(null);
-                        say([
-                          "Lo que para una persona parece sencillo puede ser difícil para otra. Escúchalo con empatía y vuelve a intentarlo.",
-                        ]);
-                      }}
-                    />
-                  </>
-                )}
-                {panel === "riddle" && (
-                  <>
-                    <Text style={styles.heading}>
-                      El desafío de la confianza
-                    </Text>
-                    <Text style={styles.body}>
-                      Ordena las palabras para reconstruir esta idea sobre la
-                      confianza.
-                    </Text>
-                    <Text style={styles.muted}>
-                      {content.riddle.reference} · {content.riddle.notice}
-                    </Text>
-                    <Text style={styles.dialogue}>
-                      {words.map((i) => content.riddle.words[i]).join(" ") ||
-                        "…"}
-                    </Text>
-                    <View style={[styles.row, { flexWrap: "wrap" }]}>
-                      {[3, 0, 5, 2, 6, 1, 4].map((i) => (
-                        <Button
-                          key={i}
-                          small
-                          label={content.riddle.words[i]}
-                          disabled={words.includes(i)}
-                          onPress={() => setWords((w) => [...w, i])}
-                        />
+        <View
+          pointerEvents="box-none"
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: 960,
+            height: 540,
+            transform: [{ scale: width / 960 }],
+            transformOrigin: "top left",
+          }}
+        >
+          {screen === "menu" && (
+            <View style={styles.menu}>
+              <View style={styles.bookMark} accessibilityElementsHidden>
+                <Text style={styles.olive}>❧</Text>
+                <View style={styles.bookPages}>
+                  {[0, 1].map((side) => (
+                    <View
+                      key={side}
+                      style={[
+                        styles.bookPage,
+                        { transform: [{ rotate: side ? "7deg" : "-7deg" }] },
+                      ]}
+                    >
+                      {[0, 1, 2, 3].map((line) => (
+                        <View key={line} style={styles.bookLine} />
                       ))}
                     </View>
-                    <View style={styles.row}>
-                      <Button
-                        small
-                        label="Reintentar"
-                        onPress={() => setWords([])}
-                      />
-                      <Button
-                        small
-                        gold
-                        label="Comprobar"
-                        onPress={() => {
-                          if (words.join(",") === "0,1,2,3,4,5,6") {
-                            world.progress.riddle = true;
-                            refresh();
-                            setPanel(null);
-                            say([
-                              "La niebla se disipa. Puedes seguir adelante con confianza.",
-                            ]);
-                          } else {
-                            setWords([]);
-                            setMessage(
-                              "Comienza por «Confía en Jehová» y vuelve a intentarlo.",
-                            );
-                          }
-                        }}
-                      />
-                    </View>
-                    {message && <Text style={styles.body}>{message}</Text>}
-                  </>
-                )}
-                {panel === "complete" && (
-                  <>
-                    <Text style={styles.overline}>CAPÍTULO COMPLETADO</Text>
-                    <Text style={styles.heading}>Una luz para tu camino</Text>
-                    <Text style={styles.dialogue}>{content.reward}</Text>
-                    <Text style={styles.body}>
-                      La biblioteca del aprendizaje está desbloqueada. Su
-                      aventura llegará en una próxima fase.
-                    </Text>
-                    {Platform.OS === "web" && (
-                      <Button
-                        gold
-                        label="Descargar partida"
-                        onPress={() => void exportGame()}
-                      />
-                    )}
-                    <Button
-                      label="Abrir el diario de viaje"
-                      onPress={() => {
-                        setPanel(null);
-                        setScreen("chapters");
-                      }}
-                    />
-                  </>
-                )}
-                {panel !== "complete" && panel !== "pause" && (
+                  ))}
+                </View>
+                <Text style={[styles.olive, { transform: [{ scaleX: -1 }] }]}>
+                  ❧
+                </Text>
+              </View>
+              <Text style={[styles.title, { fontSize: 29 }]}>
+                El camino de una
+              </Text>
+              <View style={styles.ribbon}>
+                <Text style={[styles.precursora, { fontSize: 60 }]}>
+                  Precursora
+                </Text>
+              </View>
+              <Text style={[styles.subtitle, { fontSize: 16 }]}>
+                Una aventura de fe, aprendizaje y perseverancia
+              </Text>
+              <View style={{ width: "79%", gap: 9 }}>
+                <Button
+                  label="▶  Comenzar aventura"
+                  gold
+                  onPress={start}
+                  disabled={!ready}
+                />
+                <Button
+                  label="▤  Continuar"
+                  onPress={() => save && resume(save)}
+                  disabled={!ready || !save}
+                />
+                {Platform.OS === "web" && (
                   <Button
-                    label="Volver"
-                    small
-                    onPress={() => {
-                      if (saveRef.current) {
-                        const s = { ...saveRef.current, settings };
-                        void storeSave(s)
-                          .then(() => {
-                            saveRef.current = s;
-                            setSave(s);
-                          })
-                          .catch(() =>
-                            setMessage("No se pudieron guardar los ajustes."),
-                          );
-                      }
-                      setPanel(null);
-                    }}
+                    label="↥  Cargar partida"
+                    onPress={() => void importGame()}
+                    disabled={!ready}
                   />
                 )}
-              </ScrollView>
+                <View style={styles.row}>
+                  <Button
+                    label="⚙  Ajustes"
+                    small
+                    onPress={() => setPanel("settings")}
+                  />
+                  <Button
+                    label="ⓘ  Créditos"
+                    small
+                    onPress={() => setPanel("credits")}
+                  />
+                </View>
+              </View>
+              <Text style={styles.prototype}>
+                EL BOSQUE DE LAS DUDAS · CAPÍTULO I
+              </Text>
             </View>
-          </View>
-        )}
-        {screen === "menu" && save && Platform.OS === "web" && (
-          <Pressable style={styles.download} onPress={() => void exportGame()}>
-            <Text style={styles.downloadText}>↓ Descargar partida</Text>
-          </Pressable>
-        )}
+          )}
+          {screen === "chapters" && (
+            <View style={styles.shade}>
+              <View style={[styles.paper, { width: "76%", maxHeight: "92%" }]}>
+                <Text style={styles.heading}>Tu diario de viaje</Text>
+                <Text style={styles.body}>Cada paso tiene su tiempo.</Text>
+                <ScrollView>
+                  {chapters.map((c, i) => (
+                    <View key={c} style={styles.chapter}>
+                      <Text style={styles.body}>
+                        {i + 1}. {c}
+                      </Text>
+                      {i === 0 ? (
+                        <Button
+                          small
+                          label={
+                            save?.missions.complete
+                              ? "Repetir bosque"
+                              : "Explorar"
+                          }
+                          onPress={() => {
+                            const s = save ?? newSave();
+                            if (s.missions.complete) {
+                              world.progress = newSave().missions;
+                              world.x = 65;
+                              world.y = 226;
+                              world.camera = 0;
+                              world.release();
+                              setProgress({ ...world.progress });
+                              setScreen("play");
+                            } else resume(s);
+                          }}
+                        />
+                      ) : (
+                        <Text style={styles.muted}>
+                          {i === 1 && save?.missions.complete
+                            ? "Desbloqueado · Próximamente"
+                            : "🔒 Un nuevo sendero espera"}
+                        </Text>
+                      )}
+                    </View>
+                  ))}
+                </ScrollView>
+                <Button
+                  label="Volver al inicio"
+                  small
+                  onPress={() => setScreen("menu")}
+                />
+              </View>
+            </View>
+          )}
+          {screen === "play" && (
+            <>
+              <View style={styles.hud}>
+                <View style={styles.objective}>
+                  <Text style={styles.overline}>
+                    CAPÍTULO I · EL BOSQUE DE LAS DUDAS
+                  </Text>
+                  <Text style={styles.objectiveText}>
+                    {objective(progress)}
+                  </Text>
+                </View>
+                <View style={styles.row}>
+                  <Button
+                    small
+                    label="▤ Diario"
+                    onPress={() => {
+                      world.release();
+                      setScreen("chapters");
+                      void persist();
+                    }}
+                  />
+                  <Button
+                    small
+                    label="◇ Inventario"
+                    onPress={() => setPanel("inventory")}
+                  />
+                  <Button
+                    small
+                    label="Pausa"
+                    onPress={() => setPanel("pause")}
+                  />
+                </View>
+              </View>
+              {near && !controlsBlocked && (
+                <View style={styles.prompt}>
+                  <Text style={styles.objectiveText}>E · Interactuar</Text>
+                </View>
+              )}
+              <View style={styles.controls}>
+                <View style={styles.row}>
+                  {touch("◀", "left")}
+                  {touch("▶", "right")}
+                </View>
+                <View style={styles.row}>
+                  {touch("↑", "jump")}
+                  <Pressable
+                    accessibilityRole="button"
+                    disabled={!!panel}
+                    onPress={interact}
+                    style={styles.touch}
+                  >
+                    <Text style={styles.touchText}>E</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </>
+          )}
+          {!!message && !panel && !dialogue && (
+            <Pressable onPress={() => setMessage("")} style={styles.toast}>
+              <Text style={styles.toastText}>{message} ×</Text>
+            </Pressable>
+          )}
+          {dialogue && (
+            <View style={styles.shade}>
+              <View style={[styles.paper, { width: "70%" }]}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <View style={styles.portraitFrame}>
+                    <NativeImage
+                      source={{
+                        uri: Asset.fromModule(
+                          dialogue.lines === content.guide &&
+                            dialogue.index !== 1 &&
+                            dialogue.index !== 4
+                            ? require("../assets/characters/forest-npcs.png")
+                            : require("../assets/frames/talk/talk_00.png"),
+                        ).uri,
+                      }}
+                      style={
+                        dialogue.lines === content.guide &&
+                        dialogue.index !== 1 &&
+                        dialogue.index !== 4
+                          ? {
+                              width: 240,
+                              height: 120,
+                              position: "absolute",
+                              left: -25,
+                              top: -14,
+                            }
+                          : {
+                              width: 128,
+                              height: 160,
+                              position: "absolute",
+                              left: -32,
+                              top: -18,
+                            }
+                      }
+                      resizeMode="stretch"
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.overline}>EL BOSQUE DE LAS DUDAS</Text>
+                    <Text style={styles.speaker}>
+                      {dialogue.lines === content.guide
+                        ? dialogue.index === 1 || dialogue.index === 4
+                          ? "La precursora"
+                          : "La guía del bosque"
+                        : "Un momento en el camino"}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.dialogue}>
+                  {dialogue.lines[dialogue.index]}
+                </Text>
+                <Button
+                  label={
+                    dialogue.index === dialogue.lines.length - 1
+                      ? "Seguir mi camino →"
+                      : "Continuar →"
+                  }
+                  gold
+                  onPress={interact}
+                />
+              </View>
+            </View>
+          )}
+          {panel && (
+            <View style={styles.shade}>
+              <View style={[styles.paper, { maxHeight: "92%" }]}>
+                <ScrollView contentContainerStyle={{ gap: 12 }}>
+                  {panel === "settings" && (
+                    <>
+                      <Text style={styles.heading}>Ajustes</Text>
+                      <Text style={styles.body}>
+                        Efectos visuales reducidos
+                      </Text>
+                      <Switch
+                        accessibilityLabel="Reducir efectos visuales"
+                        value={settings.reducedMotion}
+                        onValueChange={(v) =>
+                          setSettings((s) => ({ ...s, reducedMotion: v }))
+                        }
+                      />
+                      {(["music", "effects"] as const).map((k) => (
+                        <View key={k}>
+                          <Text style={styles.body}>
+                            {k === "music" ? "Música" : "Efectos"} ·{" "}
+                            {Math.round(settings[k] * 100)}%
+                          </Text>
+                          <View style={styles.row}>
+                            <Button
+                              small
+                              label="−"
+                              onPress={() =>
+                                setSettings((s) => ({
+                                  ...s,
+                                  [k]: Math.max(0, s[k] - 0.1),
+                                }))
+                              }
+                            />
+                            <Button
+                              small
+                              label="+"
+                              onPress={() =>
+                                setSettings((s) => ({
+                                  ...s,
+                                  [k]: Math.min(1, s[k] + 0.1),
+                                }))
+                              }
+                            />
+                          </View>
+                        </View>
+                      ))}
+                      <Text style={styles.muted}>
+                        Audio original sintetizado para este prototipo. Los
+                        ajustes se conservan en la partida.
+                      </Text>
+                    </>
+                  )}
+                  {panel === "credits" && (
+                    <>
+                      <Text style={styles.heading}>
+                        Hecho para un camino especial
+                      </Text>
+                      <Text style={styles.body}>
+                        El camino de una Precursora{"\n\n"}Una aventura de fe,
+                        aprendizaje y perseverancia.{"\n\n"}Personaje: paquete
+                        visual proporcionado por Marcor360. Escenarios y
+                        personajes secundarios: gráficos temporales para este
+                        prototipo. Motor: Expo, React Native y Skia.{"\n\n"}Sin
+                        anuncios, compras ni cuentas.
+                      </Text>
+                    </>
+                  )}
+                  {panel === "pause" && (
+                    <>
+                      <Text style={styles.heading}>
+                        Un respiro en el camino
+                      </Text>
+                      <Button
+                        label="Continuar aventura"
+                        gold
+                        onPress={() => setPanel(null)}
+                      />
+                      <Button
+                        label="Ajustes"
+                        onPress={() => setPanel("settings")}
+                      />
+                      {Platform.OS === "web" && (
+                        <Button
+                          label="Descargar partida"
+                          onPress={() => void exportGame()}
+                        />
+                      )}
+                      <Button
+                        label="Guardar y volver al inicio"
+                        onPress={async () => {
+                          await persist();
+                          setPanel(null);
+                          setDialogue(null);
+                          setScreen("menu");
+                          setMessage(
+                            "Partida guardada. En web puedes descargar una copia desde el menú.",
+                          );
+                        }}
+                      />
+                    </>
+                  )}
+                  {panel === "inventory" && (
+                    <>
+                      <Text style={styles.heading}>Tus herramientas</Text>
+                      <Text style={styles.body}>
+                        {save?.tools.includes("fe") || progress.complete
+                          ? `${faith.icon} ${faith.name}\n\n${faith.description}\n\n${faith.ability}`
+                          : "Cada experiencia te ayudará a descubrir una nueva herramienta. Sigue explorando."}
+                      </Text>
+                    </>
+                  )}
+                  {panel === "traveler" && (
+                    <>
+                      <Text style={styles.heading}>El claro del viajero</Text>
+                      <Text style={styles.body}>
+                        «He intentado avanzar, pero tengo miedo de equivocarme.
+                        Siento que no puedo seguir».
+                      </Text>
+                      <Button
+                        label="No deberías sentirte así."
+                        onPress={() => {
+                          setPanel(null);
+                          say([
+                            "A veces, antes de dar consejos, necesitamos escuchar y reconocer cómo se siente la otra persona. Intenta hablar con el viajero de nuevo.",
+                          ]);
+                        }}
+                      />
+                      <Button
+                        label="Entiendo que tengas miedo. Podemos dar un paso juntos."
+                        gold
+                        onPress={() => {
+                          world.progress.traveler = true;
+                          refresh();
+                          setPanel(null);
+                          say([
+                            "Gracias por escucharme. Saber que no estoy solo me da fuerzas para seguir.",
+                          ]);
+                        }}
+                      />
+                      <Button
+                        label="Seguro que no es tan difícil."
+                        onPress={() => {
+                          setPanel(null);
+                          say([
+                            "Lo que para una persona parece sencillo puede ser difícil para otra. Escúchalo con empatía y vuelve a intentarlo.",
+                          ]);
+                        }}
+                      />
+                    </>
+                  )}
+                  {panel === "riddle" && (
+                    <>
+                      <Text style={styles.heading}>
+                        El desafío de la confianza
+                      </Text>
+                      <Text style={styles.body}>
+                        Ordena las palabras para reconstruir esta idea sobre la
+                        confianza.
+                      </Text>
+                      <Text style={styles.muted}>
+                        {content.riddle.reference} · {content.riddle.notice}
+                      </Text>
+                      <Text style={styles.dialogue}>
+                        {words.map((i) => content.riddle.words[i]).join(" ") ||
+                          "…"}
+                      </Text>
+                      <View style={[styles.row, { flexWrap: "wrap" }]}>
+                        {[3, 0, 5, 2, 6, 1, 4].map((i) => (
+                          <Button
+                            key={i}
+                            small
+                            label={content.riddle.words[i]}
+                            disabled={words.includes(i)}
+                            onPress={() => {
+                              setMessage("");
+                              setWords((w) => [...w, i]);
+                            }}
+                          />
+                        ))}
+                      </View>
+                      <View style={styles.row}>
+                        <Button
+                          small
+                          label="Reintentar"
+                          onPress={() => setWords([])}
+                        />
+                        <Button
+                          small
+                          gold
+                          label="Comprobar"
+                          onPress={() => {
+                            if (words.join(",") === "0,1,2,3,4,5,6") {
+                              world.progress.riddle = true;
+                              refresh();
+                              setPanel(null);
+                              say([
+                                "La niebla se disipa. Puedes seguir adelante con confianza.",
+                              ]);
+                            } else {
+                              setWords([]);
+                              setMessage(
+                                "Comienza por «Confía en Jehová» y vuelve a intentarlo.",
+                              );
+                            }
+                          }}
+                        />
+                      </View>
+                      {message && <Text style={styles.body}>{message}</Text>}
+                    </>
+                  )}
+                  {panel === "complete" && (
+                    <>
+                      <Text style={styles.overline}>CAPÍTULO COMPLETADO</Text>
+                      <Text style={styles.heading}>Una luz para tu camino</Text>
+                      <Text style={styles.dialogue}>{content.reward}</Text>
+                      <Text style={styles.body}>
+                        La biblioteca del aprendizaje está desbloqueada. Su
+                        aventura llegará en una próxima fase.
+                      </Text>
+                      {Platform.OS === "web" && (
+                        <Button
+                          gold
+                          label="Descargar partida"
+                          onPress={() => void exportGame()}
+                        />
+                      )}
+                      <Button
+                        label="Abrir el diario de viaje"
+                        onPress={() => {
+                          setPanel(null);
+                          setScreen("chapters");
+                        }}
+                      />
+                    </>
+                  )}
+                  {panel !== "complete" && panel !== "pause" && (
+                    <Button
+                      label="Volver"
+                      small
+                      onPress={() => {
+                        if (saveRef.current) {
+                          const s = { ...saveRef.current, settings };
+                          void storeSave(s)
+                            .then(() => {
+                              saveRef.current = s;
+                              setSave(s);
+                            })
+                            .catch(() =>
+                              setMessage("No se pudieron guardar los ajustes."),
+                            );
+                        }
+                        setPanel(null);
+                      }}
+                    />
+                  )}
+                </ScrollView>
+              </View>
+            </View>
+          )}
+          {screen === "menu" && save && Platform.OS === "web" && (
+            <Pressable
+              style={styles.download}
+              onPress={() => void exportGame()}
+            >
+              <Text style={styles.downloadText}>↓ Descargar partida</Text>
+            </Pressable>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -890,62 +1018,95 @@ export default function Game() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#182f38",
+    backgroundColor: "#19282d",
     alignItems: "center",
     justifyContent: "center",
   },
   menu: {
     position: "absolute",
-    left: "43%",
-    right: "5%",
-    top: "4%",
-    bottom: "3%",
+    left: "44%",
+    right: "4%",
+    top: "5%",
+    bottom: "5%",
     alignItems: "center",
     justifyContent: "center",
   },
-  book: { fontSize: 25, color: "#644653" },
+  bookMark: {
+    height: 51,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 8,
+  },
+  olive: { fontSize: 39, color: "#667653" },
+  bookPages: { flexDirection: "row", alignItems: "center" },
+  bookPage: {
+    width: 35,
+    height: 37,
+    backgroundColor: "#fff1d6",
+    borderWidth: 2,
+    borderColor: "#825c4e",
+    borderBottomWidth: 4,
+    padding: 5,
+    gap: 4,
+  },
+  bookLine: { height: 2, width: 21, backgroundColor: "#c6a57f" },
   title: {
-    fontFamily: Platform.OS === "web" ? "Georgia" : "serif",
-    fontWeight: "700",
-    color: "#4f3045",
+    fontFamily: "Pixelify",
+    fontWeight: "500",
+    color: "#55374b",
     textAlign: "center",
+    letterSpacing: 1,
   },
   ribbon: {
-    backgroundColor: "#d6a7be",
-    paddingHorizontal: 20,
-    borderBottomWidth: 4,
-    borderColor: "#9c6b89",
+    backgroundColor: "#d8b2c8",
+    paddingHorizontal: 25,
+    paddingBottom: 4,
+    borderTopWidth: 2,
+    borderBottomWidth: 5,
+    borderColor: "#a57994",
+    marginVertical: 5,
+    boxShadow: "0 3px 0 #734c6622",
   },
   precursora: {
-    fontFamily: Platform.OS === "web" ? "Georgia" : "serif",
-    fontWeight: "900",
-    color: "#4f3045",
+    fontFamily: "Pixelify",
+    fontWeight: "700",
+    color: "#503146",
     textAlign: "center",
+    letterSpacing: -1,
   },
   subtitle: {
     textAlign: "center",
-    color: "#4a3545",
-    marginVertical: 10,
-    maxWidth: 310,
+    color: "#593f50",
+    marginTop: 9,
+    marginBottom: 20,
+    maxWidth: 330,
+    lineHeight: 22,
+    fontWeight: "500",
   },
   button: {
-    backgroundColor: "#fff0d1",
+    backgroundColor: "#fff0d9",
     borderWidth: 2,
-    borderColor: "#ae805e",
+    borderColor: "#b58c6d",
     borderBottomWidth: 4,
-    paddingVertical: 9,
-    paddingHorizontal: 14,
+    paddingVertical: 11,
+    paddingHorizontal: 18,
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 40,
-    borderRadius: 3,
+    minHeight: 46,
+    borderRadius: 7,
+    boxShadow: "0 3px 8px #3c283a22",
   },
-  gold: { backgroundColor: "#ffd17c", borderColor: "#aa7442" },
-  small: { paddingVertical: 6, paddingHorizontal: 12, minHeight: 34 },
+  gold: {
+    backgroundColor: "#f8cf82",
+    borderColor: "#b87e40",
+    borderTopColor: "#fff0ba",
+  },
+  small: { paddingVertical: 7, paddingHorizontal: 14, minHeight: 38 },
   buttonText: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#563e43",
+    fontSize: 19,
+    fontWeight: "600",
+    color: "#553c44",
     textAlign: "center",
   },
   row: {
@@ -954,31 +1115,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  prototype: { fontSize: 8, color: "#493b4a", marginTop: 9, letterSpacing: 1 },
+  prototype: {
+    fontFamily: "Pixelify",
+    fontSize: 11,
+    color: "#63495a",
+    marginTop: 19,
+    letterSpacing: 2,
+  },
   shade: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#182e3dbb",
+    backgroundColor: "#152b3ac4",
     alignItems: "center",
     justifyContent: "center",
   },
   paper: {
-    width: "65%",
+    width: "70%",
     maxWidth: 700,
-    padding: 22,
-    backgroundColor: "#fff0d9",
-    borderWidth: 3,
-    borderColor: "#b9997c",
-    gap: 12,
-    borderRadius: 4,
+    padding: 26,
+    backgroundColor: "#fff2de",
+    borderWidth: 2,
+    borderColor: "#caac86",
+    borderBottomWidth: 5,
+    gap: 14,
+    borderRadius: 12,
+    boxShadow: "0 12px 35px #10232366",
   },
   heading: {
-    fontSize: 25,
-    color: "#59415d",
-    fontWeight: "700",
-    fontFamily: Platform.OS === "web" ? "Georgia" : "serif",
+    fontSize: 29,
+    color: "#62455e",
+    fontFamily: "Pixelify",
+    fontWeight: "600",
   },
-  body: { fontSize: 16, color: "#5b4b55", lineHeight: 24 },
-  muted: { fontSize: 12, color: "#796b78", lineHeight: 18 },
+  body: { fontSize: 17, color: "#52454b", lineHeight: 25 },
+  muted: { fontSize: 13, color: "#74616c", lineHeight: 19 },
   chapter: {
     paddingVertical: 12,
     borderBottomWidth: 1,
@@ -987,78 +1156,108 @@ const styles = StyleSheet.create({
   },
   hud: {
     position: "absolute",
-    top: 12,
-    left: 14,
-    right: 14,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  objective: {
-    padding: 10,
-    backgroundColor: "#243d43e8",
-    borderWidth: 1,
-    borderColor: "#adbd90",
-    maxWidth: "62%",
-  },
-  overline: {
-    fontSize: 10,
-    color: "#b99a63",
-    letterSpacing: 1.5,
-    fontWeight: "700",
-  },
-  objectiveText: { fontSize: 13, color: "#fff1ca", marginTop: 4 },
-  prompt: {
-    position: "absolute",
-    bottom: 90,
-    alignSelf: "center",
-    backgroundColor: "#314b4ddd",
-    paddingHorizontal: 12,
-    paddingBottom: 6,
-    borderRadius: 4,
-  },
-  controls: {
-    position: "absolute",
-    bottom: 16,
+    top: 16,
     left: 18,
     right: 18,
     flexDirection: "row",
     justifyContent: "space-between",
+    gap: 12,
+  },
+  objective: {
+    padding: 13,
+    backgroundColor: "#173c3eea",
+    borderWidth: 1,
+    borderColor: "#9dad7a",
+    borderRadius: 8,
+    maxWidth: "63%",
+    boxShadow: "0 3px 10px #142b3433",
+  },
+  overline: {
+    fontFamily: "Pixelify",
+    fontSize: 12,
+    color: "#d4b87d",
+    letterSpacing: 1.3,
+    fontWeight: "600",
+  },
+  objectiveText: {
+    fontSize: 15,
+    color: "#fff1ca",
+    marginTop: 5,
+    fontWeight: "500",
+  },
+  prompt: {
+    position: "absolute",
+    bottom: 94,
+    alignSelf: "center",
+    backgroundColor: "#203e3fe8",
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+    paddingTop: 5,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: "#a9ac7e",
+  },
+  controls: {
+    position: "absolute",
+    bottom: 20,
+    left: 24,
+    right: 24,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   touch: {
-    width: 54,
-    height: 48,
-    backgroundColor: "#f4e7cfbb",
-    borderWidth: 2,
-    borderColor: "#e0c69d",
+    width: 64,
+    height: 58,
+    backgroundColor: "#183c3ecc",
+    borderWidth: 1,
+    borderColor: "#ded5b497",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 8,
+    borderRadius: 12,
   },
-  touchText: { fontSize: 22, color: "#4d4759", fontWeight: "700" },
+  touchText: { fontSize: 25, color: "#f6e8c7", fontWeight: "600" },
   toast: {
     position: "absolute",
-    bottom: 5,
+    bottom: 13,
     alignSelf: "center",
-    maxWidth: "80%",
-    backgroundColor: "#243b4bea",
-    padding: 9,
-    borderRadius: 3,
+    maxWidth: "62%",
+    backgroundColor: "#19383eea",
+    padding: 11,
+    borderRadius: 7,
   },
-  toastText: { color: "#fff0d9", fontSize: 12 },
+  toastText: { color: "#fff0d9", fontSize: 13 },
   dialogue: {
+    fontSize: 21,
+    color: "#51424b",
+    lineHeight: 31,
+    marginVertical: 10,
+  },
+  portraitFrame: {
+    height: 66,
+    width: 66,
+    backgroundColor: "#d6d7b8",
+    borderWidth: 2,
+    borderColor: "#b7ae89",
+    borderRadius: 9,
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  speaker: {
     fontSize: 19,
-    color: "#594555",
-    lineHeight: 29,
-    marginVertical: 12,
+    fontFamily: "Pixelify",
+    color: "#65475e",
+    marginTop: 4,
   },
   download: {
     position: "absolute",
-    left: 18,
-    bottom: 14,
-    padding: 10,
-    backgroundColor: "#fff0d9dd",
-    borderRadius: 4,
+    left: 22,
+    bottom: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    backgroundColor: "#fff0d9e8",
+    borderWidth: 1,
+    borderColor: "#b6977a",
+    borderRadius: 6,
   },
-  downloadText: { color: "#574453", fontSize: 12 },
+  downloadText: { color: "#574453", fontSize: 13 },
 });
