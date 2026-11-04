@@ -17,6 +17,7 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import Scene from "../components/SceneLoader";
+import MainMenu from "../components/MainMenu";
 import Portrait from "../components/Portrait";
 import ItemArt from "../components/ItemArt";
 import ChallengePanel from "../components/ChallengePanel";
@@ -135,7 +136,10 @@ function reflectionChoices(raw: string) {
   }
 }
 export default function Game() {
-  useFonts({ Pixelify: require("../assets/fonts/PixelifySans.ttf") });
+  useFonts({
+    Pixelify: require("../assets/fonts/PixelifySans.ttf"),
+    Cormorant: require("../assets/fonts/CormorantGaramond.ttf"),
+  });
   const size = useWindowDimensions(),
     insets = useSafeAreaInsets(),
     width = Math.min(
@@ -583,6 +587,13 @@ export default function Game() {
       );
     }
   }
+  const portraitMenu = screen === "menu" && size.height > size.width;
+  const stageWidth = portraitMenu
+    ? size.width - insets.left - insets.right
+    : width;
+  const stageHeight = portraitMenu
+    ? size.height - insets.top - insets.bottom
+    : height;
   const talking = dialogue
     ? (dialogue.lines[dialogue.index].speaker as Speaker)
     : null;
@@ -591,99 +602,51 @@ export default function Game() {
     <SafeAreaView style={styles.root}>
       <View
         style={{
-          width,
-          height,
+          width: stageWidth,
+          height: stageHeight,
           overflow: "hidden",
           backgroundColor: "#203d40",
         }}
       >
-        <Scene
-          width={width}
-          height={height}
-          menu={screen !== "play"}
-          {...{
-            x,
-            y,
-            camera,
-            time,
-            simulation,
-            motion,
-            action,
-            falling,
-            companionX,
-            companionY,
-            chestFrame,
-            progress,
-            pickup,
-            talking,
-          }}
-          reducedMotion={settings.reducedMotion}
-        />
+        {screen !== "menu" && (
+          <Scene
+            width={width}
+            height={height}
+            menu={screen !== "play"}
+            {...{
+              x,
+              y,
+              camera,
+              time,
+              simulation,
+              motion,
+              action,
+              falling,
+              companionX,
+              companionY,
+              chestFrame,
+              progress,
+              pickup,
+              talking,
+            }}
+            reducedMotion={settings.reducedMotion}
+          />
+        )}
         {screen === "menu" && (
-          <View style={[styles.menu, compact && { top: "4%", bottom: "4%" }]}>
-            <View style={[styles.row, { marginBottom: 3 }]}>
-              <Text style={styles.olive}>❧</Text>
-              <UIIcon name="book" size={compact ? 30 : 45} />
-              <Text style={styles.olive}>❧</Text>
-            </View>
-            <Text style={[styles.title, { fontSize: compact ? 21 : 32 }]}>
-              El camino de una
-            </Text>
-            <View style={styles.ribbon}>
-              <Text
-                style={[styles.precursora, { fontSize: compact ? 42 : 67 }]}
-              >
-                Precursora
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.subtitle,
-                compact && {
-                  fontSize: 13,
-                  lineHeight: 17,
-                  marginBottom: 10,
-                  marginTop: 4,
-                },
-              ]}
-            >
-              Una aventura de fe, aprendizaje y perseverancia
-            </Text>
-            <View style={{ width: "94%", gap: compact ? 5 : 9 }}>
-              <Button
-                label="▶ Comenzar aventura"
-                gold
-                disabled={!ready}
-                onPress={start}
-              />
-              <Button
-                label="▤ Continuar"
-                disabled={!save}
-                onPress={() => save && resume(save)}
-              />
-              {Platform.OS === "web" && (
-                <Button
-                  label="↥ Cargar partida"
-                  onPress={() => void importGame()}
-                />
-              )}
-              <View style={styles.row}>
-                <Button
-                  label="⚙ Ajustes"
-                  small
-                  onPress={() => setPanel("settings")}
-                />
-                <Button
-                  label="ⓘ Créditos"
-                  small
-                  onPress={() => setPanel("credits")}
-                />
-              </View>
-            </View>
-            <Text style={styles.prototype}>
-              CAPÍTULO I · UN PASO CON CONFIANZA
-            </Text>
-          </View>
+          <MainMenu
+            width={stageWidth}
+            height={stageHeight}
+            save={save}
+            ready={ready}
+            time={time}
+            reducedMotion={settings.reducedMotion}
+            onStart={start}
+            onContinue={() => save && resume(save)}
+            onImport={() => void importGame()}
+            onSettings={() => setPanel("settings")}
+            onCredits={() => setPanel("credits")}
+            onExport={() => void exportGame()}
+          />
         )}
         {screen === "chapters" && !panel && (
           <View style={styles.shade}>
@@ -868,7 +831,15 @@ export default function Game() {
             pointerEvents="none"
             style={[
               styles.toast,
-              { bottom: screen === "play" ? (compact ? 67 : 86) : 12 },
+              screen === "menu"
+                ? {
+                    top: height * 0.2,
+                    left: width * 0.04,
+                    bottom: undefined,
+                    maxWidth: "39%" as const,
+                    alignSelf: "flex-start" as const,
+                  }
+                : { bottom: compact ? 67 : 86 },
             ]}
           >
             <Text style={styles.toastText}>{message}</Text>
@@ -1333,15 +1304,6 @@ export default function Game() {
             </View>
           </View>
         )}
-        {screen === "menu" && save && Platform.OS === "web" && (
-          <Pressable
-            accessibilityRole="button"
-            style={styles.download}
-            onPress={() => void exportGame()}
-          >
-            <Text style={styles.downloadText}>↓ Descargar partida</Text>
-          </Pressable>
-        )}
       </View>
     </SafeAreaView>
   );
@@ -1375,68 +1337,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  menu: {
-    position: "absolute",
-    left: "44%",
-    right: "4%",
-    top: "5%",
-    bottom: "5%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bookMark: {
-    height: 51,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 8,
-  },
-  olive: { fontSize: 39, color: "#667653" },
-  bookPages: { flexDirection: "row", alignItems: "center" },
-  bookPage: {
-    width: 35,
-    height: 37,
-    backgroundColor: "#fff1d6",
-    borderWidth: 2,
-    borderColor: "#825c4e",
-    borderBottomWidth: 4,
-    padding: 5,
-    gap: 4,
-  },
-  bookLine: { height: 2, width: 21, backgroundColor: "#c6a57f" },
-  title: {
-    fontFamily: "Pixelify",
-    fontWeight: "500",
-    color: "#55374b",
-    textAlign: "center",
-    letterSpacing: 1,
-  },
-  ribbon: {
-    backgroundColor: "#d8b2c8",
-    paddingHorizontal: 25,
-    paddingBottom: 4,
-    borderTopWidth: 2,
-    borderBottomWidth: 5,
-    borderColor: "#a57994",
-    marginVertical: 5,
-    boxShadow: "0 3px 0 #734c6622",
-  },
-  precursora: {
-    fontFamily: "Pixelify",
-    fontWeight: "700",
-    color: "#503146",
-    textAlign: "center",
-    letterSpacing: -1,
-  },
-  subtitle: {
-    textAlign: "center",
-    color: "#593f50",
-    marginTop: 9,
-    marginBottom: 20,
-    maxWidth: 330,
-    lineHeight: 22,
-    fontWeight: "500",
-  },
   button: {
     backgroundColor: "#fff0d9",
     borderWidth: 2,
@@ -1467,13 +1367,6 @@ const styles = StyleSheet.create({
     gap: 9,
     alignItems: "center",
     justifyContent: "center",
-  },
-  prototype: {
-    fontFamily: "Pixelify",
-    fontSize: 11,
-    color: "#63495a",
-    marginTop: 19,
-    letterSpacing: 2,
   },
   shade: {
     ...StyleSheet.absoluteFillObject,
@@ -1601,16 +1494,4 @@ const styles = StyleSheet.create({
     color: "#65475e",
     marginTop: 4,
   },
-  download: {
-    position: "absolute",
-    left: 22,
-    bottom: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    backgroundColor: "#fff0d9e8",
-    borderWidth: 1,
-    borderColor: "#b6977a",
-    borderRadius: 6,
-  },
-  downloadText: { color: "#574453", fontSize: 13 },
 });

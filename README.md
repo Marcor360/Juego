@@ -21,6 +21,10 @@ npm run build:web
 
 El `postinstall` prepara CanvasKit desde la dependencia instalada. Se sirve `public/canvaskit-0.40.0.wasm`, con la misma versión que su JavaScript y sin depender de un CDN.
 
+## Menús que acompañan el viaje
+
+Tres portadas originales cambian con el avance del capítulo: **Amanecer**, **En camino** (tras la escena 8, con pantalón lavanda y botas) y **Nuevos horizontes** (tras el epílogo). Incluyen retratos animados, paisajes propios, tarjeta de diario, detalles de olivo y tipografía Cormorant Garamond con licencia OFL. En móvil vertical, los controles se reorganizan para seguir siendo legibles. Ver [diseño del menú](docs/MENU.md).
+
 ## Capítulo 1 v3
 
 El [documento de diseño](docs/CHAPTER_1_V3.md) guía esta versión:
@@ -70,6 +74,7 @@ python3 -m http.server 8081 --directory dist
 node tests/browser-v3.cjs
 node tests/graphics-browser.cjs
 node tests/replay-browser.cjs
+node tests/menu-browser.cjs
 ```
 
 `GAME_URL`, `PLAYWRIGHT_MODULE` y `CHROMIUM_PATH` permiten configurar el servidor y las herramientas. En el entorno de desarrollo: Playwright `/opt/codex/cua_node/lib/node_modules/playwright`, Chromium `/usr/bin/chromium`.
