@@ -434,9 +434,11 @@ export default function MainMenu({
               ))}
             </View>
             <Text style={[s.progressText, { color: theme.muted }]}>
-              {save
-                ? `CAPÍTULO I · ${save.missions.completedMissions.length}/16 ESCENAS`
-                : "EL BOSQUE DE LAS DUDAS"}
+              {save?.activeChapter === 2 && save.library
+                ? `CAPÍTULO II · ${save.library.completed.length}/16 ESCENAS`
+                : save
+                  ? `CAPÍTULO I · ${save.missions.completedMissions.length}/16 ESCENAS`
+                  : "EL BOSQUE DE LAS DUDAS"}
             </Text>
           </View>
         </View>

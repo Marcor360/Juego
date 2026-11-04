@@ -17,6 +17,8 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import Scene from "../components/SceneLoader";
+import LibraryGame from "../components/chapter2/LibraryGame";
+import { withLibrary } from "../game/chapter2/campaign";
 import MainMenu from "../components/MainMenu";
 import Portrait from "../components/Portrait";
 import ItemArt from "../components/ItemArt";
@@ -150,7 +152,9 @@ export default function Game() {
     height = (width * 9) / 16,
     compact = height < 520;
   const world = useRef(new World()).current;
-  const [screen, setScreen] = useState<"menu" | "chapters" | "play">("menu"),
+  const [screen, setScreen] = useState<
+      "menu" | "chapters" | "play" | "library"
+    >("menu"),
     [panel, setPanel] = useState<Panel>(null),
     [ready, setReady] = useState(false),
     [save, setSave] = useState<Save | null>(null),
@@ -264,8 +268,9 @@ export default function Game() {
         unlockedChapters:
           hasMission(world.progress, 16) || prior?.legacyRewards ? [1, 2] : [1],
       };
+    const campaign = prior?.library ? withLibrary(s, prior.library, 1) : s;
     try {
-      await storeSave(s);
+      await storeSave(campaign);
       if (lastSaveError.current)
         setStorageNotice(
           "Se restableció el guardado local. Tu progreso actual está guardado.",
@@ -277,9 +282,9 @@ export default function Game() {
       setMessage(lastSaveError.current);
     }
     // Even if disk is unavailable, the latest session remains downloadable.
-    saveRef.current = s;
-    setSave(s);
-    return s;
+    saveRef.current = campaign;
+    setSave(campaign);
+    return campaign;
   }
   function refresh() {
     syncHud();
@@ -299,7 +304,24 @@ export default function Game() {
   ) {
     say([{ speaker, text }], done);
   }
+  function openLibrary(s: Save) {
+    if (!s.unlockedChapters.includes(2)) return;
+    const campaign = withLibrary(s);
+    saveRef.current = campaign;
+    setSave(campaign);
+    setSettings(campaign.settings);
+    setPanel(null);
+    setDialogue(null);
+    setScreen("library");
+    void storeSave(campaign).catch((e) =>
+      setStorageNotice((e as Error).message),
+    );
+  }
   function resume(s: Save, replay = false) {
+    if (!replay && s.activeChapter === 2 && s.library) {
+      openLibrary(s);
+      return;
+    }
     if (!replay) replayOriginal.current = null;
     saveRef.current = s;
     setSave(s);
@@ -655,7 +677,7 @@ export default function Game() {
           backgroundColor: "#203d40",
         }}
       >
-        {screen !== "menu" && (
+        {screen !== "menu" && screen !== "library" && (
           <Scene
             width={width}
             height={height}
@@ -678,6 +700,28 @@ export default function Game() {
               talking,
             }}
             reducedMotion={settings.reducedMotion}
+          />
+        )}
+        {screen === "library" && save && (
+          <LibraryGame
+            save={save}
+            width={width}
+            height={height}
+            onChange={async (next) => {
+              saveRef.current = next;
+              setSave(next);
+              setSettings(next.settings);
+              try {
+                await storeSave(next);
+              } catch (e) {
+                setStorageNotice(
+                  "No se pudo guardar la biblioteca en este dispositivo. La sesión actual puede descargarse desde el menú. " +
+                    (e as Error).message,
+                );
+                throw e;
+              }
+            }}
+            onExit={() => setScreen("menu")}
           />
         )}
         {screen === "menu" && (
@@ -714,7 +758,15 @@ export default function Game() {
                         <Button
                           small
                           label="Continuar el bosque"
-                          onPress={() => resume(save ?? newSave())}
+                          onPress={() =>
+                            resume(
+                              save
+                                ? save.library
+                                  ? withLibrary(save, save.library, 1)
+                                  : save
+                                : newSave(),
+                            )
+                          }
                         />
                         <Button
                           small
@@ -739,6 +791,16 @@ export default function Game() {
                           }}
                         />
                       </View>
+                    ) : i === 1 && save?.unlockedChapters.includes(2) ? (
+                      <Button
+                        gold
+                        label={
+                          save.library
+                            ? "Continuar la biblioteca"
+                            : "Entrar a la biblioteca"
+                        }
+                        onPress={() => openLibrary(save)}
+                      />
                     ) : (
                       <Text style={styles.muted}>
                         {i === 1 && save?.unlockedChapters.includes(2)
@@ -1352,9 +1414,14 @@ export default function Game() {
                     <Text style={styles.overline}>CAPÍTULO I · COMPLETADO</Text>
                     <Text style={styles.heading}>El viaje continúa</Text>
                     <Text style={styles.body}>
-                      La biblioteca del aprendizaje está desbloqueada. Su
-                      aventura llegará en una próxima fase.
+                      La biblioteca del aprendizaje está desbloqueada. Nuevas
+                      preguntas, visitantes y salas te esperan.
                     </Text>
+                    <Button
+                      gold
+                      label="Entrar a la biblioteca"
+                      onPress={async () => openLibrary(await persist())}
+                    />
                     <Text style={styles.body}>
                       Tu cuaderno conserva {progress.evidence.length}{" "}
                       evidencias, {progress.reflections.length} reflexiones y{" "}
