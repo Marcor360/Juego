@@ -12,7 +12,7 @@ test("bounded fixed stepping preserves real movement and camera position from 5 
     world.input.right = true;
     for (let i = 0; i < fps; i++)
       clock.advance(1 / fps, (dt) => world.step(dt));
-    assert(Math.abs(world.x - 235) < 1e-8, `movement at ${fps} FPS`);
+    assert(world.x > 225 && world.x < 235, `accelerated movement at ${fps} FPS`);
     states.push([world.x, world.camera, world.time]);
   }
   for (const state of states) assert.deepEqual(state, states[0]);

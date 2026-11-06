@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import {
   evaluateStage,
@@ -6,24 +6,39 @@ import {
   optionAvailable,
   type SceneDefinition,
 } from "../game/chapter1/challenges";
+import { challengeRevision, type ChallengeDraft } from "../game/chapter1/draft";
 import type { Progress } from "../game/missions/progress";
 export default function ChallengePanel({
   scene,
   progress,
   onComplete,
+  initialDraft,
+  onChange,
 }: {
   scene: SceneDefinition;
   progress: Progress;
-  onComplete: (history: string[][]) => void;
+  onComplete: (history: string[][]) => boolean;
+  initialDraft: ChallengeDraft | null;
+  onChange: (draft: ChallengeDraft) => void;
 }) {
-  const [step, setStep] = useState(0),
-    [history, setHistory] = useState<string[][]>([]),
-    [selected, setSelected] = useState<string[]>([]),
+  const [step, setStep] = useState(initialDraft?.history.length ?? 0),
+    [history, setHistory] = useState<string[][]>(() => initialDraft?.history.map(answer => [...answer]) ?? []),
+    [selected, setSelected] = useState<string[]>(() => [...(initialDraft?.selected ?? [])]),
     [feedback, setFeedback] = useState(""),
-    [hints, setHints] = useState(false);
+    [hints, setHints] = useState(initialDraft?.hints ?? false);
   const stage = scene.stages[step];
-  const [options, setOptions] = useState(() => shuffled(stage.options));
+  const [options, setOptions] = useState(() => initialDraft
+    ? initialDraft.order.map(id => stage.options.find(option => option.id === id)!)
+    : shuffled(stage.options));
+  const changed = useRef(onChange);
+  changed.current = onChange;
+  const submitted = useRef(false);
+  useEffect(() => {
+    if (submitted.current) return;
+    changed.current({ version: 1, scene: scene.number, revision: challengeRevision(scene), history, selected, order: options.map(option => option.id), hints });
+  }, [scene, history, selected, options, hints]);
   function check() {
+    if (submitted.current) return;
     if (!evaluateStage(stage, selected, history, progress)) {
       setFeedback(
         "Revisa lo que observaste y cómo se relaciona con tu decisión. Puedes volver a intentarlo.",
@@ -32,7 +47,8 @@ export default function ChallengePanel({
     }
     const next = [...history, selected];
     if (step + 1 === scene.stages.length) {
-      onComplete(next);
+      submitted.current = true;
+      if (!onComplete(next)) submitted.current = false;
       return;
     }
     setHistory(next);
@@ -58,7 +74,12 @@ export default function ChallengePanel({
           ? "REFLEXIÓN PERSONAL"
           : "OBSERVA · PIENSA · DECIDE"}
       </Text>
-      <Text style={s.prompt}>{stage.prompt}</Text>
+      <Text accessibilityRole="header" accessibilityLiveRegion="polite" style={s.prompt}>{stage.prompt}</Text>
+      <Text style={s.reference}>{stage.kind === "order"
+        ? "Elige los fragmentos en orden. Algunos sobran; toca uno elegido para quitarlo."
+        : stage.kind === "multi" ? "Puedes marcar varias opciones. Revisa cuántas pide la pregunta."
+        : stage.kind === "reflect" ? "Elige la reflexión que te represente. Aquí no hay una respuesta incorrecta."
+        : "Elige una sola respuesta y después pulsa Comprobar decisión."}</Text>
       {stage.kind === "order" && (
         <View style={s.answer}>
           <Text style={s.text}>
@@ -138,6 +159,7 @@ export default function ChallengePanel({
           <Text style={s.text}>Consultar una pista</Text>
         </Pressable>
       </View>
+      <Text style={s.reference}>Puedes salir del reto y retomarlo desde Pausa. Los pasos aceptados y tu selección se conservan.</Text>
       <Text style={s.reference}>{scene.reference}</Text>
     </View>
   );

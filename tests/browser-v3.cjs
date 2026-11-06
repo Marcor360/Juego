@@ -99,14 +99,37 @@ const content = require("../game/dialogues/chapter1.json");
         await click("Saltar");
       } else {
         await page.keyboard.down("d");
-        await run(550);
+        await run(600);
         await page.keyboard.up("d");
         await page.keyboard.press("Space");
       }
       await run(750);
       await click("▤ Cuaderno");
       await click("Volver");
-      await click("Interactuar");
+      // Clock installation can still add real time between input commands.
+      // Reposition using the saved, observed location rather than assuming a
+      // fixed hold leaves us inside the notebook's 34 px interaction radius.
+      const tutorialPosition = (await saved()).position;
+      if (Math.abs(tutorialPosition - 170) > 24) {
+        const left = tutorialPosition > 170;
+        const duration = Math.abs(tutorialPosition - 170) / 115 * 1000 + 40;
+        if (mobile) {
+          const point = await touchPoint(left ? "Caminar a la izquierda" : "Caminar a la derecha", 1);
+          await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point] });
+          await run(duration);
+          await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+        } else {
+          await page.keyboard.down(left ? "a" : "d");
+          await run(duration);
+          await page.keyboard.up(left ? "a" : "d");
+        }
+        await run(100);
+      }
+      if (mobile) await click("Interactuar");
+      else {
+        await page.keyboard.press("e");
+        await run(80);
+      }
       for (let k = 0; k < 2; k++)
         await click(k === 1 ? "Seguir mi camino →" : "Continuar →");
       await run(100);
@@ -115,7 +138,11 @@ const content = require("../game/dialogues/chapter1.json");
         console.log("scene", mobile, n);
         await open(fixtures[n - 1]);
         const def = content.scenes[n - 1];
-        await click("Interactuar");
+        if (mobile) await click("Interactuar");
+        else {
+          await page.keyboard.press("e");
+          await run(80);
+        }
         for (let i = 0; i < def.dialogue.length; i++)
           await click(
             i + 1 === def.dialogue.length
@@ -165,7 +192,7 @@ const content = require("../game/dialogues/chapter1.json");
           }
           if (n === 13 && i === 0) {
             await page.screenshot({
-              path: `/tmp/chapter-v3-${mobile ? "mobile" : "desktop"}-puzzle.png`,
+              path: `${process.env.ARTIFACTS_DIR || "/tmp"}/chapter-v3-${mobile ? "mobile" : "desktop"}-puzzle.png`,
             });
           }
           await click(
@@ -184,7 +211,7 @@ const content = require("../game/dialogues/chapter1.json");
               .isVisible(),
           );
           await page.screenshot({
-            path: `/tmp/chapter-v3-${mobile ? "mobile" : "desktop"}-reward.png`,
+            path: `${process.env.ARTIFACTS_DIR || "/tmp"}/chapter-v3-${mobile ? "mobile" : "desktop"}-reward.png`,
           });
           await click("Guardar la linterna y continuar");
         }
@@ -199,7 +226,7 @@ const content = require("../game/dialogues/chapter1.json");
         assert.equal(s.health, 3);
         if ([3, 6, 9, 10, 12, 14, 15].includes(n))
           await page.screenshot({
-            path: `/tmp/chapter-v3-${mobile ? "mobile" : "desktop"}-${n}.png`,
+            path: `${process.env.ARTIFACTS_DIR || "/tmp"}/chapter-v3-${mobile ? "mobile" : "desktop"}-${n}.png`,
           });
       }
       assert.deepEqual((await saved()).tools, ["fe"]);
@@ -278,7 +305,11 @@ const content = require("../game/dialogues/chapter1.json");
         checkpoint: "ch1_claro",
         position: 5030,
       });
-      await click("Interactuar");
+      if (mobile) await click("Interactuar");
+      else {
+        await page.keyboard.press("e");
+        await run(80);
+      }
       assert(
         await page
           .getByText("El sendero de la niebla", { exact: true })

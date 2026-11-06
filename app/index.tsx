@@ -1,3 +1,6 @@
+import { BRANCH_CLEAR_SECONDS } from "../game/rendering/conversation";
+import Illustration from "../components/Illustration";
+import { pickupFrames } from "../game/rendering/pickups";
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -17,11 +20,20 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import Scene from "../components/SceneLoader";
+import {
+  useTouchControls,
+  controlInstructions,
+} from "../game/input/useTouchControls";
 import MainMenu from "../components/MainMenu";
+import LibraryLoader from "../components/LibraryLoader";
+import { newLibrary, libraryComplete, type LibraryProgress } from "../game/chapter2/library";
 import Portrait from "../components/Portrait";
 import ItemArt from "../components/ItemArt";
 import ChallengePanel from "../components/ChallengePanel";
+import { chapterGuidance } from "../game/chapter1/guidance";
 import UIIcon, { type UIIconName } from "../components/UIIcon";
+import { ambienceFor } from "../game/audio/context";
+import { useModalFocus } from "../game/input/useModalFocus";
 import { useGameAudio } from "../game/audio/useGameAudio";
 import { World } from "../game/engine/world";
 import { FixedStepClock, MAX_FRAME_SECONDS } from "../game/engine/ticker";
@@ -39,13 +51,16 @@ import {
   prerequisites,
   missionTitles,
 } from "../game/missions/progress";
+import type { ChallengeDraft } from "../game/chapter1/draft";
 import { getScene } from "../game/chapter1/challenges";
 import { speakerNames, type Speaker } from "../game/dialogues/presentation";
 import { newSave, defaultSettings, type Save } from "../game/save/schema";
-import { loadSave, storeSave } from "../game/save/storage";
+import { loadPreferences, storePreferences, loadSave, storeSave } from "../game/save/storage";
 import { downloadSave, importSave } from "../game/save/transfer";
 import { faith } from "../game/inventory/tools";
 type Panel =
+  | "help"
+  | "library"
   | "settings"
   | "credits"
   | "pause"
@@ -60,6 +75,7 @@ type Dialogue = {
   lines: { speaker: string; text: string }[];
   index: number;
   done?: () => void;
+  onDismiss?: () => void;
 };
 function Button({
   label,
@@ -67,12 +83,14 @@ function Button({
   disabled = false,
   gold = false,
   small = false,
+  iconOnly = false,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
   gold?: boolean;
   small?: boolean;
+  iconOnly?: boolean;
 }) {
   const icons: Record<string, UIIconName> = {
     "▶": "play",
@@ -94,6 +112,7 @@ function Button({
         styles.button,
         gold && styles.gold,
         small && styles.small,
+        iconOnly && { width: 44, minHeight: 44, paddingHorizontal: 0 },
         disabled && { opacity: 0.45 },
         (pressed || hovered) && !disabled && { backgroundColor: "#e8cc9b" },
       ]}
@@ -108,9 +127,11 @@ function Button({
         }}
       >
         {icon && <UIIcon name={icon} size={small ? 16 : 19} />}
-        <Text style={[styles.buttonText, small && { fontSize: 15 }]}>
-          {text}
-        </Text>
+        {!iconOnly && (
+          <Text style={[styles.buttonText, small && { fontSize: 15 }]}>
+            {text}
+          </Text>
+        )}
       </View>
     </Pressable>
   );
@@ -138,8 +159,8 @@ function reflectionChoices(raw: string) {
 }
 export default function Game() {
   useFonts({
-    Pixelify: require("../assets/fonts/PixelifySans.ttf"),
-    Cormorant: require("../assets/fonts/CormorantGaramond.ttf"),
+    Pixelify: require("../assets/runtime/Pixelify.ttf"),
+    Cormorant: require("../assets/runtime/Cormorant.ttf"),
   });
   const size = useWindowDimensions(),
     insets = useSafeAreaInsets(),
@@ -148,8 +169,11 @@ export default function Game() {
       ((size.height - insets.top - insets.bottom) * 16) / 9,
     ),
     height = (width * 9) / 16,
-    compact = height < 520;
+    compact = height < 520,
+    narrowHud = width < 600;
   const world = useRef(new World()).current;
+  const touchControls = useTouchControls(() => world.release());
+  const instructions = controlInstructions(touchControls);
   const [screen, setScreen] = useState<"menu" | "chapters" | "play">("menu"),
     [panel, setPanel] = useState<Panel>(null),
     [ready, setReady] = useState(false),
@@ -162,6 +186,8 @@ export default function Game() {
     [health, setHealth] = useState(3),
     [zone, setZone] = useState(zones[0].name),
     [challenge, setChallenge] = useState(1),
+    [challengeDraft, setChallengeDraft] = useState<ChallengeDraft | null>(null),
+    [transferring, setTransferring] = useState(false),
     [journalTab, setJournalTab] = useState<
       "missions" | "map" | "evidence" | "reflections"
     >("missions"),
@@ -177,10 +203,17 @@ export default function Game() {
     falling = useSharedValue(0),
     companionX = useSharedValue(80),
     companionY = useSharedValue(226),
+    companionMotion = useSharedValue(0),
+    companionDirection = useSharedValue(1),
     chestFrame = useSharedValue(0),
+    branchProgress = useSharedValue(-1),
+    repair = useSharedValue({x:0,at:-100}),
+    speechAt = useSharedValue(0),
     pickup = useSharedValue({ x: 0, y: 0, at: -10 });
   const hudCache = useRef({ near: "", zone: zones[0].name, sector: 0 });
   const lastSaveError = useRef("");
+  const challengeDraftRef = useRef<ChallengeDraft | null>(null);
+  const transferBusy = useRef(false);
   const replayOriginal = useRef<Save | null>(null);
   const saveRef = useRef<Save | null>(null),
     rewardAt = useRef(-1),
@@ -189,34 +222,57 @@ export default function Game() {
   live.current = { screen, panel, dialogue, settings };
   const sound = useGameAudio(
       settings,
-      screen === "play" && !panel && !dialogue,
+      ambienceFor(screen, zone, panel === "library"),
+      !!dialogue || (!!panel && panel !== "library"),
+      ready,
     ),
     soundRef = useRef(sound);
   soundRef.current = sound;
+  const libraryRef = useRef<LibraryProgress | null>(null);
+  const activeChapterRef = useRef<1 | 2>(1);
+  const [libraryProgress, setLibraryProgress] = useState<LibraryProgress | null>(null);
+  const modalRef = useRef<View>(null);
+  const panelScrollRef = useRef<ScrollView>(null);
+  const gameViewportRef = useRef<View>(null);
+  useModalFocus(modalRef, dialogue ? "dialogue" : panel === "library" ? null : panel, screen === "play" ? gameViewportRef : undefined);
   useEffect(() => {
-    loadSave()
-      .then(({ save: s, notice }) => {
-        setSave(s);
-        saveRef.current = s;
-        if (s) setSettings(s.settings);
-        if (notice) setStorageNotice(notice);
-        setReady(true);
-      })
-      .catch(() => {
-        setStorageNotice(
-          "No se pudo preparar el guardado local. Puedes descargar tu progreso antes de cerrar.",
-        );
-        setReady(true);
-      });
+    void Promise.allSettled([loadSave(), loadPreferences()]).then(([loaded, preferences]) => {
+      const loadedSave = loaded.status === "fulfilled" ? loaded.value.save : null;
+      const initialSettings = (preferences.status === "fulfilled" ? preferences.value : null) ?? loadedSave?.settings ?? { ...defaultSettings };
+      const initialSave = loadedSave ? { ...loadedSave, settings: initialSettings } : null;
+      setSave(initialSave);
+      saveRef.current = initialSave;
+      setSettings(initialSettings);
+      const notices = [
+        loaded.status === "fulfilled" ? loaded.value.notice : "No se pudo preparar el guardado local. Puedes descargar tu progreso antes de cerrar.",
+        preferences.status === "rejected" ? "No se pudieron recuperar los ajustes. Puedes revisarlos en Ajustes." : "",
+      ].filter(Boolean);
+      if (notices.length) setStorageNotice(notices.join(" "));
+      setReady(true);
+    });
   }, []);
   useEffect(() => {
     if (!message) return;
     const id = setTimeout(() => setMessage(""), 6500);
     return () => clearTimeout(id);
   }, [message]);
+  function closePanel() {
+    if (live.current.panel === "settings") {
+      const currentSettings = { ...live.current.settings };
+      void storePreferences(currentSettings).catch(() => setStorageNotice("No se pudieron guardar los ajustes en este dispositivo."));
+      if (saveRef.current) {
+        const updated = { ...saveRef.current, settings: currentSettings };
+        saveRef.current = updated;
+        setSave(updated);
+        void storeSave(updated).catch(() => setStorageNotice("No se pudieron guardar los ajustes de la partida."));
+      }
+    }
+    setPanel(live.current.panel === "settings" && live.current.screen === "play" ? "pause" : null);
+  }
   function syncHud() {
     const cache = hudCache.current,
-      label = world.nearby()?.label ?? "",
+      nearby = world.nearby(),
+      label = world.branchClearing>0 ? "Apartando la rama…" : nearby?.id==="helper"&&hasMission(world.progress,5) ? "Hablar con el guardabosques" : nearby?.label ?? "",
       name =
         zones.find((z) => world.x >= z.start && world.x < z.end)?.name ??
         zones[0].name,
@@ -252,6 +308,9 @@ export default function Game() {
     const prior = saveRef.current,
       s: Save = {
         ...newSave(),
+        challenge: challengeDraftRef.current,
+        library: libraryRef.current,
+        activeChapter: activeChapterRef.current,
         checkpoint: world.checkpoint,
         position: world.safePosition(),
         health: world.health,
@@ -264,6 +323,10 @@ export default function Game() {
         unlockedChapters:
           hasMission(world.progress, 16) || prior?.legacyRewards ? [1, 2] : [1],
       };
+    if (libraryComplete(libraryRef.current)) {
+      s.tools.push("aprendizaje");
+      s.unlockedChapters = [1, 2, 3];
+    }
     try {
       await storeSave(s);
       if (lastSaveError.current)
@@ -289,6 +352,7 @@ export default function Game() {
   }
   function say(lines: Dialogue["lines"], done?: () => void) {
     world.release();
+    speechAt.value = time.value;
     setDialogue({ lines, index: 0, done });
     soundRef.current("interaction");
   }
@@ -311,19 +375,42 @@ export default function Game() {
     syncHud();
     chestFrame.value = hasMission(world.progress, 15) ? 3 : 0;
     rewardAt.current = -1;
+    repair.value = {x:0,at:-100};
     setProgress({ ...world.progress });
     setHealth(world.health);
     setSettings(s.settings);
     setScreen("play");
-    setPanel(null);
+    libraryRef.current = (replay ? replayOriginal.current?.library : s.library) ?? null;
+    setLibraryProgress(libraryRef.current);
+    activeChapterRef.current = replay ? 1 : s.activeChapter ?? 1;
+    const draft = s.challenge ?? null;
+    challengeDraftRef.current = draft;
+    setChallengeDraft(draft);
+    if (draft) setChallenge(draft.scene);
+    setPanel(activeChapterRef.current === 2 ? "library" : draft ? "challenge" : null);
     setDialogue(null);
-    setMessage(
-      "A/D o ← → · Espacio: saltar · E: conversar · J: cuaderno · I: mochila",
-    );
+    setMessage("");
     if (!replay && s.migratedFrom === 1 && !s.missions.completedMissions.length)
       note(
         "El bosque ha cambiado. Tus herramientas anteriores se conservan, pero las 16 escenas nuevas comienzan desde la entrada. La partida anterior permanece como respaldo.",
       );
+  }
+  function openLibrary() {
+    const s = saveRef.current;
+    if (!s?.unlockedChapters.includes(2)) return;
+    resume({ ...s, activeChapter: 2, library: s.library ?? newLibrary() });
+    void persist();
+  }
+  function updateLibrary(next: LibraryProgress) {
+    libraryRef.current = next;
+    setLibraryProgress(next);
+    activeChapterRef.current = 2;
+    void persist();
+  }
+  function exitLibrary() {
+    void persist();
+    setPanel(null);
+    setScreen("menu");
   }
   function start() {
     if (save) {
@@ -340,6 +427,7 @@ export default function Game() {
   function openJournal() {
     world.release();
     world.markTutorial("journal");
+    soundRef.current("page");
     setPanel("journal");
     refresh();
   }
@@ -348,8 +436,11 @@ export default function Game() {
       n === 5 ? (history[0]?.[0] ?? "") : JSON.stringify(history);
     try {
       world.complete(n, decision);
+      challengeDraftRef.current = null;
+      setChallengeDraft(null);
       refresh();
-      soundRef.current("discovery");
+      if (n !== 5) soundRef.current("discovery");
+      if (n === 9 || n === 11) repair.value = {x:n===9?3750:4905,at:world.time};
       setPanel(null);
       if (n === 7)
         note(
@@ -365,9 +456,22 @@ export default function Game() {
         );
       else if (n === 16) setPanel("complete");
       else setMessage("Escena completada · " + missionTitles[n - 1]);
+      return true;
     } catch (e) {
       note((e as Error).message);
+      return false;
     }
+  }
+  function updateChallengeDraft(draft: ChallengeDraft) {
+    if (draft.scene !== currentScene(world.progress)) return;
+    const previous = challengeDraftRef.current;
+    challengeDraftRef.current = draft;
+    setChallengeDraft(draft);
+    if (previous?.scene !== draft.scene || previous.history.length !== draft.history.length) {
+      panelScrollRef.current?.scrollTo({ y: 0, animated: false });
+      if (Platform.OS === "web") (modalRef.current as unknown as HTMLElement | null)?.focus({ preventScroll: true });
+    }
+    void persist();
   }
   function afterDialogue(n: number) {
     const missing = prerequisites(world.progress, n);
@@ -382,6 +486,7 @@ export default function Game() {
     }
     if (n === 15) {
       rewardAt.current = time.value;
+      soundRef.current("chest");
       world.release();
       action.value = 5;
       setMessage("El cofre se abre…");
@@ -392,6 +497,8 @@ export default function Game() {
   function interact() {
     const state = live.current;
     if (state.dialogue) {
+      soundRef.current("talk-soft");
+      speechAt.value = time.value;
       const d = state.dialogue;
       if (d.index + 1 < d.lines.length)
         setDialogue({ ...d, index: d.index + 1 });
@@ -402,6 +509,7 @@ export default function Game() {
       return;
     }
     if (state.panel) return;
+    if (world.branchClearing>0) { setMessage("Estamos apartando la rama. Espera a que quede a la orilla."); return; }
     world.markTutorial("interact");
     const object = world.nearby();
     if (!object) {
@@ -411,6 +519,7 @@ export default function Game() {
       return;
     }
     if (object.kind === "helper") {
+      if (hasMission(world.progress,5)) { note("La rama ya quedó a la orilla. Sigue las marcas hasta el desvío del puente.",undefined,"ranger"); return; }
       if (!hasMission(world.progress, 4)) {
         note("Escucha primero el relato de la caminante junto al arroyo.");
         return;
@@ -418,9 +527,9 @@ export default function Game() {
       addUnique(world.progress.evidence, "helper_offer");
       refresh();
       note(
-        "Puedo sostener la rama contigo. Pedir ayuda es una forma sensata de cuidar nuestras fuerzas.",
+        "Puedo estabilizar la rama mientras la apartamos. Acércate a ella y elige la ayuda en tu cuaderno; la moveremos hacia la orilla del sendero.",
         undefined,
-        "walker",
+        "ranger",
       );
       return;
     }
@@ -445,6 +554,7 @@ export default function Game() {
     }
     const n = object.scene!;
     if (hasMission(world.progress, n)) {
+      if (n === 16) { openLibrary(); return; }
       note(
         n === 15
           ? "La linterna de la Fe ya está en tu inventario."
@@ -453,7 +563,13 @@ export default function Game() {
       return;
     }
     if (n !== currentScene(world.progress)) {
-      note("Antes de continuar: " + objective(world.progress));
+      note("Antes de continuar: " + chapterGuidance(world.progress).text + " " + chapterGuidance(world.progress).detail);
+      return;
+    }
+    if (challengeDraftRef.current?.scene === n) {
+      world.release();
+      setChallenge(n);
+      setPanel("challenge");
       return;
     }
     const s = getScene(n);
@@ -487,13 +603,16 @@ export default function Game() {
         if (events.length) {
           let changed = false;
           for (const event of events) {
+            if (event.type === "sound") {
+              if (event.sound) soundRef.current(event.sound);
+              continue;
+            }
             changed = true;
             if (event.message) setMessage(event.message);
             if (event.type === "pickup") {
               pickup.value = { x: event.x!, y: event.y!, at: time.value };
               soundRef.current("discovery");
             }
-            if (event.type === "damage") soundRef.current("interaction");
           }
           if (changed) refresh();
         }
@@ -507,7 +626,7 @@ export default function Game() {
           world.grounded &&
           time.value - stepAt.current > 0.3
         ) {
-          soundRef.current("step");
+          soundRef.current(world.footstepSound);
           stepAt.current = time.value;
         }
       }
@@ -516,8 +635,13 @@ export default function Game() {
       y.value = world.y;
       camera.value = world.camera;
       simulation.value = world.time;
+      branchProgress.value = hasMission(world.progress,5) ? 1-world.branchClearing/BRANCH_CLEAR_SECONDS : -1;
       companionX.value = world.companionX;
       companionY.value = world.companionY;
+      companionDirection.value = world.companion.facing;
+      companionMotion.value = !playing ? 0 : !world.companion.grounded
+        ? world.companion.falling ? 3 : 2
+        : world.companion.landing > 0 ? 4 : world.companion.moving ? 1 : 0;
       falling.value = world.vy > 0 ? 1 : 0;
       motion.value = playing
         ? world.grounded
@@ -535,7 +659,7 @@ export default function Game() {
           complete(15);
           setPanel("reward");
         }
-      } else action.value = state.dialogue ? 3 : 0;
+      } else action.value = world.branchClearing > 0 && !world.branchApproach ? 7 : state.dialogue ? 3 : 0;
       id = requestAnimationFrame(loop);
     };
     id = requestAnimationFrame(loop);
@@ -547,19 +671,25 @@ export default function Game() {
   useEffect(() => {
     if (Platform.OS !== "web") return;
     const down = (e: KeyboardEvent) => {
-      if (live.current.screen !== "play") return;
       const key = e.key.toLowerCase();
-      if ([" ", "arrowleft", "arrowright", "arrowup"].includes(key))
-        e.preventDefault();
+      if (live.current.panel === "library") return;
       if (key === "escape") {
         world.release();
         if (live.current.dialogue) {
+          const dismissed = live.current.dialogue.onDismiss;
           setDialogue(null);
+          dismissed?.();
           return;
         }
-        setPanel((p) => (p ? null : "pause"));
+        if (live.current.panel) closePanel();
+        else if (live.current.screen === "play") setPanel("pause");
+        else if (live.current.screen === "chapters") setScreen("menu");
         return;
       }
+      if (live.current.screen !== "play") return;
+      const target = e.target as Element | null;
+      if (target?.closest?.('button,[role="button"],input,textarea,select,[role="switch"]')) return;
+      if (!live.current.panel && !live.current.dialogue && [" ", "arrowleft", "arrowright", "arrowup"].includes(key)) e.preventDefault();
       if (e.repeat && ["e", "i", "j"].includes(key)) return;
       if (key === "e") {
         interact();
@@ -577,16 +707,24 @@ export default function Game() {
       }
       if (key === "a" || key === "arrowleft") world.input.left = true;
       if (key === "d" || key === "arrowright") world.input.right = true;
-      if ((key === " " || key === "arrowup") && !e.repeat)
+      if ((key === " " || key === "arrowup") && !e.repeat) {
         world.input.jump = true;
+        world.input.jumpHeld = true;
+      }
     };
     const up = (e: KeyboardEvent) => {
-      if (["a", "ArrowLeft"].includes(e.key)) world.input.left = false;
-      if (["d", "ArrowRight"].includes(e.key)) world.input.right = false;
+      if ([" ", "arrowup"].includes(e.key.toLowerCase())) world.input.jumpHeld = false;
+      if (["a", "arrowleft"].includes(e.key.toLowerCase()))
+        world.input.left = false;
+      if (["d", "arrowright"].includes(e.key.toLowerCase()))
+        world.input.right = false;
     };
     const blur = () => {
       world.release();
-      if (live.current.screen === "play") setPanel("pause");
+      if (live.current.screen === "play") {
+        setPanel(panel => panel ?? (live.current.dialogue ? null : "pause"));
+        if (live.current.panel !== "library") void persist();
+      }
     };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
@@ -601,38 +739,46 @@ export default function Game() {
     const sub = AppState.addEventListener("change", (s) => {
       if (s !== "active" && live.current.screen === "play") {
         world.release();
-        setPanel("pause");
-        void persist();
+        setPanel(panel => panel ?? (live.current.dialogue ? null : "pause"));
+        if (live.current.panel !== "library") void persist();
       }
     });
     return () => sub.remove();
   }, []);
   async function exportGame() {
+    if (transferBusy.current) return;
+    transferBusy.current = true;
+    setTransferring(true);
     try {
-      await downloadSave(
-        screen === "play" ? await persist() : (saveRef.current ?? newSave()),
-      );
-    } catch (e) {
-      setMessage((e as Error).message);
+      await downloadSave(screen === "play" ? await persist() : (saveRef.current ?? newSave()));
+    } catch (error) {
+      const previousPanel = live.current.panel;
+      const restore = () => setPanel(previousPanel);
+      world.release();
+      setPanel(null);
+      setDialogue({ lines: [{ speaker: "narrator", text: "No se pudo preparar la copia. " + (error as Error).message }], index: 0, done: restore, onDismiss: restore });
     }
+    finally { transferBusy.current = false; setTransferring(false); }
   }
   async function importGame() {
+    if (transferBusy.current) return;
+    transferBusy.current = true;
+    setTransferring(true);
     try {
-      const imported = await importSave();
-      if (imported) {
+      const result = await importSave();
+      if (result) {
+        const imported = result.save;
         await storeSave(imported);
+        void storePreferences(imported.settings).catch(() => setStorageNotice("La partida se importó; no se pudieron guardar los ajustes del dispositivo."));
         saveRef.current = imported;
         setSave(imported);
         resume(imported);
         setMessage("Partida validada y restaurada.");
+        if (result.notice) note(result.notice);
       }
-    } catch (e) {
-      note(
-        "No se cargó la partida. " +
-          (e as Error).message +
-          " Tu progreso anterior se conserva.",
-      );
-    }
+    } catch (error) {
+      note("No se cargó la partida. " + (error as Error).message + " Tu progreso anterior se conserva.");
+    } finally { transferBusy.current = false; setTransferring(false); }
   }
   const portraitMenu = screen === "menu" && size.height > size.width;
   const stageWidth = portraitMenu
@@ -644,10 +790,15 @@ export default function Game() {
   const talking = dialogue
     ? (dialogue.lines[dialogue.index].speaker as Speaker)
     : null;
+  const guidance = chapterGuidance(progress);
+  const partner = (dialogue?.lines.find(line=>line.speaker!=="hero"&&line.speaker!=="narrator")?.speaker as Speaker | undefined) ?? null;
   const paperWidth = compact ? "90%" : "76%";
   return (
     <SafeAreaView style={styles.root}>
       <View
+        ref={gameViewportRef}
+        tabIndex={screen === "play" ? 0 : -1}
+        accessibilityLabel={screen === "play" ? "Zona de juego" : undefined}
         style={{
           width: stageWidth,
           height: stageHeight,
@@ -655,11 +806,10 @@ export default function Game() {
           backgroundColor: "#203d40",
         }}
       >
-        {screen !== "menu" && (
+        {screen === "play" && panel !== "library" && (
           <Scene
             width={width}
             height={height}
-            menu={screen !== "play"}
             cameraSector={cameraSector}
             {...{
               x,
@@ -672,20 +822,28 @@ export default function Game() {
               falling,
               companionX,
               companionY,
+              companionMotion,
+              companionDirection,
               chestFrame,
+              branchProgress,
+              repair,
+              speechAt,
               progress,
               pickup,
               talking,
+              partner,
             }}
             reducedMotion={settings.reducedMotion}
           />
         )}
         {screen === "menu" && (
+          <View accessibilityElementsHidden={!!panel || !!dialogue} importantForAccessibility={panel || dialogue ? "no-hide-descendants" : "auto"} aria-hidden={!!panel || !!dialogue} pointerEvents={panel || dialogue ? "none" : "auto"}>
           <MainMenu
             width={stageWidth}
             height={stageHeight}
             save={save}
             ready={ready}
+            transferring={transferring}
             time={time}
             reducedMotion={settings.reducedMotion}
             onStart={start}
@@ -694,7 +852,9 @@ export default function Game() {
             onSettings={() => setPanel("settings")}
             onCredits={() => setPanel("credits")}
             onExport={() => void exportGame()}
+            onHelp={() => setPanel("help")}
           />
+          </View>
         )}
         {screen === "chapters" && !panel && (
           <View style={styles.shade}>
@@ -714,7 +874,7 @@ export default function Game() {
                         <Button
                           small
                           label="Continuar el bosque"
-                          onPress={() => resume(save ?? newSave())}
+                          onPress={() => resume({ ...(save ?? newSave()), activeChapter: 1 })}
                         />
                         <Button
                           small
@@ -740,11 +900,14 @@ export default function Game() {
                         />
                       </View>
                     ) : (
+                      <View style={{ gap: 10 }}>
                       <Text style={styles.muted}>
                         {i === 1 && save?.unlockedChapters.includes(2)
-                          ? "Desbloqueado. Su aventura llegará en una próxima fase."
+                          ? "Desbloqueado · ocho lecturas para explorar, resolver y guardar."
                           : "Una nueva experiencia espera al otro lado del sendero."}
                       </Text>
+                      {i === 1 && <Button small label={save?.unlockedChapters.includes(2) ? "Jugar capítulo II" : "Biblioteca bloqueada"} disabled={!save?.unlockedChapters.includes(2)} onPress={openLibrary} />}
+                      </View>
                     )}
                   </View>
                 ))}
@@ -756,12 +919,12 @@ export default function Game() {
             </View>
           </View>
         )}
-        {screen === "play" && (
+        {screen === "play" && panel !== "library" && (
           <>
             <View
-              style={[styles.hud, compact && { top: 8, left: 9, right: 9 }]}
+              style={[styles.hud, compact && { top: 8, left: 9, right: 9 }, dialogue && {display:"none"}]}
             >
-              <View style={[styles.objective, compact && { padding: 8 }]}>
+              <View style={[styles.objective, compact && { padding: 8 }, narrowHud && { maxWidth: "53%", flexShrink: 1 }]}>
                 <Text style={styles.overline}>
                   CAPÍTULO I · {zone.toLocaleUpperCase("es")}
                 </Text>
@@ -770,6 +933,7 @@ export default function Game() {
                 >
                   {objective(progress)}
                 </Text>
+                <Text style={{color:"#ffe4a5",fontSize:12,lineHeight:17,maxWidth:310}}>{guidance.target.x >= world.x ? "→" : "←"} {guidance.text}</Text>
                 <Text
                   accessibilityLabel={`${health} de 3 corazones`}
                   style={{ color: "#f0bb9c", fontSize: 17, marginTop: 3 }}
@@ -785,9 +949,10 @@ export default function Game() {
                 </Text>
               </View>
               <View style={[styles.row, { alignItems: "flex-start" }]}>
-                <Button small label="▤ Cuaderno" onPress={openJournal} />
+                <Button small iconOnly={narrowHud} label="▤ Cuaderno" onPress={openJournal} />
                 <Button
                   small
+                  iconOnly={narrowHud}
                   label="◇ Inventario"
                   onPress={() => {
                     world.release();
@@ -796,6 +961,7 @@ export default function Game() {
                 />
                 <Button
                   small
+                  iconOnly={narrowHud}
                   label="Pausa"
                   onPress={() => {
                     world.release();
@@ -806,68 +972,85 @@ export default function Game() {
             </View>
             {!panel && !dialogue && rewardAt.current < 0 && (
               <>
-                <View
-                  style={[
-                    styles.controls,
-                    compact && { bottom: 10, left: 12, right: 12 },
-                  ]}
-                >
-                  <View style={styles.row}>
-                    {(["left", "right"] as const).map((key, i) => (
+                {touchControls && (
+                  <View
+                    style={[
+                      styles.controls,
+                      compact && { bottom: 10, left: 12, right: 12 },
+                    ]}
+                  >
+                    <View style={styles.row}>
+                      {(["left", "right"] as const).map((key, i) => (
+                        <Pressable
+                          key={key}
+                          accessibilityRole="button"
+                          accessibilityLabel={
+                            i ? "Caminar a la derecha" : "Caminar a la izquierda"
+                          }
+                          onTouchStart={() => (world.input[key] = true)}
+                          onTouchEnd={() => (world.input[key] = false)}
+                          onTouchCancel={() => (world.input[key] = false)}
+                          style={[
+                            styles.touch,
+                            compact && { width: 52, height: 48 },
+                          ]}
+                        >
+                          <UIIcon
+                            name={i ? "play" : "left"}
+                            size={24}
+                            color="#f6e8c7"
+                          />
+                        </Pressable>
+                      ))}
+                    </View>
+                    <View style={styles.row}>
                       <Pressable
-                        key={key}
                         accessibilityRole="button"
-                        accessibilityLabel={
-                          i ? "Caminar a la derecha" : "Caminar a la izquierda"
-                        }
-                        onPressIn={() => (world.input[key] = true)}
-                        onPressOut={() => (world.input[key] = false)}
+                        accessibilityLabel="Saltar"
+                        onTouchStart={() => { world.input.jump = true; world.input.jumpHeld = true; }}
+                        onTouchEnd={() => (world.input.jumpHeld = false)}
+                        onTouchCancel={() => (world.input.jumpHeld = false)}
                         style={[
                           styles.touch,
                           compact && { width: 52, height: 48 },
                         ]}
                       >
-                        <UIIcon
-                          name={i ? "play" : "left"}
-                          size={24}
-                          color="#f6e8c7"
-                        />
+                        <Text style={styles.touchText}>↑</Text>
                       </Pressable>
-                    ))}
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Interactuar"
+                        onPress={interact}
+                        style={[
+                          styles.touch,
+                          compact && { width: 52, height: 48 },
+                        ]}
+                      >
+                        <Text style={styles.touchText}>◇</Text>
+                      </Pressable>
+                    </View>
                   </View>
-                  <View style={styles.row}>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel="Saltar"
-                      onPressIn={() => (world.input.jump = true)}
-                      onPress={() => (world.input.jump = true)}
-                      style={[
-                        styles.touch,
-                        compact && { width: 52, height: 48 },
-                      ]}
-                    >
-                      <Text style={styles.touchText}>↑</Text>
-                    </Pressable>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel="Interactuar"
-                      onPress={interact}
-                      style={[
-                        styles.touch,
-                        compact && { width: 52, height: 48 },
-                      ]}
-                    >
-                      <Text style={styles.touchText}>E</Text>
-                    </Pressable>
+                )}
+                {!hasMission(progress, 1) && near === "" && (
+                  <View
+                    pointerEvents="none"
+                    style={[
+                      styles.prompt,
+                      { bottom: touchControls ? (compact ? 66 : 94) : 20, maxWidth: "65%" },
+                    ]}
+                  >
+                    <Text style={[styles.objectiveText, { fontSize: 12 }]}>
+                      {touchControls ? "← → Caminar · ↑ Saltar · ◇ Interactuar" : instructions}
+                    </Text>
                   </View>
-                </View>
+                )}
                 {near !== "" && (
                   <Pressable
                     accessibilityRole="button"
                     onPress={interact}
-                    style={[styles.prompt, compact && { bottom: 66 }]}
+                    style={[styles.prompt, { bottom: touchControls ? Math.max(compact ? 66 : 94, height - 174 * width / 480) : 20 }]}
                   >
-                    <Text style={styles.objectiveText}>E · {near}</Text>
+                    <Text style={styles.objectiveText}>{touchControls ? "Toca" : "E"} · {near}</Text>
                   </Pressable>
                 )}
               </>
@@ -923,18 +1106,18 @@ export default function Game() {
           </View>
         )}
         {dialogue && (
-          <View style={styles.dialogueShade}>
+          <View ref={modalRef} role="dialog" aria-modal accessibilityViewIsModal accessibilityLabel="Conversación" style={styles.dialogueShade}>
             <View
               style={[
                 styles.dialoguePaper,
                 {
                   width: compact ? "94%" : "82%",
-                  padding: compact ? 16 : 25,
-                  maxHeight: "87%",
+                  padding: compact ? 12 : 18,
+                  maxHeight: Math.min(310,height*.56),
                 },
               ]}
             >
-              <ScrollView contentContainerStyle={{ gap: 16 }}>
+              <ScrollView contentContainerStyle={{ gap: compact ? 8 : 12 }}>
                 <View
                   style={{
                     flexDirection: "row",
@@ -942,13 +1125,13 @@ export default function Game() {
                     gap: 16,
                   }}
                 >
-                  <Portrait speaker={talking!} size={compact ? 58 : 74} />
+                  <Portrait speaker={talking!} size={compact ? 42 : 60} />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.muted}>
                       EL BOSQUE DE LAS DUDAS · {dialogue.index + 1}/
                       {dialogue.lines.length}
                     </Text>
-                    <Text style={styles.heading}>
+                    <Text style={[styles.heading,{fontSize:compact?18:24,lineHeight:compact?22:28}]}>
                       {speakerNames[talking!] ?? "El camino"}
                     </Text>
                   </View>
@@ -957,8 +1140,8 @@ export default function Game() {
                   style={[
                     styles.dialogue,
                     {
-                      fontSize: compact ? 18 : 22,
-                      lineHeight: compact ? 27 : 33,
+                      fontSize: compact ? 16 : 20,
+                      lineHeight: compact ? 23 : 29,
                     },
                   ]}
                 >
@@ -977,8 +1160,13 @@ export default function Game() {
             </View>
           </View>
         )}
-        {panel && (
-          <View style={styles.shade}>
+        {panel === "library" && libraryProgress && (
+          <View style={StyleSheet.absoluteFill}>
+            <LibraryLoader width={stageWidth} height={stageHeight} initial={libraryProgress} touch={touchControls} reduced={settings.reducedMotion} onChange={updateLibrary} onExit={exitLibrary} onSound={sound} />
+          </View>
+        )}
+        {panel && panel !== "library" && (
+          <View ref={modalRef} role="dialog" aria-modal accessibilityViewIsModal accessibilityLabel={panel === "help" ? "Cómo jugar" : panel === "settings" ? "Ajustes" : panel === "credits" ? "Créditos" : "Diario del camino"} style={styles.shade}>
             <View
               style={[
                 styles.paper,
@@ -990,7 +1178,7 @@ export default function Game() {
                 },
               ]}
             >
-              <ScrollView contentContainerStyle={{ gap: 17 }}>
+              <ScrollView key={panel} ref={panelScrollRef} contentContainerStyle={{ gap: 17 }}>
                 {panel === "challenge" && (
                   <>
                     <Text style={styles.heading}>
@@ -1000,6 +1188,8 @@ export default function Game() {
                       key={challenge}
                       scene={getScene(challenge)}
                       progress={progress}
+                      initialDraft={challengeDraft?.scene === challenge ? challengeDraft : null}
+                      onChange={updateChallengeDraft}
                       onComplete={(h) => complete(challenge, h)}
                     />
                   </>
@@ -1050,6 +1240,8 @@ export default function Game() {
                     {journalTab === "missions" && (
                       <>
                         <Text style={styles.body}>{objective(progress)}</Text>
+                        <Text style={styles.body}>{guidance.text} {guidance.detail}</Text>
+                        <Text style={styles.body}>{instructions}</Text>
                         {!hasMission(progress, 1) && (
                           <Text style={styles.body}>
                             {Object.entries(progress.tutorial)
@@ -1142,9 +1334,7 @@ export default function Game() {
                         {progress.evidence.length ? (
                           progress.evidence.map((id) => (
                             <View key={id} style={styles.mapZone}>
-                              <Text style={styles.body}>
-                                {evidenceDescriptions[id]}
-                              </Text>
+                              <View style={{flexDirection:"row",gap:10,alignItems:"center"}}><Illustration pack="pickups" frame={pickupFrames[id] ?? 9} size={42} label={evidenceDescriptions[id]} /><Text style={[styles.body,{flex:1}]}>{evidenceDescriptions[id]}</Text></View>
                             </View>
                           ))
                         ) : (
@@ -1194,6 +1384,7 @@ export default function Game() {
                 )}
                 {panel === "inventory" && (
                   <>
+                    {libraryComplete(libraryRef.current) && <View style={styles.mapZone}><Illustration pack="pickups" frame={11} size={80} label="Cuaderno del Aprendizaje" /><Text style={styles.heading}>Aprendizaje</Text><Text style={styles.body}>El cuaderno de la biblioteca conserva ocho lecturas: preguntar, contrastar y explicar con tus palabras. Capítulo II completado.</Text></View>}
                     <Text style={styles.heading}>
                       Las herramientas del camino
                     </Text>
@@ -1216,6 +1407,15 @@ export default function Game() {
                         farol están en el cuaderno, en la pestaña Evidencias.
                       </Text>
                     )}
+                  </>
+                )}
+                {panel === "help" && (
+                  <>
+                    <Text style={styles.heading}>Cómo jugar</Text>
+                    <Text style={styles.body}>{instructions}</Text>
+                    <Text style={styles.body}>Explora el bosque, conversa con quienes encuentres y busca señales. Las pequeñas luces se recogen al acercarte; el cuaderno te indica el próximo paso.</Text>
+                    <Text style={styles.body}>Mantén el botón de salto para alcanzar más altura. En las piedras húmedas hay menos agarre: frena antes del borde.</Text>
+                    <Text style={styles.muted}>El progreso se guarda en este dispositivo al completar escenas y recoger objetos. Si pierdes los corazones, regresas a un apoyo seguro conservando tu historia. Puedes guardar una copia de tu partida desde el menú y cargarla más adelante.</Text>
                   </>
                 )}
                 {panel === "settings" && (
@@ -1258,6 +1458,7 @@ export default function Game() {
                         Reducir efectos y movimiento ambiental
                       </Text>
                       <Switch
+                        accessibilityLabel="Reducir efectos y movimiento ambiental"
                         value={settings.reducedMotion}
                         onValueChange={(reducedMotion) =>
                           setSettings((s) => ({ ...s, reducedMotion }))
@@ -1290,6 +1491,7 @@ export default function Game() {
                 {panel === "pause" && (
                   <>
                     <Text style={styles.heading}>Un respiro en el camino</Text>
+                    <Text style={styles.body}>{instructions}</Text>
                     <Text style={styles.body}>
                       Checkpoint: {world.checkpoint.replace("ch1_", "")} ·{" "}
                       {health}/3 corazones
@@ -1299,13 +1501,12 @@ export default function Game() {
                       label="Continuar aventura"
                       onPress={() => setPanel(null)}
                     />
-                    <Button
-                      label="Ajustes"
-                      onPress={() => setPanel("settings")}
-                    />
-                    {Platform.OS === "web" && (
+                    {challengeDraft && <Button label="Retomar reto" onPress={() => { setChallenge(challengeDraft.scene); setPanel("challenge"); }} />}
+                    <Button label="Ajustes" onPress={() => setPanel("settings")} />
+                    {(
                       <Button
-                        label="Descargar partida"
+                        disabled={transferring}
+                        label={Platform.OS === "web" ? "Descargar partida" : "Compartir copia"}
                         onPress={() => void exportGame()}
                       />
                     )}
@@ -1352,9 +1553,10 @@ export default function Game() {
                     <Text style={styles.overline}>CAPÍTULO I · COMPLETADO</Text>
                     <Text style={styles.heading}>El viaje continúa</Text>
                     <Text style={styles.body}>
-                      La biblioteca del aprendizaje está desbloqueada. Su
-                      aventura llegará en una próxima fase.
+                      La biblioteca está abierta. Entra para explorar ocho lecturas,
+                      ayudar al visitante y obtener la herramienta del Aprendizaje.
                     </Text>
+                    <Button gold label="Entrar en la biblioteca · capítulo II" onPress={openLibrary} />
                     <Text style={styles.body}>
                       Tu cuaderno conserva {progress.evidence.length}{" "}
                       evidencias, {progress.reflections.length} reflexiones y{" "}
@@ -1364,10 +1566,11 @@ export default function Game() {
                       Tus decisiones:{"\n"}
                       {progress.reflections.join("\n")}
                     </Text>
-                    {Platform.OS === "web" && (
+                    {(
                       <Button
                         gold
-                        label="Descargar partida"
+                        disabled={transferring}
+                        label={Platform.OS === "web" ? "Descargar partida" : "Compartir copia"}
                         onPress={() => void exportGame()}
                       />
                     )}
@@ -1386,20 +1589,7 @@ export default function Game() {
                       panel === "challenge" ? "Volver al bosque" : "Volver"
                     }
                     small
-                    onPress={() => {
-                      if (panel === "settings" && saveRef.current) {
-                        const s = { ...saveRef.current, settings };
-                        saveRef.current = s;
-                        setSave(s);
-                        void storeSave(s).catch((e) =>
-                          setStorageNotice(
-                            "No se pudieron guardar los ajustes: " +
-                              (e as Error).message,
-                          ),
-                        );
-                      }
-                      setPanel(null);
-                    }}
+                    onPress={closePanel}
                   />
                 )}
               </ScrollView>
@@ -1422,10 +1612,9 @@ const styles = StyleSheet.create({
   },
   dialogueShade: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#132d3680",
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
     alignItems: "center",
-    paddingBottom: 20,
+    paddingTop: 8,
   },
   dialoguePaper: {
     backgroundColor: "#fff2de",
@@ -1457,7 +1646,7 @@ const styles = StyleSheet.create({
     borderColor: "#b87e40",
     borderTopColor: "#fff0ba",
   },
-  small: { paddingVertical: 7, paddingHorizontal: 14, minHeight: 38 },
+  small: { paddingVertical: 8, paddingHorizontal: 14, minHeight: 44 },
   buttonText: {
     fontSize: 19,
     fontWeight: "600",

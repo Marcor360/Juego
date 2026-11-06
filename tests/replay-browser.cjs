@@ -50,7 +50,7 @@ const fixtures = JSON.parse(
     const before = await p.evaluate(() =>
       localStorage.getItem("precursora-save-v2"),
     );
-    await click("▶ Comenzar aventura");
+    await click("Diario de capítulos");
     await click("Repetir capítulo");
     await p.waitForTimeout(300);
     await click("Pausa");

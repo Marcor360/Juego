@@ -66,3 +66,7 @@
 Este PR no afirma tiempos de respuesta o FPS medidos: hay que ejecutar pruebas reales.
 La duración del capítulo, la pedagogía de la Fe y las preguntas basadas en JW.ORG seguirán pendientes de aprobación editorial.
 No fusionar con `main` hasta revisar CI y comprobar el tutorial y el mapa en el navegador.
+
+## Actualización de implementación
+
+El guardado parcial de cuestionarios, el respaldo nativo y la automatización de navegador ya están implementados. Ver `GUARDADO_PARCIAL_Y_RESPALDOS.md` para el alcance actual. Las pruebas con teléfonos físicos y el rendimiento medido siguen pendientes.

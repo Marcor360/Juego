@@ -26,7 +26,23 @@ def register(path,columns,rows):
         for frame in frames: frame['anchorY']=baseline
     result['referenceHeight']=result['frames'][0]['height']
     return result
-packs={'hero':('assets/characters/v2/hero.png',4,3),'npcs':('assets/characters/v2/npcs.png',4,2),'props':('assets/props/v2/forest-props.png',4,1),'portraits':('assets/characters/v2/portraits.png',3,2),'treasures':('assets/props/v2/treasures.png',4,1),'others':('assets/characters/v3/others.png',3,2),'chest':('assets/props/v3/chest.png',4,1),'terrain':('assets/props/v3/terrain.png',4,1)}
+packs={'locals':('assets/characters/v3/locals.png',6,2),'localsPortraits':('assets/characters/v3/locals-portraits.png',2,2),'heroTalk':('assets/characters/v3/hero-talk.png',6,1),'travelerTalk':('assets/characters/v3/traveler-talk.png',6,1),'branch':('assets/props/v3/branch-clear.png',4,2),'flame':('assets/effects/flame.png',6,1),'waterfall':('assets/effects/waterfall.png',4,2),'decor':('assets/props/v3/decor.png',4,2),'castPortraits':('assets/characters/v3/cast-portraits.png',2,4),'cast':('assets/characters/v3/cast.png',6,4),'water':('assets/effects/water.png',4,2),'pickups':('assets/props/v3/pickups.png',4,3),'menuEmblems':('assets/menu/emblems.png',3,1),'library':('assets/props/v3/library.png',4,1),'traveler':('assets/characters/v3/traveler.png',4,3),'hero':('assets/characters/v2/hero.png',4,3),'npcs':('assets/characters/v2/npcs.png',4,2),'props':('assets/props/v2/forest-props.png',4,1),'portraits':('assets/characters/v2/portraits.png',3,2),'treasures':('assets/props/v2/treasures.png',4,1),'others':('assets/characters/v3/others.png',3,2),'chest':('assets/props/v3/chest.png',4,1),'terrain':('assets/props/v3/terrain.png',4,1)}
 metadata={k:register(*v) for k,v in packs.items()}
+# Each traveler pose places its own soles at the actor's physical foot.
+for frame in metadata['traveler']['frames']:
+    frame['anchorY']=frame['y']+frame['height']
+for frame in metadata['library']['frames']:
+    frame['anchorY']=frame['y']+frame['height']
+for name in ['cast','locals','heroTalk','travelerTalk','branch','flame','pickups','menuEmblems','decor']:
+    for frame in metadata[name]['frames']:
+        frame['anchorY']=frame['y']+frame['height']
+for name in ['branch','flame']:
+    metadata[name]['referenceHeight']=max(f['height'] for f in metadata[name]['frames'])
+# Walkable surfaces exclude the moss, bridge posts and rope above the deck.
+metadata['terrain']['frames'][0]['surfaceY']=355
+metadata['terrain']['frames'][1]['surfaceY']=409
+# Unlike character poses, unrelated ground props do not share a baseline.
+for frame in metadata['terrain']['frames'][2:]:
+    frame['anchorY']=frame['y']+frame['height']
 (root/'game/rendering/art.json').write_text(json.dumps(metadata,indent=2)+'\n')
 print({k:{'size':(v['width'],v['height']),'frames':len(v['frames'])} for k,v in metadata.items()})

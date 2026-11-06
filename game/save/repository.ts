@@ -1,5 +1,5 @@
 import { validateSave, type Save } from "./schema.ts";
-import { decodeStoredSave } from "./recovery.ts";
+import { decodeStoredSave, storedChallengeNotice } from "./recovery.ts";
 export const SAVE_KEYS = {
   current: "precursora-save-v2",
   legacy: "precursora-save-v1",
@@ -55,7 +55,7 @@ export function createSaveRepository(storage: SaveStorage) {
     };
     const current = await read(SAVE_KEYS.current),
       valid = decodeStoredSave(current);
-    if (valid) return { save: valid, notice: "", source: "current" };
+    if (valid) return { save: valid, notice: storedChallengeNotice(current, valid), source: "current" };
     if (current !== null) {
       try {
         await preserveDamaged(current);
@@ -86,7 +86,7 @@ export function createSaveRepository(storage: SaveStorage) {
               ? "Se recuperó una partida de la versión anterior."
               : "Se recuperó una copia local válida de tu partida.") +
             (readFailed ? " No se pudo leer parte del almacenamiento." : "") +
-            explanation,
+            explanation + (storedChallengeNotice(candidate.raw, save) ? " " + storedChallengeNotice(candidate.raw, save) : ""),
         };
     }
     return {

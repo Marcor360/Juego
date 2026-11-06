@@ -1,0 +1,40 @@
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
+ try {
+  const page=await browser.newPage({viewport:{width:1280,height:720}}),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(process.env.GAME_URL||'http://127.0.0.1:8081');
+  const button=name=>page.getByRole('button',{name,exact:true});
+  await button('⚙ Ajustes').click();
+  await page.getByRole('dialog',{name:'Ajustes'}).waitFor();
+  await button('−').first().click();
+  await page.getByRole('switch',{name:'Reducir efectos y movimiento ambiental'}).click();
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(()=>!!localStorage.getItem('precursora-settings-v1'));
+  assert.equal(await page.evaluate(()=>localStorage.getItem('precursora-save-v2')),null,'preferences must not create a game');
+  assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('precursora-settings-v1'))),{music:.4,effects:.7,reducedMotion:true});
+  await page.reload();
+  await button('⚙ Ajustes').click();
+  assert(await page.getByText('Música · 40%',{exact:true}).isVisible());
+  assert(await page.getByRole('switch',{name:'Reducir efectos y movimiento ambiental'}).isChecked());
+  await page.keyboard.press('Escape');
+  await button('Cómo jugar').click();
+  const help=page.getByRole('dialog',{name:'Cómo jugar'});
+  await button('Volver').waitFor();
+  await page.keyboard.press('Tab');
+  assert(await page.evaluate(()=>!!document.activeElement.closest('[role="dialog"]')));
+  await page.keyboard.press('Escape');
+  assert(await button('Cómo jugar').evaluate(el=>el===document.activeElement));
+  assert.equal(await page.locator('canvas').count(),0,'the menu does not load the game canvas');
+  await button('▶ Comenzar aventura').click();
+  await button('Seguir mi camino →').click();
+  await button('Pausa').click();
+  await button('Ajustes').click();
+  await button('Volver').click();
+  assert(await button('Continuar aventura').isVisible(),'settings opened from pause return to pause');
+  assert.deepEqual(errors,[]);
+  console.log('menu preferences: survive reload before first game, no progress overwritten, help focus and Escape ok');
+ } finally {await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1)});

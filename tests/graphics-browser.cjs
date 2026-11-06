@@ -41,9 +41,9 @@ const fixtures = JSON.parse(
       assert((await p.locator("canvas").count()) > 0);
       await p.getByRole("button", { name: "▤ Cuaderno", exact: true }).click();
       await p.getByRole("button", { name: "Mapa", exact: true }).click();
-      await p.screenshot({ path: `/tmp/v3-map-${viewport.width}.png` });
+      await p.screenshot({ path: `${process.env.ARTIFACTS_DIR || "/tmp"}/v3-map-${viewport.width}.png` });
       await p.getByRole("button", { name: "Volver", exact: true }).click();
-      await p.screenshot({ path: `/tmp/v3-forest-${viewport.width}.png` });
+      await p.screenshot({ path: `${process.env.ARTIFACTS_DIR || "/tmp"}/v3-forest-${viewport.width}.png` });
       assert(
         !(await p
           .getByText("No se pudo preparar el paisaje.", { exact: true })

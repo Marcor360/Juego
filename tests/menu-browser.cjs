@@ -50,6 +50,8 @@ const phases = [
       { width: 667, height: 375 },
       { width: 390, height: 844 },
       { width: 600, height: 800 },
+      { width: 320, height: 568 },
+      { width: 568, height: 320 },
     ]) {
       for (const phase of phases) {
         const mobile = viewport.width < 900,
@@ -94,14 +96,17 @@ const phases = [
             if (mobile) await button(name).tap();
             else await button(name).click();
           };
-        assert.equal(await button("▤ Continuar").isDisabled(), !phase.save);
+        assert.equal(await button("▤ Continuar").count(), phase.save ? 1 : 0);
+        assert.equal(await button("▶ Comenzar aventura").count(), phase.save ? 0 : 1);
+        if (phase.save) assert(await p.getByRole("progressbar", { name: "Progreso del capítulo 1" }).isVisible());
         for (const name of [
-          "▶ Comenzar aventura",
-          "▤ Continuar",
+          ...(phase.save ? ["▤ Continuar", "Diario de capítulos", "Descargar partida"] : ["▶ Comenzar aventura"]),
           "↥ Cargar partida",
           "⚙ Ajustes",
           "ⓘ Créditos",
+          "Cómo jugar",
         ]) {
+          await button(name).scrollIntoViewIfNeeded();
           const r = await button(name).boundingBox();
           assert(
             r &&
@@ -111,12 +116,18 @@ const phases = [
               r.y + r.height <= viewport.height + 1,
             name + " must fit viewport",
           );
-          if (viewport.height > viewport.width)
-            assert(r.height >= 30, "portrait controls must remain usable");
+          assert(r.height >= 44, `${name}: every control must be at least 44 px high`);
         }
         await p.screenshot({
-          path: `/tmp/menu-final-${phase.id}-${viewport.width}.png`,
+          path: `${process.env.ARTIFACTS_DIR || "/tmp"}/menu-final-${phase.id}-${viewport.width}.png`,
         });
+        await click("Cómo jugar");
+        const help = p.getByRole("dialog", { name: "Cómo jugar" });
+        assert(await help.isVisible());
+        assert(await help.getByText(mobile ? "Puedes caminar y saltar a la vez" : "Esc: pausa", { exact: false }).isVisible());
+        await p.keyboard.press("Escape");
+        assert.equal(await p.getByRole("dialog").count(), 0);
+        assert(await button("Cómo jugar").evaluate(el => el === document.activeElement));
         await click("⚙ Ajustes");
         assert(
           await p
@@ -125,7 +136,12 @@ const phases = [
             })
             .isVisible(),
         );
-        await click("Volver");
+        for (let i = 0; i < 9; i++) {
+          await p.keyboard.press("Tab");
+          assert(await p.evaluate(() => !!document.activeElement?.closest('[role="dialog"]')), "focus must stay inside settings");
+        }
+        await p.keyboard.press("Escape");
+        assert(await button("⚙ Ajustes").evaluate(el => el === document.activeElement));
         assert(await menu.isVisible());
         await click("ⓘ Créditos");
         assert(

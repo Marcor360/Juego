@@ -1,5 +1,7 @@
 # Paisajes de la aventura
 
-`dawn.png` y `forest.png` son ilustraciones pixel art originales creadas para este proyecto con asistencia generativa, siguiendo las referencias de composición y paleta proporcionadas por el usuario. No incluyen controles ni texto: el título, los botones, el inventario y los diálogos se renderizan por separado.
+`v3/` contiene seis originales: entrada, arroyo, puente, claro, niebla y refugio. `library.png` es el interior original de la biblioteca, disponible como vista previa del capítulo 2. Los menús tienen sus tres fondos actuales en `assets/menu/`.
 
-El amanecer es el fondo del menú. El bosque se desplaza lentamente en franjas con 64 píxeles lógicos de solapamiento y un fundido de entrada para ocultar los cortes; el borde inferior alterna franjas reflejadas en la capa del suelo y la geometría de plataformas mantiene colisiones independientes. No asumir que la ilustración contiene una colisión o un objeto interactivo.
+El juego carga copias WebP optimizadas desde `assets/runtime/` y solo monta los fondos cercanos. Las colisiones pertenecen al mapa, no a las ilustraciones. El suelo y los objetos de primer plano se dibujan por separado; `assets/props/v3/foreground.png` añade follaje transparente sin tapar el centro del recorrido.
+
+La luz cálida del claro/refugio, la neblina del tramo de niebla, el agua y las partículas se animan en capas. El ajuste de movimiento reducido detiene el balanceo, la deriva y los destellos decorativos. Los fondos antiguos de amanecer y bosque se retiraron al quedar sustituidos por este conjunto.

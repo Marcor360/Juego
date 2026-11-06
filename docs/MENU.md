@@ -1,40 +1,23 @@
 # Menús del viaje
 
-El menú principal tiene tres composiciones originales y cambia automáticamente con el progreso guardado del capítulo 1, que es el capítulo actualmente jugable.
+El menú conserva tres paisajes y vestuarios originales, elegidos por escenas realmente completadas: Amanecer antes de la escena 8, En camino desde la escena 8 y Nuevos horizontes después de la escena 16. Las recompensas migradas no adelantan el aspecto de cierre.
 
-| Variante | Momento | Protagonista | Paisaje |
-| --- | --- | --- | --- |
-| Amanecer | Antes de completar la escena 8 | Blusa azul, falda lavanda y mochila | Árbol florido, pueblo, montañas y amanecer |
-| En camino | Escena 8 completada y capítulo sin terminar | La misma protagonista con pantalón de vestir lavanda, zapatos formales y mochila | Arroyo y puente de piedra entre árboles |
-| Nuevos horizontes | Escena 16 completada | Falda lavanda y linterna de la Fe | Valle al anochecer, primeras estrellas y luces del pueblo |
+## Acciones y progreso
 
-Las recompensas importadas de una versión antigua no adelantan el aspecto de cierre si las escenas nuevas todavía no se han jugado. No se muestran graduación ni recompensas de capítulos futuros.
+Sin partida se ofrece **Comenzar aventura**. Con una partida en curso, **Continuar mi camino** retoma el bosque y **Diario de capítulos** abre el selector. Al terminar el capítulo, la acción destacada invita a ver los capítulos y se conserva **Volver al bosque**. No se reinicia una partida desde una acción que solo debería continuarla.
 
-## Composición e interacción
+La tarjeta muestra ubicación, próxima escena y progreso accesible sobre las 16 escenas. Las herramientas web para cargar y descargar se reúnen junto a Ajustes, Créditos y Cómo jugar. Las acciones que podrían competir con la lectura inicial del guardado permanecen deshabilitadas hasta terminar la carga.
 
-La protagonista ocupa el lado izquierdo y los controles se reúnen en una tarjeta de diario a la derecha. La tarjeta tiene borde doble fino, libro con ramas de olivo, título de alto contraste y botones nativos con estados de foco, pulsación, hover y deshabilitado. Continuar solamente está activo cuando hay una partida válida.
+## Adaptación y accesibilidad
 
-Se mantienen Comenzar aventura, Continuar, Cargar partida web, Ajustes, Créditos y descarga de la partida. El cambio visual no modifica el esquema de guardado ni las misiones.
+El paisaje y los retratos mantienen su arte propio, pero los controles ya no se escalan desde una maqueta de 480 px. Todos los botones tienen al menos 44 px de altura, con estados de foco, pulsación y hover. La tarjeta usa tamaños reales y se puede desplazar cuando falta altura o aumenta el texto. En vertical hay un retrato enmarcado; en horizontal se conserva el cuerpo completo.
 
-Los teléfonos verticales tienen una composición apilada con controles ampliados. En proporciones verticales cortas, se presenta un retrato enmarcado de la protagonista. El juego conserva su vista horizontal y controles originales.
+Cómo jugar explica la entrada detectada. Los diálogos mantienen Tab dentro del panel, Escape los cierra y el foco vuelve a su origen cuando sigue presente en el menú. Dentro del juego vuelve a la zona de juego para que Espacio siga sirviendo para saltar tras cerrar el cuaderno. El foco inicial se coloca en el diálogo sin desplazar la lectura al último botón. Al regresar de Ajustes dentro del juego se vuelve a Pausa, conservando la intención de detener el recorrido.
 
-El parpadeo alterna dos fotogramas reales por vestuario, registrados con apoyo estable. La respiración y las pocas motas ambientales se detienen al activar efectos reducidos. La portada no necesita inicializar el escenario Skia para mostrar sus controles.
+La música, los efectos y el movimiento reducido se guardan al cerrar Ajustes en `precursora-settings-v1`, aunque aún no exista partida. Los datos se validan y las escrituras se ordenan. Las partidas siguen teniendo su propio esquema y respaldos.
 
-## Recursos
+## Recursos y comprobaciones
 
-- `assets/menu/beginning.png`, `middle.png`, `ending.png`: fondos originales sin texto ni botones incrustados.
-- `assets/menu/hero.png`: seis poses originales con transparencia. Las portadas inicial y de cierre conservan este recurso.
-- `assets/menu/hero-formal.png`: vestuario intermedio corregido en dos poses, con pantalón de vestir lavanda de corte recto y raya, y zapatos formales crema de tacón bajo. El menú usa sus celdas centrales para el estado normal y el parpadeo.
-- `game/rendering/menu-art.json` y `menu-formal-art.json`: dimensiones reales, celdas, límites alfa y anclajes. El segundo se regenera con `python scripts/register-menu-art.py assets/menu/hero-formal.png game/rendering/menu-formal-art.json` (Pillow opcional; no modifica las imágenes).
-- `assets/fonts/CormorantGaramond.ttf`: fuente Cormorant Garamond, distribuida junto a su licencia SIL OFL. Pixelify se conserva para las etiquetas de viaje.
+Los originales se mantienen en `assets/menu/` y las copias optimizadas en `assets/runtime/`. Los recortes de ejecución son `menu-art-runtime.json` y `menu-formal-art-runtime.json`; las fuentes reducidas conservan caracteres españoles y sus licencias.
 
-El arte fue creado con asistencia generativa para este proyecto. Las animaciones y los controles se implementan por separado mediante React Native y Reanimated.
-
-## Verificación
-
-- `npm run typecheck` y `npm test` (39 pruebas).
-- Exportaciones web, Android e iOS.
-- `tests/menu-browser.cjs`: las tres variantes en 1280×720, 667×375, 390×844 y 600×800; verifica vestuario asociado, botones dentro de la pantalla, Continuar deshabilitado, ajustes, créditos, descarga y retorno al menú tras guardar. Comprueba errores de página y recursos ausentes.
-- `tests/browser-v3.cjs`: regresión de las 16 escenas con teclado y controles táctiles web.
-
-Las pruebas móviles se ejecutan en navegador con eventos táctiles. La exportación nativa no sustituye la validación en teléfonos Android/iOS físicos.
+`tests/menu-browser.cjs` prueba las tres variantes en seis tamaños, desde 320×568 hasta 1280×720, con acciones accesibles de 44 px, ayuda, foco, Escape, continuación y descarga. `tests/menu-preferences-browser.cjs` comprueba preferencias persistentes antes de comenzar una partida. Las pruebas de navegador móvil son emuladas; las exportaciones nativas no equivalen a una prueba en teléfonos físicos.

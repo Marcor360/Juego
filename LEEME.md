@@ -1,20 +1,13 @@
-# Personaje pixel art — El camino de una precursora
+# Guía rápida del juego actual
 
-Paquete de trabajo v0.1 para React Native / Expo / React Native Web.
+El proyecto activo es una aventura Expo/React Native con Skia. Las instrucciones de ejecución y las pruebas están en [README.md](README.md).
 
-## Archivos
-- `assets/sheets/*.png`: una animación por spritesheet horizontal; tamaños por celda en manifest.json.
-- `assets/frames/{animacion}/*.png`: cuadros PNG individuales con transparencia.
-- `manifest.json`: nombres de animaciones, dimensiones, FPS orientativo, referencias de íconos y retratos.
+- `assets/runtime/`: imágenes y fuentes optimizadas que carga el juego.
+- `assets/characters/v2/` y `v3/`: originales de los atlas actuales, con metadatos de recortes y anclajes en `game/rendering/art.json`.
+- `assets/backgrounds/v3/`, `assets/backgrounds/library.png`, `assets/menu/` y `assets/props/`: originales actuales para regenerar las versiones compactas.
+- `assets/sounds/`: ocho ambientes y efectos de movimiento/interacción, generados por el script incluido.
+- `scripts/`: registro, optimización, inventario y generación de audio. No son necesarios para ejecutar recursos ya incluidos.
 
-## Animaciones
-Reposo 4 cuadros x 2 direcciones; caminar 6 x 2; salto 4 x 2; hablar 4; abrir cofre 6; recibir objeto 5; celebrar 5; tropiezo 4; recuperación 3; sentarse, leer, orar y descansar como poses individuales.
+Se retiró el paquete antiguo de cuadros individuales y hojas segmentadas, junto con su manifiesto, porque ya no pertenece al renderizador actual. El listado de archivos retirados está en `docs/REMOVED_ASSETS.json`. El guardado y su migración siguen en `game/save/`; retirar arte antiguo no elimina las partidas.
 
-## Guardado
-Este paquete contiene solo arte: el guardado automático en móvil y exportación/importación JSON en web se implementan en el motor de juego.
-
-## Importante
-Estos recursos proceden de una hoja de diseño generativa segmentada de forma programática. Son una primera iteración para prototipar: revisar recortes, siluetas, coherencia de posiciones y color antes de producción. No son animaciones de calidad final auditadas manualmente; algunas poses son aproximaciones.
-
-## Recompensas individuales
-Además de recibir_objeto genérico, hay animaciones receive_fe, receive_aprendizaje, receive_valor, receive_perseverancia, receive_amistades y receive_perdon (6 cuadros cada una).
+El bosque incluye indicaciones del siguiente destino y el viajero tiene animaciones propias. El capítulo II ya es jugable desde el diario cuando está desbloqueado: ocho mesas, retos, guardado y recompensa del Aprendizaje. Ver [cómo entrar y compilar en Windows](docs/CAPITULO_2_Y_ACOMPANANTE.md).

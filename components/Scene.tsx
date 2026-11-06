@@ -1,4 +1,14 @@
-import art from "../game/rendering/art.json";
+import { BranchClearance, RepairLamp, SpeechMarker } from "./InteractionEffects";
+import { conversationPose, idlePose } from "../game/rendering/conversation";
+import WaterfallOverlay from "./WaterfallOverlay";
+import WorldDecor from "./WorldDecor";
+import RegisteredSprite from "./RegisteredSprite";
+import { pickupFrames } from "../game/rendering/pickups";
+import { chapterGuidance } from "../game/chapter1/guidance";
+import art from "../game/rendering/art-runtime.json";
+import PlaceAtmosphere, { WaterSurface } from "./PlaceAtmosphere";
+import { MistBackdrop, MistForeground } from "./MistVeil";
+import { propPlacement } from "../game/rendering/props";
 import { tileTransform } from "../game/rendering/tiles";
 import { viewWindow, intersects, groundTiles } from "../game/rendering/view";
 import { Asset } from "expo-asset";
@@ -23,7 +33,6 @@ import {
 } from "react-native-reanimated";
 import {
   objects,
-  platforms,
   platformAt,
   gaps,
   zones,
@@ -41,13 +50,11 @@ import { ForestProp } from "./ForestProps";
 import {
   SoftGlow,
   PickupBurst,
-  AmbientMotes,
   type PickupVisual,
 } from "./WorldEffects";
 export type SceneProps = {
   width: number;
   height: number;
-  menu?: boolean;
   cameraSector: number;
   x: SharedValue<number>;
   y: SharedValue<number>;
@@ -59,22 +66,37 @@ export type SceneProps = {
   falling: SharedValue<number>;
   companionX: SharedValue<number>;
   companionY: SharedValue<number>;
+  companionMotion: SharedValue<number>;
+  companionDirection: SharedValue<number>;
   chestFrame: SharedValue<number>;
+  branchProgress: SharedValue<number>;
+  repair: SharedValue<{x:number;at:number}>;
+  speechAt: SharedValue<number>;
+  partner: Speaker | null;
   progress: Progress;
   reducedMotion: boolean;
   pickup: SharedValue<PickupVisual>;
   talking: Speaker | null;
 };
 const nearest = { filter: 0, mipmap: 0 } as const;
+const zoneSources = [
+  require("../assets/runtime/entrance.webp"),
+  require("../assets/runtime/stream.webp"),
+  require("../assets/runtime/bridge.webp"),
+  require("../assets/runtime/clearing.webp"),
+  require("../assets/runtime/mist.webp"),
+  require("../assets/runtime/refuge.webp"),
+];
 function Background({
-  image,
   index,
-  camera,
+  camera, time, reduced,
 }: {
-  image: ReturnType<typeof useImage>;
   index: number;
   camera: SharedValue<number>;
+  time: SharedValue<number>;
+  reduced: boolean;
 }) {
+  const image = useImage(Asset.fromModule(zoneSources[index]).uri);
   const zone = zones[index];
   const opacity = useDerivedValue(() => {
     const x = camera.value + 240;
@@ -103,6 +125,7 @@ function Background({
           fit="fill"
           sampling={nearest}
         />
+        {(index===1 || index===2) && <WaterfallOverlay index={index} time={time} reduced={reduced} />}
       </Group>
     </Group>
   ) : null;
@@ -113,25 +136,26 @@ function Prop({
   index,
   width,
   height,
+  surface = false,
 }: {
   image: ReturnType<typeof useImage>;
   pack: "terrain" | "chest";
   index: number;
   width?: number;
   height?: number;
+  surface?: boolean;
 }) {
-  const f = art[pack].frames[index],
-    sx = width ? width / f.width : (height ?? 30) / f.height,
-    sy = height ? height / f.height : sx;
+  const f = art[pack].frames[index];
+  const { sx, sy, left, top } = propPlacement(f, width, height, surface);
   return image ? (
     <Group
       transform={[{ scaleX: sx }, { scaleY: sy }]}
-      clip={{ x: -f.width / 2, y: -f.height, width: f.width, height: f.height }}
+      clip={{ x: left, y: top, width: f.width, height: f.height }}
     >
       <Image
         image={image}
-        x={-f.x - f.width / 2}
-        y={-f.y - f.height}
+        x={left - f.x}
+        y={top - f.y}
         width={art[pack].width}
         height={art[pack].height}
         fit="fill"
@@ -151,7 +175,7 @@ function Ledge({
 }) {
   const transform = useDerivedValue(() => {
     const p = platformAt(r, time.value);
-    return [{ translateX: p.x + p.w / 2 }, { translateY: p.y + r.h }];
+    return [{ translateX: p.x + p.w / 2 }, { translateY: p.y }];
   });
   const wood = ["wood", "moving", "rope", "fragile"].includes(r.kind ?? "");
   return (
@@ -161,12 +185,14 @@ function Ledge({
         pack="terrain"
         index={wood ? 1 : 0}
         width={r.w}
-        height={r.h + 3}
+        height={r.h}
+        surface
       />
+      {r.x >= 5120 && r.x < 7040 && <Rect x={-r.w/2+2} y={0} width={r.w-4} height={1.3} color="#d8eee4" opacity={.8} />}
       {r.kind === "wet" && (
         <Rect
           x={-r.w / 2 + 3}
-          y={-r.h}
+          y={0}
           width={r.w - 6}
           height={2}
           color="#90c9bcaa"
@@ -175,12 +201,12 @@ function Ledge({
       {r.kind === "moving" && (
         <>
           <Path
-            path={`M ${-r.w / 2 + 4} -${r.h} L ${-r.w / 2 + 4} -65 M ${r.w / 2 - 4} -${r.h} L ${r.w / 2 - 4} -65`}
+            path={`M ${-r.w / 2 + 4} 0 L ${-r.w / 2 + 4} -65 M ${r.w / 2 - 4} 0 L ${r.w / 2 - 4} -65`}
             color="#7c7359"
             style="stroke"
             strokeWidth={1}
           />
-          <Circle cx={0} cy={-r.h / 2} r={1} color="#ecd08b" />
+          <Circle cx={0} cy={r.h / 2} r={1} color="#ecd08b" />
         </>
       )}
     </Group>
@@ -194,34 +220,38 @@ function Actor({
   time,
   reduced,
   talking,
+  speechAt,
+  work,
   player,
 }: {
-  kind: "npcs" | "others";
+  kind: "npcs" | "cast" | "locals";
   index: number;
   x: number | SharedValue<number>;
   y?: SharedValue<number>;
   time: SharedValue<number>;
   reduced: boolean;
   talking: boolean;
+  speechAt: SharedValue<number>;
+  work: SharedValue<number>;
   player: SharedValue<number>;
 }) {
   const frame = useDerivedValue(() =>
-    kind === "others"
-      ? index + (talking && !reduced && Math.floor(time.value * 3) % 2 ? 3 : 0)
+    kind === "locals" && work.value>=0 && work.value<1 ? 2 :
+    kind === "cast" || kind === "locals"
+      ? index + (talking ? conversationPose(time.value-speechAt.value,reduced) : idlePose(time.value,reduced))
       : index === 0
         ? talking
-          ? 2 + (reduced ? 0 : Math.floor(time.value * 3) % 2)
+          ? 2 + (reduced ? 0 : Math.floor((time.value-speechAt.value) * 1.4) % 2)
           : !reduced && time.value % 5 > 4.7
             ? 1
             : 0
-        : index +
-          (reduced ? 0 : Math.floor(time.value * (talking ? 4 : 1.5)) % 2),
+        : index + (talking ? 0 : idlePose(time.value,reduced)),
   );
   const transform = useDerivedValue(() => [
     { translateX: typeof x === "number" ? x : x.value },
     {
       translateY:
-        (y?.value ?? 226) + (reduced ? 0 : Math.sin(time.value * 1.7) * 0.2),
+        (y?.value ?? 226),
     },
   ]);
   const direction = useDerivedValue<number>(() =>
@@ -235,6 +265,7 @@ function Actor({
         direction={direction}
         height={44}
       />
+      {talking && <SpeechMarker time={time} reduced={reduced} />}
     </Group>
   );
 }
@@ -288,39 +319,39 @@ function Chest({
     />
   ) : null;
 }
+function Companion(p: SceneProps) {
+  const transform = useDerivedValue(() => [{ translateX: p.companionX.value }, { translateY: p.companionY.value }]);
+  const opacity = useDerivedValue(() => p.progress.completedMissions.includes("CH1_07") && p.x.value >= 3000 ? 1 : 0);
+  const frame = useDerivedValue(() => {
+    if(p.talking==="traveler"||p.talking==="travelerHappy") return conversationPose(p.time.value-p.speechAt.value,p.reducedMotion);
+    const state = p.companionMotion.value;
+    if (state === 4) return 11;
+    if (state === 3) return 10;
+    if (state === 2) return 9;
+    if (state === 1) return 4 + Math.floor(p.simulation.value * 9) % 4;
+    return p.reducedMotion ? 0 : Math.floor(p.simulation.value * 2) % 4;
+  });
+  const facing=useDerivedValue<number>(()=>p.talking?(p.x.value<p.companionX.value?-1:1):p.companionDirection.value);
+  const speaking=p.talking==="traveler"||p.talking==="travelerHappy";
+  return <Group transform={transform} opacity={opacity}>
+    <AnimatedCharacter kind={speaking?"travelerTalk":"traveler"} frame={frame} direction={facing} height={44} />
+    {speaking && <SpeechMarker time={p.time} reduced={p.reducedMotion} />}
+  </Group>;
+}
 export default function Scene(p: SceneProps) {
-  const dawn = useImage(
-    Asset.fromModule(require("../assets/backgrounds/dawn.png")).uri,
-  );
-  const entrance = useImage(
-      Asset.fromModule(require("../assets/backgrounds/v3/entrance.png")).uri,
-    ),
-    stream = useImage(
-      Asset.fromModule(require("../assets/backgrounds/v3/stream.png")).uri,
-    ),
-    bridge = useImage(
-      Asset.fromModule(require("../assets/backgrounds/v3/bridge.png")).uri,
-    ),
-    clearing = useImage(
-      Asset.fromModule(require("../assets/backgrounds/v3/clearing.png")).uri,
-    ),
-    mist = useImage(
-      Asset.fromModule(require("../assets/backgrounds/v3/mist.png")).uri,
-    ),
-    refuge = useImage(
-      Asset.fromModule(require("../assets/backgrounds/v3/refuge.png")).uri,
-    );
+  const decorArt=useImage(Asset.fromModule(require("../assets/runtime/decor.png")).uri);
+  const pickupArt=useImage(Asset.fromModule(require("../assets/runtime/pickups.png")).uri);
   const terrain = useImage(
-      Asset.fromModule(require("../assets/props/v3/terrain.png")).uri,
+      Asset.fromModule(require("../assets/runtime/terrain.png")).uri,
     ),
     props = useImage(
-      Asset.fromModule(require("../assets/props/v2/forest-props.png")).uri,
+      Asset.fromModule(require("../assets/runtime/props.png")).uri,
     ),
     chest = useImage(
-      Asset.fromModule(require("../assets/props/v3/chest.png")).uri,
+      Asset.fromModule(require("../assets/runtime/chest.png")).uri,
     );
   const ground = useImage(
-    Asset.fromModule(require("../assets/props/v3/ground.png")).uri,
+    Asset.fromModule(require("../assets/runtime/ground.webp")).uri,
   );
   const world = useDerivedValue(() => [{ translateX: -p.camera.value }]);
   const direction = useSharedValue(1);
@@ -335,19 +366,28 @@ export default function Scene(p: SceneProps) {
     if (p.action.value === 6)
       return 10 + (p.reducedMotion ? 0 : Math.floor(t * 6) % 2);
     if (p.action.value === 5) return 9;
-    if (p.action.value === 3)
-      return p.reducedMotion ? 8 : Math.floor(t * 5) % 2 ? 8 : 0;
+    if (p.action.value === 7) return 8;
+    if (p.action.value === 3) return 0;
     if (Math.abs(p.motion.value) === 2) return p.falling.value ? 7 : 6;
     if (Math.abs(p.motion.value) === 1) return 2 + (Math.floor(t * 8) % 4);
     return !p.reducedMotion && t % 4.8 > 4.5 ? 1 : 0;
   });
+  const leverOpacity=useDerivedValue(()=>p.branchProgress.value>=0&&p.branchProgress.value<1?1:0);
+  const heroSpeech=useDerivedValue(()=>p.talking==="hero"?conversationPose(p.time.value-p.speechAt.value,p.reducedMotion):idlePose(p.time.value,p.reducedMotion));
+  const heroFacing=useDerivedValue<number>(()=>{
+    const partner=p.partner;
+    if(!partner)return direction.value;
+    const target=partner==="guide"?(hasMission(p.progress,9)?4424:624):partner==="walker"?1824:partner==="ranger"?2374:partner==="secondary"?4874:partner==="keeper"?7364:(partner==="traveler"||partner==="travelerHappy")?(hasMission(p.progress,7)?p.companionX.value:3124):p.x.value+direction.value;
+    return target<p.x.value?-1:1;
+  });
   const hero = useDerivedValue(() => [
-    { translateX: p.menu ? 122 : p.x.value },
-    { translateY: p.menu ? 247 : p.y.value },
-    { scale: p.menu ? 3.65 : 1 },
+    { translateX: p.x.value },
+    { translateY: p.y.value },
   ]);
+  const destination = chapterGuidance(p.progress).target;
   const viewport = viewWindow(p.cameraSector, WIDTH);
   const { start: viewStart, end: viewEnd } = viewport;
+  const nearMist = viewEnd >= 4960 && viewStart <= 7140;
   const inView = (at: number, width = 0) => intersects(viewport, at, width);
   const groundSegments = [];
   let from = 0;
@@ -356,40 +396,24 @@ export default function Scene(p: SceneProps) {
     from = gap.x + gap.w;
   }
   groundSegments.push({ x: from, w: WIDTH - from });
-  const fog = useDerivedValue(
-    () =>
-      Math.max(0, Math.min(0.28, (p.camera.value - 4800) / 1300)) *
-      (hasMission(p.progress, 13) ? 0.3 : 1),
-  );
   return (
     <Canvas style={{ width: p.width, height: p.height }}>
       <Group transform={[{ scale: p.width / 480 }]}>
         <Rect x={0} y={0} width={480} height={270} color="#233d40" />
-        {p.menu ? (
-          dawn && (
-            <Image
-              image={dawn}
-              x={0}
-              y={0}
-              width={480}
-              height={270}
-              fit="cover"
-              sampling={nearest}
-            />
-          )
-        ) : (
-          <>
-            {[entrance, stream, bridge, clearing, mist, refuge].map(
-              (image, i) =>
+        <>
+            {zoneSources.map(
+              (_, i) =>
                 zones[i].end >= viewStart && zones[i].start <= viewEnd ? (
                   <Background
                     key={i}
-                    image={image}
                     index={i}
                     camera={p.camera}
+                    time={p.time}
+                    reduced={p.reducedMotion}
                   />
                 ) : null,
             )}
+            {nearMist && <MistBackdrop position={p.x} time={p.time} reduced={p.reducedMotion} oriented={hasMission(p.progress,13)} />}
             <Group transform={world}>
               {gaps
                 .filter((g) => inView(g.x, g.w))
@@ -409,16 +433,7 @@ export default function Scene(p: SceneProps) {
                         colors={["#578d85", "#162f3a"]}
                       />
                     </Rect>
-                    {[0, 1, 2].map((i) => (
-                      <Rect
-                        key={i}
-                        x={g.x + 4}
-                        y={247 + i * 6}
-                        width={g.w - 8}
-                        height={0.6}
-                        color="#a7d2bf66"
-                      />
-                    ))}
+                    <WaterSurface x={g.x} width={g.w} time={p.time} reduced={p.reducedMotion} />
                   </Group>
                 ))}
               {groundSegments
@@ -479,6 +494,7 @@ export default function Scene(p: SceneProps) {
                 .map((r) => (
                   <Ledge key={r.id} r={r} time={p.simulation} image={terrain} />
                 ))}
+              <WorldDecor viewport={viewport} />
               {hazards
                 .filter((h) => inView(h.x, h.w))
                 .map((h) => (
@@ -520,20 +536,7 @@ export default function Scene(p: SceneProps) {
                         ]}
                       >
                         <SoftGlow x={0} y={0} r={10} opacity={0.2} />
-                        <Path
-                          path={
-                            o.kind === "evidence"
-                              ? "M -4 -5 L 3 -5 L 5 -3 L 5 5 L -4 5 Z"
-                              : "M -5 -2 L 4 -5 L 6 -2 L -3 5 L -6 3 Z"
-                          }
-                          color={o.kind === "evidence" ? "#e5cf9f" : "#b88a58"}
-                        />
-                        <Path
-                          path="M -2 -2 L 2 -2 M -2 1 L 2 1"
-                          color="#725c47"
-                          style="stroke"
-                          strokeWidth={0.7}
-                        />
+                        <RegisteredSprite image={pickupArt} data={art.pickups} frame={pickupFrames[o.id] ?? 9} size={o.id==="lever"?24:21} center />
                       </Group>
                     );
                   }
@@ -550,10 +553,9 @@ export default function Scene(p: SceneProps) {
                   ) {
                     if (o.id === "traveler" && hasMission(p.progress, 7))
                       return null;
-                    if (o.id === "helper" && hasMission(p.progress, 5))
-                      return null;
                     const speaker: Speaker = o.id.startsWith("guide")
                       ? "guide"
+                      : o.id === "helper" ? "ranger"
                       : o.id === "traveler"
                         ? "traveler"
                         : o.id === "lamp2"
@@ -565,8 +567,8 @@ export default function Scene(p: SceneProps) {
                       <Actor
                         key={o.id}
                         kind={
-                          ["walker", "helper", "lamp2", "keeper"].includes(o.id)
-                            ? "others"
+                          o.id==="helper" ? "locals" : ["walker", "lamp2", "keeper"].includes(o.id)
+                            ? "cast"
                             : "npcs"
                         }
                         index={
@@ -575,15 +577,17 @@ export default function Scene(p: SceneProps) {
                             : speaker === "traveler"
                               ? 4
                               : speaker === "secondary"
-                                ? 1
+                                ? 6
                                 : speaker === "keeper"
-                                  ? 2
+                                  ? 12
                                   : 0
                         }
                         x={o.x + 24}
                         time={p.time}
                         reduced={p.reducedMotion}
                         talking={p.talking === speaker}
+                        speechAt={p.speechAt}
+                        work={p.branchProgress}
                         player={p.x}
                       />
                     );
@@ -603,57 +607,17 @@ export default function Scene(p: SceneProps) {
                         <Chest image={chest} frame={p.chestFrame} />
                       </Group>
                     );
-                  if (o.id === "branch")
-                    return (
-                      !hasMission(p.progress, 5) && (
-                        <Group
-                          key={o.id}
-                          transform={[
-                            { translateX: 2398 },
-                            { translateY: 226 },
-                          ]}
-                        >
-                          <Prop
-                            image={terrain}
-                            pack="terrain"
-                            index={3}
-                            width={50}
-                            height={71}
-                          />
-                        </Group>
-                      )
-                    );
-                  if (["lamp1", "mist_beacon"].includes(o.id))
-                    return (
-                      <Group
-                        key={o.id}
-                        transform={[{ translateX: o.x }, { translateY: o.y }]}
-                      >
-                        <ForestProp
-                          image={props}
-                          index={
-                            hasMission(p.progress, o.id === "lamp1" ? 9 : 12)
-                              ? 2
-                              : 1
-                          }
-                          height={45}
-                        />
-                      </Group>
-                    );
+                  if (o.id === "branch") return <BranchClearance key={o.id} progress={p.branchProgress} reduced={p.reducedMotion} />;
+                  if (["lamp1", "mist_beacon"].includes(o.id)) return <RepairLamp key={o.id} image={props} x={o.x} y={o.y} lit={hasMission(p.progress,o.id==="lamp1"?9:12)} repair={p.repair} clock={p.simulation} reduced={p.reducedMotion} />;
                   if (
-                    ["sign1", "bridge", "no_return", "library"].includes(o.id)
+                    ["sign1", "bridge", "no_return"].includes(o.id)
                   )
                     return (
                       <Group
                         key={o.id}
                         transform={[{ translateX: o.x }, { translateY: o.y }]}
                       >
-                        <Prop
-                          image={terrain}
-                          pack="terrain"
-                          index={2}
-                          height={32}
-                        />
+                        <RegisteredSprite image={decorArt} data={art.decor} frame={6} height={32} />
                       </Group>
                     );
                   if (o.id === "riddle")
@@ -688,37 +652,23 @@ export default function Scene(p: SceneProps) {
                     );
                   return null;
                 })}
+              {inView(destination.x, 20) && <Group transform={[{translateX:destination.x},{translateY:Math.min(173,destination.y-18)}]}>
+                <Path path="M 0 0 L -4 -7 L 4 -7 Z" color="#ffe5a0" />
+                <Circle cx={0} cy={-10} r={2} color="#fff2d0" />
+              </Group>}
+              {inView(7890, 35) && <Group transform={[{translateX:7890},{translateY:226}]}><ForestProp image={props} index={0} height={28} /></Group>}
               {/* Both farols remain visible when their speakers move on. */}
-              {inView(4905, 45) && (
-                <Group transform={[{ translateX: 4905 }, { translateY: 226 }]}>
-                  <ForestProp
-                    image={props}
-                    index={hasMission(p.progress, 11) ? 2 : 1}
-                    height={45}
-                  />
-                </Group>
-              )}
-              {hasMission(p.progress, 7) && (
-                <Actor
-                  kind="npcs"
-                  index={hasMission(p.progress, 8) ? 6 : 4}
-                  x={p.companionX}
-                  y={p.companionY}
-                  time={p.time}
-                  reduced={p.reducedMotion}
-                  talking={
-                    p.talking === "traveler" || p.talking === "travelerHappy"
-                  }
-                  player={p.x}
-                />
-              )}
+              {inView(4905,45) && <RepairLamp image={props} x={4905} lit={hasMission(p.progress,11)} repair={p.repair} clock={p.simulation} reduced={p.reducedMotion} />}
+              <Companion {...p} />
               <Group transform={hero}>
                 <AnimatedCharacter
-                  kind="hero"
-                  frame={frame}
-                  direction={direction}
+                  kind={p.talking?"heroTalk":"hero"}
+                  frame={p.talking?heroSpeech:frame}
+                  direction={heroFacing}
                   height={44}
                 />
+                {p.talking==="hero" && <SpeechMarker time={p.time} reduced={p.reducedMotion} />}
+                {p.progress.decisions.CH1_05==="lever" && <Group opacity={leverOpacity} transform={[{translateX:12},{translateY:-18},{rotate:.4}]}><RegisteredSprite image={pickupArt} data={art.pickups} frame={4} size={20} center /></Group>}
               </Group>
               <PickupBurst
                 time={p.time}
@@ -726,27 +676,9 @@ export default function Scene(p: SceneProps) {
                 reduced={p.reducedMotion}
               />
             </Group>
-            <Rect
-              x={0}
-              y={0}
-              width={480}
-              height={226}
-              color="#b7c9c7"
-              opacity={fog}
-            />
-          </>
-        )}
-        {p.menu && (
-          <Group transform={hero}>
-            <AnimatedCharacter
-              kind="hero"
-              frame={frame}
-              direction={direction}
-              height={44}
-            />
-          </Group>
-        )}
-        <AmbientMotes time={p.time} reduced={p.reducedMotion} />
+            {nearMist && <MistForeground position={p.x} time={p.time} reduced={p.reducedMotion} oriented={hasMission(p.progress,13)} />}
+        </>
+        <PlaceAtmosphere camera={p.camera} time={p.time} reduced={p.reducedMotion} />
       </Group>
     </Canvas>
   );

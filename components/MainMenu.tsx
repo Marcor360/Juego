@@ -1,660 +1,175 @@
-import {
-  View,
-  Text,
-  Pressable,
-  Image,
-  StyleSheet,
-  Platform,
-} from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  type SharedValue,
-} from "react-native-reanimated";
+import Illustration from "./Illustration";
+import MenuMotes from "./MenuMotes";
+import { useState } from "react";
+import { View, Text, Pressable, ScrollView, StyleSheet, Platform } from "react-native";
+import Animated, { useAnimatedStyle, type SharedValue } from "react-native-reanimated";
 import { menuThemeForSave, menuThemes } from "../game/menu/themes";
+import { menuJourney } from "../game/menu/journey";
 import type { Save } from "../game/save/schema";
 import UIIcon, { type UIIconName } from "./UIIcon";
-import originalArt from "../game/rendering/menu-art.json";
-import formalArt from "../game/rendering/menu-formal-art.json";
+import figures from "../game/rendering/menu-figures.json";
+
 const backgrounds = {
-  beginning: require("../assets/menu/beginning.png"),
-  middle: require("../assets/menu/middle.png"),
-  ending: require("../assets/menu/ending.png"),
+  beginning: require("../assets/runtime/menu-beginning.webp"),
+  middle: require("../assets/runtime/menu-middle.webp"),
+  ending: require("../assets/runtime/menu-ending.webp"),
 };
-const originalHeroSource = require("../assets/menu/hero.png");
-const formalHeroSource = require("../assets/menu/hero-formal.png");
-function MenuAction({
-  label,
-  text,
-  icon,
-  onPress,
-  disabled = false,
-  gold = false,
-  ink,
-  accent,
-  small = false,
-}: {
-  label: string;
-  text: string;
-  icon: UIIconName;
-  onPress: () => void;
-  disabled?: boolean;
-  gold?: boolean;
-  ink: string;
-  accent: string;
-  small?: boolean;
+const figureSources={beginning:require("../assets/runtime/menu-figure-beginning.png"),middle:require("../assets/runtime/menu-figure-middle.png"),ending:require("../assets/runtime/menu-figure-ending.png")};
+
+function MenuAction({ label, text, icon, onPress, disabled = false, primary = false, ink, accent, compact = false, hint }: {
+  label: string; text: string; icon?: UIIconName; onPress: () => void;
+  disabled?: boolean; primary?: boolean; ink: string; accent: string;
+  compact?: boolean; hint?: string;
 }) {
+  const [focused, setFocused] = useState(false);
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityHint={hint}
+      accessibilityState={{ disabled }}
       disabled={disabled}
-      hitSlop={3}
       onPress={onPress}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
       style={({ pressed, hovered }: any) => [
         s.button,
-        {
-          borderColor: gold ? accent : accent + "77",
-          backgroundColor: gold ? "#ebd0a0" : "#fffaf0b8",
-          opacity: disabled ? 0.42 : 1,
-        },
-        small && s.small,
-        gold && s.primary,
-        (pressed || hovered) &&
-          !disabled && {
-            backgroundColor: gold ? "#f5dfb7" : "#fffaf2",
-            transform: [{ translateY: pressed ? 1 : 0 }],
-            borderColor: accent,
-          },
+        { borderColor: accent + "88", backgroundColor: primary ? "#ead09d" : "#fffdf4b8" },
+        primary && s.primary,
+        disabled && { opacity: .5 },
+        (hovered || pressed) && !disabled && { backgroundColor: primary ? "#f7dfb5" : "#fffdf5", transform: [{ translateY: pressed ? 1 : 0 }] },
+        focused && { borderColor: ink, boxShadow: `0 0 0 3px ${accent}88` },
       ]}
     >
-      <View
-        pointerEvents="none"
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 7,
-        }}
-      >
-        <UIIcon name={icon} size={small ? 8 : 10} color={ink} />
-        <Text
-          style={{
-            color: ink,
-            fontSize: small ? 8.5 : 10,
-            fontWeight: gold ? "600" : "500",
-            letterSpacing: 0.1,
-          }}
-        >
-          {text}
-        </Text>
+      <View pointerEvents="none" style={s.buttonContent}>
+        {icon && <UIIcon name={icon} size={compact ? 15 : 18} color={ink} />}
+        <Text style={{ color: ink, fontSize: compact ? 13 : 15, fontWeight: primary ? "700" : "500", textAlign: "center", flexShrink: 1 }}>{text}</Text>
       </View>
-      {gold && (
-        <View
-          pointerEvents="none"
-          style={[s.buttonShine, { borderColor: "#fff4d4a0" }]}
-        />
-      )}
     </Pressable>
   );
 }
-function OliveSprig({
-  color,
-  mirrored = false,
-}: {
-  color: string;
-  mirrored?: boolean;
+
+export default function MainMenu({ width, height, save, ready, transferring = false, time, reducedMotion, onStart, onContinue, onImport, onSettings, onCredits, onExport, onHelp }: {
+  width: number; height: number; save: Save | null; ready: boolean; transferring?: boolean;
+  time: SharedValue<number>; reducedMotion: boolean;
+  onStart: () => void; onContinue: () => void; onImport: () => void;
+  onSettings: () => void; onCredits: () => void; onExport: () => void; onHelp: () => void;
 }) {
-  return (
-    <View
-      style={{
-        width: 19,
-        height: 14,
-        transform: [{ scaleX: mirrored ? -1 : 1 }],
-      }}
-    >
-      <View
-        style={{
-          position: "absolute",
-          left: 1,
-          top: 8,
-          width: 18,
-          height: 0.5,
-          backgroundColor: color,
-          transform: [{ rotate: "-22deg" }],
-        }}
-      />
-      {[0, 1, 2].map((i) => (
-        <View key={i}>
-          <View
-            style={{
-              position: "absolute",
-              left: 3 + i * 4,
-              top: 3 - i * 0.9,
-              width: 5,
-              height: 2.5,
-              borderRadius: 5,
-              backgroundColor: color,
-              transform: [{ rotate: "42deg" }],
-            }}
-          />
-          <View
-            style={{
-              position: "absolute",
-              left: 6 + i * 4,
-              top: 8 - i * 1.2,
-              width: 4.5,
-              height: 2.3,
-              borderRadius: 5,
-              backgroundColor: color,
-              transform: [{ rotate: "-48deg" }],
-            }}
-          />
-        </View>
-      ))}
-    </View>
-  );
-}
-export default function MainMenu({
-  width,
-  height,
-  save,
-  ready,
-  time,
-  reducedMotion,
-  onStart,
-  onContinue,
-  onImport,
-  onSettings,
-  onCredits,
-  onExport,
-}: {
-  width: number;
-  height: number;
-  save: Save | null;
-  ready: boolean;
-  time: SharedValue<number>;
-  reducedMotion: boolean;
-  onStart: () => void;
-  onContinue: () => void;
-  onImport: () => void;
-  onSettings: () => void;
-  onCredits: () => void;
-  onExport: () => void;
-}) {
-  const themeId = menuThemeForSave(save),
-    theme = menuThemes[themeId],
-    column = themeId === "beginning" ? 0 : themeId === "middle" ? 1 : 2;
-  const art = themeId === "middle" ? formalArt : originalArt;
-  const heroSource =
-    themeId === "middle" ? formalHeroSource : originalHeroSource;
-  const portrait = height > width,
-    logicalHeight = height / (width / 480),
-    paperScale = portrait
-      ? Math.min(432 / 210, (logicalHeight - 140) / 246)
-      : 1,
-    paperTop = portrait ? logicalHeight - 246 * paperScale - 24 : 12;
-  const heroScale = portrait
-    ? Math.min(1.8, Math.max(0.35, (paperTop - 80) / 207))
-    : 1;
-  const compactPortrait = portrait && logicalHeight < 860;
-  const heroHeight = 194,
-    scale = heroHeight / art.referenceHeight;
-  const heroStyle = useAnimatedStyle(() => {
-    const blink = !reducedMotion && time.value % 5.2 > 5.02;
-    const f = art.frames[column + (blink ? 3 : 0)];
+  const themeId = menuThemeForSave(save);
+  const theme = menuThemes[themeId];
+  const journey = menuJourney(save);
+  const column = themeId === "beginning" ? 0 : themeId === "middle" ? 1 : 2;
+  const art = figures[themeId];
+  const portrait = height > width;
+  const compact = !portrait && height < 500;
+  const padding = portrait ? 16 : compact ? 12 : 28;
+  const cardWidth = portrait ? Math.min(width - padding * 2, 480) : Math.min(compact ? width * .54 : width * .45, 510);
+  const sceneWidth = portrait ? width - padding * 2 : width - cardWidth - padding * 3;
+  const sceneHeight = portrait ? Math.min(240, Math.max(150, height * .24)) : height - padding * 2;
+  const heroHeight = portrait ? Math.min(sceneHeight * 1.85, 440) : Math.min(sceneHeight * .79, 580);
+  const heroWidth = portrait ? Math.min(sceneWidth * .43, 160) : heroHeight * .7;
+  const scale = heroHeight / art.referenceHeight;
+  const heroCropStyle = useAnimatedStyle(() => {
+    const blink=!reducedMotion && time.value%5.2>5.02;
+    const frame=art.frames[blink?1:0];
     return {
-      left: (compactPortrait ? 50 : 76) - f.anchorX * scale,
-      top: 207 - f.anchorY * scale,
-      transform: [
-        { translateY: reducedMotion ? 0 : Math.sin(time.value * 1.8) * 0.4 },
-      ],
+      left:heroWidth/2+(frame.x-frame.anchorX)*scale,
+      top:portrait?8:heroHeight+(frame.y-frame.anchorY)*scale,
+      width:frame.width*scale,height:frame.height*scale,
+      transform:[{translateY:reducedMotion?0:Math.sin(time.value*1.8)*.6}],
     };
   });
-  const moteStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: reducedMotion ? 0 : Math.sin(time.value * 0.8) * 2 },
-    ],
-    opacity: reducedMotion ? 0.3 : 0.3 + Math.sin(time.value * 0.7) * 0.12,
+  const heroStyle = useAnimatedStyle(() => {
+    const frame=art.frames[!reducedMotion && time.value%5.2>5.02?1:0];
+    return {left:-frame.x*scale,top:-frame.y*scale};
+  });
+  const backdropStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1.025 }, { translateX: reducedMotion ? 0 : Math.sin(time.value * .07) * 3 }],
   }));
+  const actionProps = { ink: theme.ink, accent: theme.gold, compact };
+
   return (
     <View style={{ width, height }} accessibilityLabel={`Menú · ${theme.name}`}>
-      <View
-        style={[
-          s.stage,
-          {
-            height: portrait ? logicalHeight : 270,
-            transform: [{ scale: width / 480 }],
-          },
-        ]}
+      <Animated.Image source={backgrounds[themeId]} resizeMode="cover" style={[StyleSheet.absoluteFill, { width, height }, backdropStyle]} accessibilityLabel={theme.description} />
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#162c3029" }]} />
+      <MenuMotes width={width} height={portrait?sceneHeight:height} time={time} reduced={reducedMotion} />
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, padding, flexDirection: portrait ? "column" : "row", alignItems: "center", justifyContent: "center", gap: padding }}
+        showsVerticalScrollIndicator={false}
       >
-        <Image
-          source={backgrounds[themeId]}
-          style={[s.backdrop, portrait && { height: logicalHeight }]}
-          resizeMode="cover"
-          accessibilityLabel={theme.description}
-        />
-        <View pointerEvents="none" style={s.vignetteLeft} />
-        <View pointerEvents="none" style={s.vignetteBottom} />
-        <View
-          pointerEvents="none"
-          style={[
-            s.caption,
-            portrait && {
-              left: 26,
-              top: 28,
-              display: logicalHeight < 860 ? "none" : "flex",
-              transform: [{ scale: 1.5 }],
-              transformOrigin: "top left",
-            },
-          ]}
-        >
-          <View
-            style={{
-              width: 15,
-              height: 1,
-              backgroundColor: "#efcc91",
-              marginBottom: 5,
-            }}
-          />
-          <Text style={s.captionEyebrow}>{theme.eyebrow}</Text>
-          <Text style={s.captionTitle}>{theme.caption}</Text>
-        </View>
-        <View
-          pointerEvents="none"
-          style={[s.groundShadow, portrait && { display: "none" }]}
-        />
-        <View
-          style={[
-            s.heroClip,
-            portrait &&
-              (compactPortrait
-                ? {
-                    left: 190,
-                    top: Math.max(8, (paperTop - 98) / 2),
-                    width: 100,
-                    height: 90,
-                    borderRadius: 50,
-                    backgroundColor: theme.paper,
-                    borderWidth: 0.5,
-                    borderColor: theme.gold,
-                  }
-                : {
-                    left: (480 - 152 * heroScale) / 2,
-                    top: paperTop - 207 * heroScale + 2,
-                    transform: [{ scale: heroScale }],
-                    transformOrigin: "top left",
-                  }),
-          ]}
-          pointerEvents="none"
-          accessibilityRole="image"
-          accessibilityLabel={`La precursora · ${theme.outfit}`}
-        >
-          <Animated.Image
-            source={heroSource}
-            resizeMode="stretch"
-            style={[
-              {
-                position: "absolute",
-                width: art.width * scale,
-                height: art.height * scale,
-              },
-              Platform.OS === "web"
-                ? ({ imageRendering: "pixelated" } as any)
-                : {},
-              heroStyle,
-            ]}
-          />
-        </View>
-        <Animated.View
-          pointerEvents="none"
-          style={[StyleSheet.absoluteFillObject, moteStyle]}
-        >
-          {[
-            { x: 44, y: 139 },
-            { x: 196, y: 183 },
-            { x: 205, y: 68 },
-            { x: 59, y: 216 },
-            { x: 217, y: 225 },
-            { x: 173, y: 102 },
-          ].map((p, i) => (
-            <View
-              key={i}
-              style={{
-                position: "absolute",
-                left: p.x,
-                top: p.y,
-                width: i % 2 ? 1 : 1.5,
-                height: i % 2 ? 1 : 1.5,
-                backgroundColor: "#fff3ce",
-                borderRadius: 2,
-              }}
-            />
-          ))}
-        </Animated.View>
-        <View
-          style={[
-            s.paper,
-            portrait && {
-              left: (480 - 210 * paperScale) / 2,
-              top: paperTop,
-              transform: [{ scale: paperScale }],
-              transformOrigin: "top left",
-            },
-            { backgroundColor: theme.paper, borderColor: theme.gold },
-          ]}
-        >
+        <View style={{ width: sceneWidth, height: sceneHeight }}>
+          {!portrait && <View pointerEvents="none" style={{position:"absolute",left:0,bottom:8,opacity:.9}}><Illustration pack="decor" frame={7} size={compact?40:60} /></View>}
+          <View pointerEvents="none" style={{ position: "absolute", top: portrait ? 6 : 14, left: 0, width: portrait ? sceneWidth * .44 : sceneWidth }}>
+            <Text style={s.eyebrow}>{theme.eyebrow}</Text>
+            <Text style={[s.caption, { fontSize: compact ? 21 : portrait ? 23 : 31 }]}>{theme.caption}</Text>
+          </View>
           <View
             pointerEvents="none"
-            style={[s.innerBorder, { borderColor: theme.gold + "55" }]}
-          />
-          <View pointerEvents="none" style={s.emblem}>
-            <OliveSprig color={theme.accent} />
-            <UIIcon name="book" size={19} color={theme.ink} />
-            <OliveSprig color={theme.accent} mirrored />
-          </View>
-          <Text style={[s.prefix, { color: theme.ink }]}>El camino de una</Text>
-          <Text style={[s.title, { color: theme.ink }]}>Precursora</Text>
-          <Text style={[s.subtitle, { color: theme.muted }]}>
-            Una aventura de fe, aprendizaje{"\n"}y perseverancia
-          </Text>
-          <View pointerEvents="none" style={s.divider}>
-            <View style={[s.line, { backgroundColor: theme.gold + "66" }]} />
-            <View style={[s.diamond, { backgroundColor: theme.gold }]} />
-            <View style={[s.line, { backgroundColor: theme.gold + "66" }]} />
-          </View>
-          <View style={s.actions}>
-            <MenuAction
-              label="▶ Comenzar aventura"
-              text="Comenzar aventura"
-              icon="play"
-              gold
-              disabled={!ready}
-              onPress={onStart}
-              ink={theme.ink}
-              accent={theme.gold}
+            accessibilityRole="image"
+            accessibilityLabel={`La precursora · ${theme.outfit}`}
+            style={{ position: "absolute", bottom: portrait ? Math.max(8, (sceneHeight - heroWidth) / 2) : 8, left: portrait ? sceneWidth - heroWidth - 8 : (sceneWidth - heroWidth) / 2, width: heroWidth, height: portrait ? heroWidth : heroHeight + 10, overflow: "hidden", ...(portrait ? { borderRadius: heroWidth / 2, borderWidth: 1, borderColor: theme.gold, backgroundColor: theme.paper, boxShadow: "0 6px 22px #14272930" } : {}) }}
+          >
+            {!portrait && <View style={{ position: "absolute", bottom: 5, left: heroWidth * .26, width: heroWidth * .48, height: 7, borderRadius: 100, backgroundColor: "#25382b33" }} />}
+            <Animated.View style={[{position:"absolute",overflow:"hidden"},heroCropStyle]}>
+            <Animated.Image
+              accessible={false}
+              source={figureSources[themeId]}
+              resizeMode="stretch"
+              style={[{ position: "absolute", width: art.width * scale, height: art.height * scale }, Platform.OS === "web" ? ({ imageRendering: "pixelated" } as any) : {}, heroStyle]}
             />
-            <MenuAction
-              label="▤ Continuar"
-              text="Continuar"
-              icon="book"
-              disabled={!save}
-              onPress={onContinue}
-              ink={theme.ink}
-              accent={theme.gold}
-            />
-            {Platform.OS === "web" && (
-              <MenuAction
-                label="↥ Cargar partida"
-                text="Cargar partida"
-                icon="upload"
-                small
-                onPress={onImport}
-                ink={theme.ink}
-                accent={theme.gold}
-              />
-            )}
-            <View style={s.utilityRow}>
-              <View style={{ flex: 1 }}>
-                <MenuAction
-                  label="⚙ Ajustes"
-                  text="Ajustes"
-                  icon="settings"
-                  small
-                  onPress={onSettings}
-                  ink={theme.ink}
-                  accent={theme.gold}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <MenuAction
-                  label="ⓘ Créditos"
-                  text="Créditos"
-                  icon="info"
-                  small
-                  onPress={onCredits}
-                  ink={theme.ink}
-                  accent={theme.gold}
-                />
-              </View>
-            </View>
-          </View>
-          <View style={s.progress}>
-            <View style={s.progressDots}>
-              {[0, 1, 2].map((i) => (
-                <View
-                  key={i}
-                  style={{
-                    height: 2,
-                    width: i === column ? 16 : 7,
-                    backgroundColor:
-                      i <= column ? theme.gold : theme.gold + "40",
-                    borderRadius: 2,
-                  }}
-                />
-              ))}
-            </View>
-            <Text style={[s.progressText, { color: theme.muted }]}>
-              {save
-                ? `CAPÍTULO I · ${save.missions.completedMissions.length}/16 ESCENAS`
-                : "EL BOSQUE DE LAS DUDAS"}
-            </Text>
+            </Animated.View>
           </View>
         </View>
-        {save && Platform.OS === "web" && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Descargar partida"
-            onPress={onExport}
-            hitSlop={4}
-            style={({ hovered, pressed }: any) => [
-              s.export,
-              portrait && {
-                left: 26,
-                top: logicalHeight >= 860 ? 100 : Math.max(8, paperTop - 40),
-                bottom: undefined,
-                transform: [{ scale: 2 }],
-                transformOrigin: "top left",
-              },
-              {
-                backgroundColor: hovered || pressed ? "#253b3aee" : "#253b3ab8",
-              },
-            ]}
-          >
-            <UIIcon name="download" size={7} color="#efdfbd" />
-            <Text style={s.exportText}>Descargar partida</Text>
-          </Pressable>
-        )}
-      </View>
+        <View style={[s.paper, { width: cardWidth, backgroundColor: theme.paper, borderColor: theme.gold, padding: compact ? 12 : portrait ? 18 : 24, gap: compact ? 10 : portrait ? 14 : 18 }]}>
+          <View style={{ alignItems: "center" }}>
+            {!compact && <View pointerEvents="none" style={s.emblem}><View style={[s.rule, { backgroundColor: theme.gold }]} /><Illustration pack="menuEmblems" frame={column} size={portrait?36:40} /><View style={[s.rule, { backgroundColor: theme.gold }]} /></View>}
+            <Text style={{ fontFamily: "Cormorant", color: theme.ink, fontSize: compact ? 18 : portrait ? 23 : 25, lineHeight: compact ? 20 : portrait ? 26 : 29 }}>El camino de una</Text>
+            <Text accessibilityRole="header" style={{ fontFamily: "Cormorant", color: theme.ink, fontWeight: "600", fontSize: compact ? 37 : portrait ? 46 : 54, lineHeight: compact ? 39 : portrait ? 50 : 58, letterSpacing: -1 }}>Precursora</Text>
+            {!compact && <Text style={{ color: theme.muted, fontSize: 13, lineHeight: 18, textAlign: "center", marginTop: 5 }}>Una aventura de fe, aprendizaje y perseverancia</Text>}
+          </View>
+          {save ? (
+            <View style={[s.journey, { borderColor: theme.gold + "55", padding: compact ? 8 : 12, gap: compact ? 4 : 7 }]}>
+              <View style={s.between}>
+                <Text style={{ color: theme.ink, fontSize: compact ? 12 : 13, fontWeight: "700" }}>{journey.location}</Text>
+                <Text style={{ color: theme.muted, fontSize: 12 }}>{journey.completed}/{journey.total}</Text>
+              </View>
+              {!compact && <Text style={{ color: theme.muted, fontSize: 13, lineHeight: 18 }}>{save.challenge ? `Reto en curso · Paso ${save.challenge.history.length + 1}` : `${journey.complete ? "Capítulo completado" : "Próximo paso"} · ${journey.next}`}</Text>}
+              <View accessibilityRole="progressbar" accessibilityLabel={`Progreso del capítulo ${journey.chapter}`} accessibilityValue={{ min: 0, max: journey.total, now: journey.completed, text: `${journey.percent}% completado` }} style={s.track}>
+                <View style={{ height: 4, width: `${journey.percent}%`, backgroundColor: theme.accent, borderRadius: 4 }} />
+              </View>
+            </View>
+          ) : !compact && <Text style={{ color: theme.muted, fontSize: 12, textAlign: "center" }}>CAPÍTULO I · EL BOSQUE DE LAS DUDAS</Text>}
+          <View style={{ gap: compact ? 6 : 9 }}>
+            <MenuAction {...actionProps} primary label={save ? journey.complete ? "Diario de capítulos" : "▤ Continuar" : "▶ Comenzar aventura"} text={!ready ? "Preparando tu viaje…" : save ? journey.complete ? "Ver mis capítulos" : "Continuar mi camino" : "Comenzar aventura"} icon={save ? "book" : "play"} disabled={!ready} onPress={save ? journey.complete ? onStart : onContinue : onStart} hint={save ? journey.complete ? "Explorar tus capítulos y la biblioteca" : `Retomar en ${journey.location}` : "Comenzar el primer capítulo"} />
+            {save && <MenuAction {...actionProps} label={journey.complete ? "▤ Continuar" : "Diario de capítulos"} text={journey.complete ? journey.chapter === 2 ? "Volver a la biblioteca" : "Volver al bosque" : "Diario de capítulos"} icon="book" disabled={!ready} onPress={journey.complete ? onContinue : onStart} hint={journey.complete ? "Explorar de nuevo el bosque completado" : "Elegir un capítulo o visitar la biblioteca"} />}
+            {<View style={s.row}>
+              <View style={s.flex}><MenuAction {...actionProps} label="↥ Cargar partida" text="Cargar partida" icon="upload" disabled={!ready || transferring} onPress={onImport} /></View>
+              {save && <View style={s.flex}><MenuAction {...actionProps} label={Platform.OS === "web" ? "Descargar partida" : "Compartir copia"} text={Platform.OS === "web" ? "Descargar" : "Guardar copia"} icon="download" disabled={!ready || transferring} onPress={onExport} /></View>}
+            </View>}
+            <View style={s.row}>
+              <View style={s.flex}><MenuAction {...actionProps} label="⚙ Ajustes" text="Ajustes" icon={compact ? undefined : "settings"} disabled={!ready} onPress={onSettings} /></View>
+              <View style={s.flex}><MenuAction {...actionProps} label="ⓘ Créditos" text="Créditos" icon={compact ? undefined : "info"} onPress={onCredits} /></View>
+              {compact && <View style={s.flex}><MenuAction {...actionProps} label="Cómo jugar" text="Ayuda" onPress={onHelp} /></View>}
+            </View>
+            {!compact && <MenuAction {...actionProps} label="Cómo jugar" text="Cómo jugar" icon="info" onPress={onHelp} />}
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
 const s = StyleSheet.create({
-  stage: {
-    width: 480,
-    height: 270,
-    position: "absolute",
-    top: 0,
-    left: 0,
-    transformOrigin: "top left",
-    overflow: "hidden",
-    backgroundColor: "#343440",
-  },
-  backdrop: { ...StyleSheet.absoluteFillObject, width: 480, height: 270 },
-  vignetteLeft: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 7,
-    backgroundColor: "#28313312",
-  },
-  vignetteBottom: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-    backgroundColor: "#26313224",
-  },
-  caption: { position: "absolute", left: 19, top: 20, width: 209 },
-  captionEyebrow: {
-    fontFamily: "Pixelify",
-    fontSize: 5.8,
-    letterSpacing: 1.1,
-    color: "#ffe6b9",
-    textShadowColor: "#1f3535",
-    textShadowRadius: 4,
-  },
-  captionTitle: {
-    fontFamily: "Cormorant",
-    fontSize: 14,
-    color: "#fff4dd",
-    lineHeight: 17,
-    textShadowColor: "#233b37",
-    textShadowRadius: 5,
-  },
-  groundShadow: {
-    position: "absolute",
-    left: 76,
-    top: 243,
-    width: 94,
-    height: 5,
-    backgroundColor: "#263a3b24",
-    borderRadius: 60,
-  },
-  heroClip: {
-    position: "absolute",
-    left: 47,
-    top: 38,
-    width: 152,
-    height: 207,
-    overflow: "hidden",
-  },
-  paper: {
-    position: "absolute",
-    left: 253,
-    top: 12,
-    width: 210,
-    height: 246,
-    borderWidth: 0.6,
-    borderRadius: 3,
-    boxShadow: "0 5px 18px #18262830",
-  },
-  innerBorder: {
-    position: "absolute",
-    left: 3,
-    right: 3,
-    top: 3,
-    bottom: 3,
-    borderWidth: 0.4,
-    borderRadius: 1,
-  },
-  emblem: {
-    position: "absolute",
-    top: 8,
-    left: 62,
-    width: 86,
-    height: 21,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 11,
-  },
-  prefix: {
-    position: "absolute",
-    top: 28,
-    left: 8,
-    right: 8,
-    textAlign: "center",
-    fontFamily: "Cormorant",
-    fontSize: 18,
-    lineHeight: 22,
-  },
-  title: {
-    position: "absolute",
-    top: 45,
-    left: 4,
-    right: 4,
-    fontFamily: "Cormorant",
-    fontWeight: "600",
-    fontSize: 38,
-    lineHeight: 43,
-    textAlign: "center",
-    letterSpacing: -1.5,
-  },
-  subtitle: {
-    position: "absolute",
-    top: 88,
-    left: 12,
-    right: 12,
-    textAlign: "center",
-    fontSize: 7.4,
-    lineHeight: 10.4,
-    letterSpacing: 0.1,
-  },
-  divider: {
-    position: "absolute",
-    top: 114,
-    left: 30,
-    right: 30,
-    height: 3,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-  },
-  line: { flex: 1, height: 0.4 },
-  diamond: { width: 2.5, height: 2.5, transform: [{ rotate: "45deg" }] },
-  actions: { position: "absolute", top: 120, left: 16, right: 16, gap: 5 },
-  button: {
-    height: 25,
-    borderWidth: 0.5,
-    borderRadius: 2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  primary: {
-    height: 28,
-    borderBottomWidth: 1.5,
-    boxShadow: "0 2px 4px #78604415",
-  },
-  small: { height: 20 },
-  buttonShine: {
-    position: "absolute",
-    left: 1.5,
-    right: 1.5,
-    top: 1.5,
-    bottom: 1.5,
-    borderWidth: 0.4,
-    borderRadius: 1,
-  },
-  utilityRow: { flexDirection: "row", gap: 6 },
-  progress: {
-    position: "absolute",
-    bottom: 4,
-    left: 10,
-    right: 10,
-    alignItems: "center",
-    gap: 2,
-  },
-  progressDots: { flexDirection: "row", gap: 3 },
-  progressText: {
-    fontFamily: "Pixelify",
-    fontSize: 4.5,
-    lineHeight: 6.5,
-    letterSpacing: 0.7,
-  },
-  export: {
-    position: "absolute",
-    left: 19,
-    bottom: 9,
-    paddingHorizontal: 7,
-    height: 14,
-    borderRadius: 2,
-    borderWidth: 0.4,
-    borderColor: "#e0ca9466",
-    flexDirection: "row",
-    gap: 5,
-    alignItems: "center",
-  },
-  exportText: { color: "#f3e4c5", fontSize: 6.2, letterSpacing: 0.2 },
+  paper: { borderWidth: 1, borderRadius: 18, boxShadow: "0 12px 40px #14272945" },
+  button: { minHeight: 44, borderWidth: 1, borderRadius: 9, paddingHorizontal: 9, paddingVertical: 8, justifyContent: "center" },
+  primary: { minHeight: 48, borderBottomWidth: 3, boxShadow: "0 3px 10px #71593622" },
+  buttonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7 },
+  row: { flexDirection: "row", gap: 8 },
+  flex: { flex: 1, minWidth: 0 },
+  between: { flexDirection: "row", justifyContent: "space-between", gap: 8 },
+  eyebrow: { fontFamily: "Pixelify", fontSize: 10, lineHeight: 16, letterSpacing: 1, color: "#ffe5b5", textShadowColor: "#17322e", textShadowRadius: 5 },
+  caption: { fontFamily: "Cormorant", color: "#fff4dc", lineHeight: 33, marginTop: 7, textShadowColor: "#17322e", textShadowRadius: 6 },
+  emblem: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 9 },
+  rule: { width: 27, height: 1, opacity: .65 },
+  journey: { borderWidth: 1, borderRadius: 10, backgroundColor: "#fffaf455" },
+  track: { height: 4, backgroundColor: "#79765d24", borderRadius: 4, overflow: "hidden" },
 });

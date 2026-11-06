@@ -1,0 +1,772 @@
+[
+  {
+    "path": "assets/backgrounds/library.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 3062098,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/backgrounds/v3/bridge.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 2636751,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/backgrounds/v3/clearing.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 3035007,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/backgrounds/v3/entrance.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 3191680,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/backgrounds/v3/mist.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 2794841,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/backgrounds/v3/refuge.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 2957532,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/backgrounds/v3/stream.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 3191829,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v2/hero.png",
+    "dimensions": [
+      1448,
+      1086
+    ],
+    "bytes": 1512334,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v2/npcs.png",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "bytes": 1335383,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v2/portraits.png",
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "bytes": 2523077,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v3/cast-portraits.png",
+    "dimensions": [
+      887,
+      1774
+    ],
+    "bytes": 2106154,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v3/cast.png",
+    "dimensions": [
+      2172,
+      2896
+    ],
+    "bytes": 9052550,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v3/hero-talk.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 1376853,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v3/locals-portraits.png",
+    "dimensions": [
+      1312,
+      1199
+    ],
+    "bytes": 1349593,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v3/locals.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 1276361,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v3/others.png",
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "bytes": 2150602,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v3/traveler-talk.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 1027539,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/characters/v3/traveler.png",
+    "dimensions": [
+      1448,
+      1086
+    ],
+    "bytes": 1159734,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/effects/flame.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 213783,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/effects/water.png",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "bytes": 1924253,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/effects/waterfall.png",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "bytes": 804685,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/menu/beginning.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 2622681,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/menu/emblems.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 2238066,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/menu/ending.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 2433900,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/menu/hero-formal.png",
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "bytes": 2020379,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/menu/hero.png",
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "bytes": 2068065,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/menu/middle.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 2856547,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/props/v2/forest-props.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 1456764,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/props/v2/treasures.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 1273957,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/props/v3/branch-clear.png",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "bytes": 1434166,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/props/v3/chest.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 1309435,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/props/v3/decor.png",
+    "dimensions": [
+      1774,
+      887
+    ],
+    "bytes": 1506077,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/props/v3/foreground.png",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 160455,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/props/v3/ground.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 2166193,
+    "alpha": false,
+    "role": "master"
+  },
+  {
+    "path": "assets/props/v3/library.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 1757773,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/props/v3/pickups.png",
+    "dimensions": [
+      1448,
+      1086
+    ],
+    "bytes": 1812617,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/props/v3/terrain.png",
+    "dimensions": [
+      2172,
+      724
+    ],
+    "bytes": 1240637,
+    "alpha": true,
+    "role": "master"
+  },
+  {
+    "path": "assets/runtime/branch.png",
+    "dimensions": [
+      887,
+      445
+    ],
+    "bytes": 350119,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/bridge.webp",
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 193934,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/cast.png",
+    "dimensions": [
+      1086,
+      1448
+    ],
+    "bytes": 1990729,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/castPortraits.png",
+    "dimensions": [
+      445,
+      887
+    ],
+    "bytes": 588216,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/chest.png",
+    "dimensions": [
+      1086,
+      362
+    ],
+    "bytes": 381408,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/clearing.webp",
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 261440,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/decor.png",
+    "dimensions": [
+      887,
+      445
+    ],
+    "bytes": 426668,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/entrance.webp",
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 275730,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/flame.png",
+    "dimensions": [
+      1086,
+      362
+    ],
+    "bytes": 53713,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/foreground.png",
+    "dimensions": [
+      836,
+      472
+    ],
+    "bytes": 34543,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/ground.webp",
+    "dimensions": [
+      1200,
+      400
+    ],
+    "bytes": 97724,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/hero.png",
+    "dimensions": [
+      724,
+      543
+    ],
+    "bytes": 427815,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/heroTalk.png",
+    "dimensions": [
+      1086,
+      362
+    ],
+    "bytes": 407719,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/library.png",
+    "dimensions": [
+      1086,
+      362
+    ],
+    "bytes": 484590,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/library.webp",
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 269014,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/locals.png",
+    "dimensions": [
+      1086,
+      362
+    ],
+    "bytes": 350315,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/localsPortraits.png",
+    "dimensions": [
+      656,
+      601
+    ],
+    "bytes": 376458,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/menu-beginning.webp",
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 189838,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/menu-ending.webp",
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 155834,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/menu-figure-beginning.png",
+    "dimensions": [
+      480,
+      475
+    ],
+    "bytes": 399658,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/menu-figure-ending.png",
+    "dimensions": [
+      486,
+      475
+    ],
+    "bytes": 401865,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/menu-figure-middle.png",
+    "dimensions": [
+      440,
+      475
+    ],
+    "bytes": 321489,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/menu-hero-formal.png",
+    "dimensions": [
+      768,
+      512
+    ],
+    "bytes": 340137,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/menu-hero.png",
+    "dimensions": [
+      768,
+      512
+    ],
+    "bytes": 341962,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/menu-middle.webp",
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 214458,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/menuEmblems.png",
+    "dimensions": [
+      1086,
+      362
+    ],
+    "bytes": 644160,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/mist.webp",
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 226364,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/npcs.png",
+    "dimensions": [
+      887,
+      445
+    ],
+    "bytes": 380429,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/others.png",
+    "dimensions": [
+      768,
+      512
+    ],
+    "bytes": 391940,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/pickups.png",
+    "dimensions": [
+      724,
+      543
+    ],
+    "bytes": 495399,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/portraits.png",
+    "dimensions": [
+      768,
+      512
+    ],
+    "bytes": 571405,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/props.png",
+    "dimensions": [
+      1086,
+      362
+    ],
+    "bytes": 397635,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/refuge.webp",
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 249430,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/stream.webp",
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 280828,
+    "alpha": false,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/terrain.png",
+    "dimensions": [
+      1086,
+      362
+    ],
+    "bytes": 303404,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/traveler.png",
+    "dimensions": [
+      724,
+      543
+    ],
+    "bytes": 318161,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/travelerTalk.png",
+    "dimensions": [
+      1086,
+      362
+    ],
+    "bytes": 287825,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/treasures.png",
+    "dimensions": [
+      1086,
+      362
+    ],
+    "bytes": 356168,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/water.png",
+    "dimensions": [
+      887,
+      445
+    ],
+    "bytes": 590464,
+    "alpha": true,
+    "role": "runtime"
+  },
+  {
+    "path": "assets/runtime/waterfall.png",
+    "dimensions": [
+      887,
+      445
+    ],
+    "bytes": 220335,
+    "alpha": true,
+    "role": "runtime"
+  }
+]

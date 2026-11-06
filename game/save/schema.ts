@@ -1,3 +1,5 @@
+import { validateLibrary, libraryComplete, newLibrary, type LibraryProgress } from "../chapter2/library.ts";
+import { normalizeChallengeDraft, type ChallengeDraft } from "../chapter1/draft.ts";
 import {
   freshProgress,
   missionId,
@@ -22,6 +24,9 @@ export type Settings = {
   reducedMotion: boolean;
 };
 export type Save = {
+  library?: LibraryProgress | null;
+  activeChapter?: 1 | 2;
+  challenge?: ChallengeDraft | null;
   schemaVersion: 2;
   gameId: "precursora";
   level: 1;
@@ -41,6 +46,9 @@ export const defaultSettings: Settings = {
   reducedMotion: false,
 };
 export const newSave = (): Save => ({
+  library: null,
+  activeChapter: 1,
+  challenge: null,
   schemaVersion: 2,
   gameId: "precursora",
   level: 1,
@@ -159,8 +167,14 @@ export function validateSave(raw: unknown): Save {
   )
     fail();
   if (s.legacyRewards && s.migratedFrom !== 1) fail("Migración inválida.");
+  const library = validateLibrary(s.library) ?? (s.activeChapter === 2 ? newLibrary() : null);
+  const chapter2Unlocked = hasMission(p, 16) || s.legacyRewards;
+  if ((library || s.activeChapter === 2) && !chapter2Unlocked) fail("La biblioteca todavía está bloqueada.");
+  if (s.activeChapter !== undefined && s.activeChapter !== 1 && s.activeChapter !== 2) fail("Capítulo activo inválido.");
+  const learned = libraryComplete(library);
   const tools = hasMission(p, 15) || s.legacyRewards ? ["fe"] : [],
-    unlocked = hasMission(p, 16) || s.legacyRewards ? [1, 2] : [1];
+    unlocked = chapter2Unlocked ? learned ? [1, 2, 3] : [1, 2] : [1];
+  if (learned) tools.push("aprendizaje");
   if (
     JSON.stringify(s.tools) !== JSON.stringify(tools) ||
     JSON.stringify(s.unlockedChapters) !== JSON.stringify(unlocked)
@@ -180,6 +194,9 @@ export function validateSave(raw: unknown): Save {
     fail("Ajustes inválidos.");
   return JSON.parse(
     JSON.stringify({
+      library,
+      activeChapter: s.activeChapter ?? 1,
+      challenge: normalizeChallengeDraft(s.challenge, p),
       schemaVersion: 2,
       gameId: "precursora",
       level: 1,

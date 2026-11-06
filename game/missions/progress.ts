@@ -102,7 +102,7 @@ export function prerequisites(p: Progress, n: number): string[] {
     !p.evidence.includes("helper_offer")
   )
     missing.push(
-      "Busca la palanca elevada o habla con la caminante junto a la rama.",
+      "Busca la palanca elevada o habla con el guardabosques junto a la rama.",
     );
   if (n === 6)
     for (const id of ["bridge_damage", "missing_boards", "safe_detour"])

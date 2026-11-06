@@ -1,8 +1,8 @@
 import { Image, View } from "react-native";
 import { Asset } from "expo-asset";
-import art from "../game/rendering/art.json";
+import art from "../game/rendering/art-runtime.json";
 const source = Asset.fromModule(
-  require("../assets/props/v2/treasures.png"),
+  require("../assets/runtime/treasures.png"),
 ).uri;
 export default function ItemArt({
   index,

@@ -154,6 +154,15 @@ const legacy = {
         0,
       );
       await p.getByRole("button", { name: "Volver", exact: true }).click();
+      // Use the observed saved position: real time between commands can extend a hold.
+      const position = await p.evaluate(() => JSON.parse(localStorage.getItem("precursora-save-v2")).position);
+      if (Math.abs(position - 170) > 24) {
+        const key = position > 170 ? "a" : "d";
+        await p.keyboard.down(key);
+        await p.clock.runFor(Math.abs(position - 170) / 115 * 1000 + 40);
+        await p.keyboard.up(key);
+        await p.clock.runFor(100);
+      }
       await p.keyboard.press("e");
       await p.clock.runFor(80);
       await p.getByRole("button", { name: "Continuar →", exact: true }).click();
@@ -270,7 +279,7 @@ const legacy = {
         await p.getByRole("button", { name: "Pausa", exact: true }).click();
         await p.locator("canvas").waitFor();
         await p.waitForTimeout(500);
-        await p.screenshot({ path: `/tmp/pr1-paused-zone-${scene}.png` });
+        await p.screenshot({ path: `${process.env.ARTIFACTS_DIR || "/tmp"}/pr1-paused-zone-${scene}.png` });
         await p
           .getByRole("button", { name: "Continuar aventura", exact: true })
           .click();

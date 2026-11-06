@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { Atlas, Group, Skia } from "@shopify/react-native-skia";
-import art from "../game/rendering/art.json";
+import { Atlas, Skia } from "@shopify/react-native-skia";
+import art from "../game/rendering/art-runtime.json";
 export function ForestProp({
   image,
   index,
@@ -51,37 +51,4 @@ export function ForestProp({
       sampling={{ filter: 0, mipmap: 0 }}
     />
   ) : null;
-}
-export function MossPlatform({
-  image,
-  x,
-  y,
-  w,
-  h,
-}: {
-  image: ReturnType<typeof import("@shopify/react-native-skia").useImage>;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}) {
-  const span = Math.min(44, w + 4),
-    count = Math.ceil(w / (span - 5));
-  return (
-    <Group
-      clip={{ x: x - 2, y: y - 7, width: w + 4, height: Math.max(38, h + 12) }}
-    >
-      {Array.from({ length: count }, (_, i) => (
-        <ForestProp
-          key={i}
-          image={image}
-          index={0}
-          width={span + 4}
-          x={i === count - 1 ? x + w - span / 2 : x + (span - 5) * i + span / 2}
-          y={y - 6}
-          top
-        />
-      ))}
-    </Group>
-  );
 }

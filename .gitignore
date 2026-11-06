@@ -4,3 +4,4 @@ dist/
 web-build/
 *.log
 public/canvaskit*.wasm
+browser-artifacts/

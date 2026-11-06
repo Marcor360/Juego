@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { Image, View, Text } from "react-native";
 import { Asset } from "expo-asset";
-import art from "../game/rendering/art.json";
+import art from "../game/rendering/art-runtime.json";
 import {
   speakerNames,
   portraitFrame,
   type Speaker,
 } from "../game/dialogues/presentation";
 const source = Asset.fromModule(
-  require("../assets/characters/v2/portraits.png"),
+  require("../assets/runtime/portraits.png"),
 ).uri;
 export default function Portrait({
   speaker,
@@ -20,7 +20,7 @@ export default function Portrait({
   const [mouth, setMouth] = useState(0);
   useEffect(() => {
     setMouth(0);
-    if (speaker !== "hero" && speaker !== "guide") return;
+    if (!["hero","guide","walker","secondary","keeper","librarian","ranger","reader"].includes(speaker)) return;
     const id = setInterval(() => setMouth((v) => 1 - v), 560);
     return () => clearInterval(id);
   }, [speaker]);
@@ -42,44 +42,19 @@ export default function Portrait({
         <Text style={{ fontSize: size * 0.5, color: "#96794b" }}>✧</Text>
       </View>
     );
-  if (speaker === "walker" || speaker === "secondary" || speaker === "keeper") {
-    const i = { walker: 0, secondary: 1, keeper: 2 }[speaker];
-    const d = art.others,
-      f = d.frames[i];
-    const headHeight = f.height * 0.42;
-    const scale = (size - 8) / headHeight;
-    const headX = f.x + f.width * 0.48,
-      headY = f.y;
-    return (
-      <View
-        accessibilityRole="image"
-        accessibilityLabel={speakerNames[speaker]}
-        style={{
-          width: size,
-          height: size,
-          overflow: "hidden",
-          borderRadius: 12,
-          borderWidth: 2,
-          borderColor: "#bba781",
-          backgroundColor: "#d6d2b4",
-        }}
-      >
-        <Image
-          source={{
-            uri: Asset.fromModule(require("../assets/characters/v3/others.png"))
-              .uri,
-          }}
-          style={{
-            position: "absolute",
-            left: size / 2 - headX * scale,
-            top: 4 - headY * scale,
-            width: d.width * scale,
-            height: d.height * scale,
-          }}
-          resizeMode="stretch"
-        />
-      </View>
-    );
+  if (speaker === "ranger" || speaker === "reader") {
+    const d=art.localsPortraits,f=d.frames[(speaker==="ranger"?0:2)+mouth],scale=(size-6)/Math.max(f.width,f.height);
+    return <View accessibilityRole="image" accessibilityLabel={speakerNames[speaker]} style={{width:size,height:size,overflow:"hidden",borderRadius:12,borderWidth:2,borderColor:"#bba781",backgroundColor:"#e3dac1"}}>
+      <Image source={{uri:Asset.fromModule(require("../assets/runtime/localsPortraits.png")).uri}} resizeMode="stretch" style={{position:"absolute",left:(size-4-f.width*scale)/2-f.x*scale,top:(size-4-f.height*scale)/2-f.y*scale,width:d.width*scale,height:d.height*scale}} />
+    </View>;
+  }
+  if (speaker === "walker" || speaker === "secondary" || speaker === "keeper" || speaker === "librarian") {
+    const row = { walker:0, secondary:1, keeper:2, librarian:3 }[speaker];
+    const d=art.castPortraits, f=d.frames[row*2+mouth];
+    const scale=(size-6)/Math.max(f.width,f.height);
+    return <View accessibilityRole="image" accessibilityLabel={speakerNames[speaker]} style={{width:size,height:size,overflow:"hidden",borderRadius:12,borderWidth:2,borderColor:"#bba781",backgroundColor:"#e3dac1"}}>
+      <Image source={{uri:Asset.fromModule(require("../assets/runtime/castPortraits.png")).uri}} resizeMode="stretch" style={{position:"absolute",left:(size-4-f.width*scale)/2-f.x*scale,top:(size-4-f.height*scale)/2-f.y*scale,width:d.width*scale,height:d.height*scale}} />
+    </View>;
   }
   const index = portraitFrame(speaker, mouth);
   const f = art.portraits.frames[index].cell;

@@ -1,5 +1,8 @@
 name: Calidad del juego
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     branches: [main]
@@ -10,7 +13,7 @@ on:
 jobs:
   verificar:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     env:
       EXPO_NO_TELEMETRY: "1"
       EXPO_OFFLINE: "1"
@@ -28,3 +31,15 @@ jobs:
         run: npm test
       - name: Exportar versión web
         run: npm run build:web
+      - name: Instalar Chromium para las pruebas
+        run: npx playwright install --with-deps chromium
+      - name: Pruebas de navegador del juego exportado
+        run: npm run test:browser
+      - name: Conservar capturas y registros
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-verification
+          path: browser-artifacts/
+          if-no-files-found: ignore
+          retention-days: 7

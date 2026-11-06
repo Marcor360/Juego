@@ -47,9 +47,13 @@ const content = require("../game/dialogues/chapter1.json").scenes[14];
       });
       await p.clock.runFor(300);
       await p.screenshot({
-        path: `/tmp/chest-v3-${mobile ? "mobile" : "desktop"}-closed.png`,
+        path: `${process.env.ARTIFACTS_DIR || "/tmp"}/chest-v3-${mobile ? "mobile" : "desktop"}-closed.png`,
       });
-      await click("Interactuar");
+      if (mobile) await click("Interactuar");
+      else {
+        await p.keyboard.press("e");
+        await p.clock.runFor(80);
+      }
       for (let i = 0; i < content.dialogue.length; i++)
         await click(
           i + 1 === content.dialogue.length
@@ -58,7 +62,7 @@ const content = require("../game/dialogues/chapter1.json").scenes[14];
         );
       await p.clock.runFor(1700);
       await p.screenshot({
-        path: `/tmp/chest-v3-${mobile ? "mobile" : "desktop"}-opening.png`,
+        path: `${process.env.ARTIFACTS_DIR || "/tmp"}/chest-v3-${mobile ? "mobile" : "desktop"}-opening.png`,
       });
       await p.clock.runFor(1600);
       assert(
@@ -74,7 +78,7 @@ const content = require("../game/dialogues/chapter1.json").scenes[14];
       assert(save.position <= 7594 || save.position >= 7646);
       assert.deepEqual(errors, []);
       await p.screenshot({
-        path: `/tmp/chest-v3-${mobile ? "mobile" : "desktop"}-open.png`,
+        path: `${process.env.ARTIFACTS_DIR || "/tmp"}/chest-v3-${mobile ? "mobile" : "desktop"}-open.png`,
       });
       console.log(
         "chest solid body, animated opening and permanent reward",

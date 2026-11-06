@@ -320,7 +320,7 @@ export const evidenceDescriptions: Record<string, string> = {
   sign_fragment: "El fragmento pide revisar el puente antes de cruzarlo.",
   witness_time: "La caminante cruzó ayer por la mañana, antes de la tormenta.",
   witness_place: "Hablaba del puente principal, no del desvío.",
-  helper_offer: "La caminante se ofreció a ayudar con la rama.",
+  helper_offer: "El guardabosques se ofreció a ayudar con la rama.",
   bridge_damage: "La madera del puente está astillada tras la tormenta.",
   missing_boards: "Faltan varias tablas del paso principal.",
   safe_detour:

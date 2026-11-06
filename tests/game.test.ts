@@ -278,3 +278,16 @@ test("the supply chest has a solid body while remaining reachable for interactio
   tick(w, 50);
   assert(w.x > 7620, "the opened route can be crossed with a normal jump");
 });
+
+test("restoring a save inside the chest moves to the nearest reachable side", () => {
+  for (const [position, expected] of [[7620, 7594], [7630, 7646]]) {
+    const w = new World();
+    w.progress = progressTo(14);
+    w.restore(position);
+    assert.equal(w.x, expected);
+    assert.equal(w.safePosition(), expected);
+    assert.equal(w.nearby()?.id, "chest");
+    w.step(1 / 60);
+    assert.equal(w.x, expected);
+  }
+});

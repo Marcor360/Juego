@@ -1,0 +1,602 @@
+[
+  {
+    "source": "assets/characters/v3/locals.png",
+    "runtime": "assets/runtime/locals.png",
+    "originalBytes": 1276361,
+    "runtimeBytes": 350315,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1086,
+      362
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/characters/v3/locals-portraits.png",
+    "runtime": "assets/runtime/localsPortraits.png",
+    "originalBytes": 1349593,
+    "runtimeBytes": 376458,
+    "originalSize": [
+      1312,
+      1199
+    ],
+    "runtimeSize": [
+      656,
+      601
+    ],
+    "decodedBytes": 1577024
+  },
+  {
+    "source": "assets/characters/v3/hero-talk.png",
+    "runtime": "assets/runtime/heroTalk.png",
+    "originalBytes": 1376853,
+    "runtimeBytes": 407719,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1086,
+      362
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/characters/v3/traveler-talk.png",
+    "runtime": "assets/runtime/travelerTalk.png",
+    "originalBytes": 1027539,
+    "runtimeBytes": 287825,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1086,
+      362
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/props/v3/branch-clear.png",
+    "runtime": "assets/runtime/branch.png",
+    "originalBytes": 1434166,
+    "runtimeBytes": 350119,
+    "originalSize": [
+      1774,
+      887
+    ],
+    "runtimeSize": [
+      887,
+      445
+    ],
+    "decodedBytes": 1578860
+  },
+  {
+    "source": "assets/effects/flame.png",
+    "runtime": "assets/runtime/flame.png",
+    "originalBytes": 213783,
+    "runtimeBytes": 53713,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1086,
+      362
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/effects/waterfall.png",
+    "runtime": "assets/runtime/waterfall.png",
+    "originalBytes": 804685,
+    "runtimeBytes": 220335,
+    "originalSize": [
+      1774,
+      887
+    ],
+    "runtimeSize": [
+      887,
+      445
+    ],
+    "decodedBytes": 1578860
+  },
+  {
+    "source": "assets/props/v3/decor.png",
+    "runtime": "assets/runtime/decor.png",
+    "originalBytes": 1506077,
+    "runtimeBytes": 426668,
+    "originalSize": [
+      1774,
+      887
+    ],
+    "runtimeSize": [
+      887,
+      445
+    ],
+    "decodedBytes": 1578860
+  },
+  {
+    "source": "assets/characters/v3/cast-portraits.png",
+    "runtime": "assets/runtime/castPortraits.png",
+    "originalBytes": 2106154,
+    "runtimeBytes": 588216,
+    "originalSize": [
+      887,
+      1774
+    ],
+    "runtimeSize": [
+      445,
+      887
+    ],
+    "decodedBytes": 1578860
+  },
+  {
+    "source": "assets/characters/v3/cast.png",
+    "runtime": "assets/runtime/cast.png",
+    "originalBytes": 9052550,
+    "runtimeBytes": 1990729,
+    "originalSize": [
+      2172,
+      2896
+    ],
+    "runtimeSize": [
+      1086,
+      1448
+    ],
+    "decodedBytes": 6290112
+  },
+  {
+    "source": "assets/effects/water.png",
+    "runtime": "assets/runtime/water.png",
+    "originalBytes": 1924253,
+    "runtimeBytes": 590464,
+    "originalSize": [
+      1774,
+      887
+    ],
+    "runtimeSize": [
+      887,
+      445
+    ],
+    "decodedBytes": 1578860
+  },
+  {
+    "source": "assets/props/v3/pickups.png",
+    "runtime": "assets/runtime/pickups.png",
+    "originalBytes": 1812617,
+    "runtimeBytes": 495399,
+    "originalSize": [
+      1448,
+      1086
+    ],
+    "runtimeSize": [
+      724,
+      543
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/menu/emblems.png",
+    "runtime": "assets/runtime/menuEmblems.png",
+    "originalBytes": 2238066,
+    "runtimeBytes": 644160,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1086,
+      362
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/props/v3/library.png",
+    "runtime": "assets/runtime/library.png",
+    "originalBytes": 1757773,
+    "runtimeBytes": 484590,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1086,
+      362
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/characters/v3/traveler.png",
+    "runtime": "assets/runtime/traveler.png",
+    "originalBytes": 1159734,
+    "runtimeBytes": 318161,
+    "originalSize": [
+      1448,
+      1086
+    ],
+    "runtimeSize": [
+      724,
+      543
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/characters/v2/hero.png",
+    "runtime": "assets/runtime/hero.png",
+    "originalBytes": 1512334,
+    "runtimeBytes": 427815,
+    "originalSize": [
+      1448,
+      1086
+    ],
+    "runtimeSize": [
+      724,
+      543
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/characters/v2/npcs.png",
+    "runtime": "assets/runtime/npcs.png",
+    "originalBytes": 1335383,
+    "runtimeBytes": 380429,
+    "originalSize": [
+      1774,
+      887
+    ],
+    "runtimeSize": [
+      887,
+      445
+    ],
+    "decodedBytes": 1578860
+  },
+  {
+    "source": "assets/characters/v2/portraits.png",
+    "runtime": "assets/runtime/portraits.png",
+    "originalBytes": 2523077,
+    "runtimeBytes": 571405,
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "runtimeSize": [
+      768,
+      512
+    ],
+    "decodedBytes": 1572864
+  },
+  {
+    "source": "assets/characters/v3/others.png",
+    "runtime": "assets/runtime/others.png",
+    "originalBytes": 2150602,
+    "runtimeBytes": 391940,
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "runtimeSize": [
+      768,
+      512
+    ],
+    "decodedBytes": 1572864
+  },
+  {
+    "source": "assets/props/v2/forest-props.png",
+    "runtime": "assets/runtime/props.png",
+    "originalBytes": 1456764,
+    "runtimeBytes": 397635,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1086,
+      362
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/props/v2/treasures.png",
+    "runtime": "assets/runtime/treasures.png",
+    "originalBytes": 1273957,
+    "runtimeBytes": 356168,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1086,
+      362
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/props/v3/terrain.png",
+    "runtime": "assets/runtime/terrain.png",
+    "originalBytes": 1240637,
+    "runtimeBytes": 303404,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1086,
+      362
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/props/v3/chest.png",
+    "runtime": "assets/runtime/chest.png",
+    "originalBytes": 1309435,
+    "runtimeBytes": 381408,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1086,
+      362
+    ],
+    "decodedBytes": 1572528
+  },
+  {
+    "source": "assets/menu/hero.png",
+    "runtime": "assets/runtime/menu-hero.png",
+    "originalBytes": 2068065,
+    "runtimeBytes": 341962,
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "runtimeSize": [
+      768,
+      512
+    ],
+    "decodedBytes": 1572864
+  },
+  {
+    "source": "assets/menu/hero-formal.png",
+    "runtime": "assets/runtime/menu-hero-formal.png",
+    "originalBytes": 2020379,
+    "runtimeBytes": 340137,
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "runtimeSize": [
+      768,
+      512
+    ],
+    "decodedBytes": 1572864
+  },
+  {
+    "source": "assets/menu/hero.png",
+    "runtime": "assets/runtime/menu-figure-beginning.png",
+    "originalBytes": 2068065,
+    "runtimeBytes": 399658,
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "runtimeSize": [
+      480,
+      475
+    ],
+    "decodedBytes": 912000
+  },
+  {
+    "source": "assets/menu/hero-formal.png",
+    "runtime": "assets/runtime/menu-figure-middle.png",
+    "originalBytes": 2020379,
+    "runtimeBytes": 321489,
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "runtimeSize": [
+      440,
+      475
+    ],
+    "decodedBytes": 836000
+  },
+  {
+    "source": "assets/menu/hero.png",
+    "runtime": "assets/runtime/menu-figure-ending.png",
+    "originalBytes": 2068065,
+    "runtimeBytes": 401865,
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "runtimeSize": [
+      486,
+      475
+    ],
+    "decodedBytes": 923400
+  },
+  {
+    "source": "assets/backgrounds/v3/entrance.png",
+    "runtime": "assets/runtime/entrance.webp",
+    "originalBytes": 3191680,
+    "runtimeBytes": 275730,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      1200,
+      675
+    ],
+    "decodedBytes": 3240000
+  },
+  {
+    "source": "assets/backgrounds/v3/stream.png",
+    "runtime": "assets/runtime/stream.webp",
+    "originalBytes": 3191829,
+    "runtimeBytes": 280828,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      1200,
+      675
+    ],
+    "decodedBytes": 3240000
+  },
+  {
+    "source": "assets/backgrounds/v3/bridge.png",
+    "runtime": "assets/runtime/bridge.webp",
+    "originalBytes": 2636751,
+    "runtimeBytes": 193934,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      1200,
+      675
+    ],
+    "decodedBytes": 3240000
+  },
+  {
+    "source": "assets/backgrounds/v3/clearing.png",
+    "runtime": "assets/runtime/clearing.webp",
+    "originalBytes": 3035007,
+    "runtimeBytes": 261440,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      1200,
+      675
+    ],
+    "decodedBytes": 3240000
+  },
+  {
+    "source": "assets/backgrounds/v3/mist.png",
+    "runtime": "assets/runtime/mist.webp",
+    "originalBytes": 2794841,
+    "runtimeBytes": 226364,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      1200,
+      675
+    ],
+    "decodedBytes": 3240000
+  },
+  {
+    "source": "assets/backgrounds/v3/refuge.png",
+    "runtime": "assets/runtime/refuge.webp",
+    "originalBytes": 2957532,
+    "runtimeBytes": 249430,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      1200,
+      675
+    ],
+    "decodedBytes": 3240000
+  },
+  {
+    "source": "assets/menu/beginning.png",
+    "runtime": "assets/runtime/menu-beginning.webp",
+    "originalBytes": 2622681,
+    "runtimeBytes": 189838,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      1200,
+      675
+    ],
+    "decodedBytes": 3240000
+  },
+  {
+    "source": "assets/menu/middle.png",
+    "runtime": "assets/runtime/menu-middle.webp",
+    "originalBytes": 2856547,
+    "runtimeBytes": 214458,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      1200,
+      675
+    ],
+    "decodedBytes": 3240000
+  },
+  {
+    "source": "assets/menu/ending.png",
+    "runtime": "assets/runtime/menu-ending.webp",
+    "originalBytes": 2433900,
+    "runtimeBytes": 155834,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      1200,
+      675
+    ],
+    "decodedBytes": 3240000
+  },
+  {
+    "source": "assets/props/v3/ground.png",
+    "runtime": "assets/runtime/ground.webp",
+    "originalBytes": 2166193,
+    "runtimeBytes": 97724,
+    "originalSize": [
+      2172,
+      724
+    ],
+    "runtimeSize": [
+      1200,
+      400
+    ],
+    "decodedBytes": 1920000
+  },
+  {
+    "source": "assets/backgrounds/library.png",
+    "runtime": "assets/runtime/library.webp",
+    "originalBytes": 3062098,
+    "runtimeBytes": 269014,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      1200,
+      675
+    ],
+    "decodedBytes": 3240000
+  },
+  {
+    "source": "assets/props/v3/foreground.png",
+    "runtime": "assets/runtime/foreground.png",
+    "originalBytes": 160455,
+    "runtimeBytes": 34543,
+    "originalSize": [
+      1672,
+      941
+    ],
+    "runtimeSize": [
+      836,
+      472
+    ],
+    "decodedBytes": 1578368
+  }
+]

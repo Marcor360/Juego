@@ -1,0 +1,566 @@
+[
+  {
+    "path": "assets/backgrounds/dawn.png",
+    "bytes": 2745230
+  },
+  {
+    "path": "assets/backgrounds/forest.png",
+    "bytes": 2803112
+  },
+  {
+    "path": "assets/characters/forest-npcs.png",
+    "bytes": 925994
+  },
+  {
+    "path": "assets/frames/celebrate/celebrate_00.png",
+    "bytes": 16869
+  },
+  {
+    "path": "assets/frames/celebrate/celebrate_01.png",
+    "bytes": 16816
+  },
+  {
+    "path": "assets/frames/celebrate/celebrate_02.png",
+    "bytes": 17020
+  },
+  {
+    "path": "assets/frames/celebrate/celebrate_03.png",
+    "bytes": 16345
+  },
+  {
+    "path": "assets/frames/celebrate/celebrate_04.png",
+    "bytes": 17009
+  },
+  {
+    "path": "assets/frames/celebrate/celebrate_05.png",
+    "bytes": 16899
+  },
+  {
+    "path": "assets/frames/idle_left/idle_left_00.png",
+    "bytes": 16753
+  },
+  {
+    "path": "assets/frames/idle_left/idle_left_01.png",
+    "bytes": 16872
+  },
+  {
+    "path": "assets/frames/idle_left/idle_left_02.png",
+    "bytes": 16704
+  },
+  {
+    "path": "assets/frames/idle_left/idle_left_03.png",
+    "bytes": 16771
+  },
+  {
+    "path": "assets/frames/idle_right/idle_right_00.png",
+    "bytes": 16869
+  },
+  {
+    "path": "assets/frames/idle_right/idle_right_01.png",
+    "bytes": 16754
+  },
+  {
+    "path": "assets/frames/idle_right/idle_right_02.png",
+    "bytes": 16458
+  },
+  {
+    "path": "assets/frames/idle_right/idle_right_03.png",
+    "bytes": 16694
+  },
+  {
+    "path": "assets/frames/items/items_00.png",
+    "bytes": 11461
+  },
+  {
+    "path": "assets/frames/items/items_01.png",
+    "bytes": 10901
+  },
+  {
+    "path": "assets/frames/items/items_02.png",
+    "bytes": 12027
+  },
+  {
+    "path": "assets/frames/items/items_03.png",
+    "bytes": 10880
+  },
+  {
+    "path": "assets/frames/items/items_04.png",
+    "bytes": 11191
+  },
+  {
+    "path": "assets/frames/items/items_05.png",
+    "bytes": 9704
+  },
+  {
+    "path": "assets/frames/jump_left/jump_left_00.png",
+    "bytes": 16304
+  },
+  {
+    "path": "assets/frames/jump_left/jump_left_01.png",
+    "bytes": 15208
+  },
+  {
+    "path": "assets/frames/jump_left/jump_left_02.png",
+    "bytes": 15393
+  },
+  {
+    "path": "assets/frames/jump_left/jump_left_03.png",
+    "bytes": 16451
+  },
+  {
+    "path": "assets/frames/jump_right/jump_right_00.png",
+    "bytes": 16427
+  },
+  {
+    "path": "assets/frames/jump_right/jump_right_01.png",
+    "bytes": 16994
+  },
+  {
+    "path": "assets/frames/jump_right/jump_right_02.png",
+    "bytes": 16124
+  },
+  {
+    "path": "assets/frames/jump_right/jump_right_03.png",
+    "bytes": 16590
+  },
+  {
+    "path": "assets/frames/open_chest/open_chest_00.png",
+    "bytes": 23190
+  },
+  {
+    "path": "assets/frames/open_chest/open_chest_01.png",
+    "bytes": 20616
+  },
+  {
+    "path": "assets/frames/open_chest/open_chest_02.png",
+    "bytes": 20616
+  },
+  {
+    "path": "assets/frames/open_chest/open_chest_03.png",
+    "bytes": 27501
+  },
+  {
+    "path": "assets/frames/open_chest/open_chest_04.png",
+    "bytes": 24622
+  },
+  {
+    "path": "assets/frames/open_chest/open_chest_05.png",
+    "bytes": 25201
+  },
+  {
+    "path": "assets/frames/portrait/portrait_00.png",
+    "bytes": 24528
+  },
+  {
+    "path": "assets/frames/portrait/portrait_01.png",
+    "bytes": 24519
+  },
+  {
+    "path": "assets/frames/portrait/portrait_02.png",
+    "bytes": 24993
+  },
+  {
+    "path": "assets/frames/portrait/portrait_03.png",
+    "bytes": 25516
+  },
+  {
+    "path": "assets/frames/portrait/portrait_04.png",
+    "bytes": 25246
+  },
+  {
+    "path": "assets/frames/portrait/portrait_05.png",
+    "bytes": 25153
+  },
+  {
+    "path": "assets/frames/pray/pray_00.png",
+    "bytes": 17077
+  },
+  {
+    "path": "assets/frames/read/read_00.png",
+    "bytes": 16350
+  },
+  {
+    "path": "assets/frames/receive_amistades/receive_amistades_00.png",
+    "bytes": 16869
+  },
+  {
+    "path": "assets/frames/receive_amistades/receive_amistades_01.png",
+    "bytes": 17658
+  },
+  {
+    "path": "assets/frames/receive_amistades/receive_amistades_02.png",
+    "bytes": 17515
+  },
+  {
+    "path": "assets/frames/receive_amistades/receive_amistades_03.png",
+    "bytes": 17956
+  },
+  {
+    "path": "assets/frames/receive_amistades/receive_amistades_04.png",
+    "bytes": 18174
+  },
+  {
+    "path": "assets/frames/receive_amistades/receive_amistades_05.png",
+    "bytes": 16754
+  },
+  {
+    "path": "assets/frames/receive_aprendizaje/receive_aprendizaje_00.png",
+    "bytes": 16869
+  },
+  {
+    "path": "assets/frames/receive_aprendizaje/receive_aprendizaje_01.png",
+    "bytes": 17573
+  },
+  {
+    "path": "assets/frames/receive_aprendizaje/receive_aprendizaje_02.png",
+    "bytes": 17418
+  },
+  {
+    "path": "assets/frames/receive_aprendizaje/receive_aprendizaje_03.png",
+    "bytes": 17871
+  },
+  {
+    "path": "assets/frames/receive_aprendizaje/receive_aprendizaje_04.png",
+    "bytes": 18103
+  },
+  {
+    "path": "assets/frames/receive_aprendizaje/receive_aprendizaje_05.png",
+    "bytes": 16754
+  },
+  {
+    "path": "assets/frames/receive_fe/receive_fe_00.png",
+    "bytes": 16869
+  },
+  {
+    "path": "assets/frames/receive_fe/receive_fe_01.png",
+    "bytes": 17566
+  },
+  {
+    "path": "assets/frames/receive_fe/receive_fe_02.png",
+    "bytes": 17418
+  },
+  {
+    "path": "assets/frames/receive_fe/receive_fe_03.png",
+    "bytes": 17898
+  },
+  {
+    "path": "assets/frames/receive_fe/receive_fe_04.png",
+    "bytes": 18104
+  },
+  {
+    "path": "assets/frames/receive_fe/receive_fe_05.png",
+    "bytes": 16754
+  },
+  {
+    "path": "assets/frames/receive_generic/receive_generic_00.png",
+    "bytes": 16869
+  },
+  {
+    "path": "assets/frames/receive_generic/receive_generic_01.png",
+    "bytes": 17573
+  },
+  {
+    "path": "assets/frames/receive_generic/receive_generic_02.png",
+    "bytes": 17418
+  },
+  {
+    "path": "assets/frames/receive_generic/receive_generic_03.png",
+    "bytes": 17871
+  },
+  {
+    "path": "assets/frames/receive_generic/receive_generic_04.png",
+    "bytes": 18103
+  },
+  {
+    "path": "assets/frames/receive_generic/receive_generic_05.png",
+    "bytes": 16754
+  },
+  {
+    "path": "assets/frames/receive_perdon/receive_perdon_00.png",
+    "bytes": 16869
+  },
+  {
+    "path": "assets/frames/receive_perdon/receive_perdon_01.png",
+    "bytes": 17629
+  },
+  {
+    "path": "assets/frames/receive_perdon/receive_perdon_02.png",
+    "bytes": 17477
+  },
+  {
+    "path": "assets/frames/receive_perdon/receive_perdon_03.png",
+    "bytes": 17903
+  },
+  {
+    "path": "assets/frames/receive_perdon/receive_perdon_04.png",
+    "bytes": 18138
+  },
+  {
+    "path": "assets/frames/receive_perdon/receive_perdon_05.png",
+    "bytes": 16754
+  },
+  {
+    "path": "assets/frames/receive_perseverancia/receive_perseverancia_00.png",
+    "bytes": 16869
+  },
+  {
+    "path": "assets/frames/receive_perseverancia/receive_perseverancia_01.png",
+    "bytes": 17471
+  },
+  {
+    "path": "assets/frames/receive_perseverancia/receive_perseverancia_02.png",
+    "bytes": 17301
+  },
+  {
+    "path": "assets/frames/receive_perseverancia/receive_perseverancia_03.png",
+    "bytes": 17725
+  },
+  {
+    "path": "assets/frames/receive_perseverancia/receive_perseverancia_04.png",
+    "bytes": 17961
+  },
+  {
+    "path": "assets/frames/receive_perseverancia/receive_perseverancia_05.png",
+    "bytes": 16754
+  },
+  {
+    "path": "assets/frames/receive_valor/receive_valor_00.png",
+    "bytes": 16869
+  },
+  {
+    "path": "assets/frames/receive_valor/receive_valor_01.png",
+    "bytes": 17637
+  },
+  {
+    "path": "assets/frames/receive_valor/receive_valor_02.png",
+    "bytes": 17491
+  },
+  {
+    "path": "assets/frames/receive_valor/receive_valor_03.png",
+    "bytes": 17991
+  },
+  {
+    "path": "assets/frames/receive_valor/receive_valor_04.png",
+    "bytes": 18166
+  },
+  {
+    "path": "assets/frames/receive_valor/receive_valor_05.png",
+    "bytes": 16754
+  },
+  {
+    "path": "assets/frames/recover/recover_00.png",
+    "bytes": 15037
+  },
+  {
+    "path": "assets/frames/recover/recover_01.png",
+    "bytes": 16882
+  },
+  {
+    "path": "assets/frames/recover/recover_02.png",
+    "bytes": 17514
+  },
+  {
+    "path": "assets/frames/rest/rest_00.png",
+    "bytes": 17328
+  },
+  {
+    "path": "assets/frames/sit/sit_00.png",
+    "bytes": 12342
+  },
+  {
+    "path": "assets/frames/stumble/stumble_00.png",
+    "bytes": 18837
+  },
+  {
+    "path": "assets/frames/stumble/stumble_01.png",
+    "bytes": 20426
+  },
+  {
+    "path": "assets/frames/stumble/stumble_02.png",
+    "bytes": 16176
+  },
+  {
+    "path": "assets/frames/stumble/stumble_03.png",
+    "bytes": 19398
+  },
+  {
+    "path": "assets/frames/talk/talk_00.png",
+    "bytes": 18192
+  },
+  {
+    "path": "assets/frames/talk/talk_01.png",
+    "bytes": 17690
+  },
+  {
+    "path": "assets/frames/talk/talk_02.png",
+    "bytes": 17864
+  },
+  {
+    "path": "assets/frames/talk/talk_03.png",
+    "bytes": 19052
+  },
+  {
+    "path": "assets/frames/walk_left/walk_left_00.png",
+    "bytes": 17620
+  },
+  {
+    "path": "assets/frames/walk_left/walk_left_01.png",
+    "bytes": 17111
+  },
+  {
+    "path": "assets/frames/walk_left/walk_left_02.png",
+    "bytes": 17711
+  },
+  {
+    "path": "assets/frames/walk_left/walk_left_03.png",
+    "bytes": 18358
+  },
+  {
+    "path": "assets/frames/walk_left/walk_left_04.png",
+    "bytes": 17984
+  },
+  {
+    "path": "assets/frames/walk_left/walk_left_05.png",
+    "bytes": 19470
+  },
+  {
+    "path": "assets/frames/walk_right/walk_right_00.png",
+    "bytes": 19023
+  },
+  {
+    "path": "assets/frames/walk_right/walk_right_01.png",
+    "bytes": 18425
+  },
+  {
+    "path": "assets/frames/walk_right/walk_right_02.png",
+    "bytes": 18664
+  },
+  {
+    "path": "assets/frames/walk_right/walk_right_03.png",
+    "bytes": 17679
+  },
+  {
+    "path": "assets/frames/walk_right/walk_right_04.png",
+    "bytes": 18871
+  },
+  {
+    "path": "assets/frames/walk_right/walk_right_05.png",
+    "bytes": 17882
+  },
+  {
+    "path": "assets/props/cofre_abierto.png",
+    "bytes": 8178
+  },
+  {
+    "path": "assets/props/cofre_cerrado.png",
+    "bytes": 4189
+  },
+  {
+    "path": "assets/sheets/celebrate.png",
+    "bytes": 67750
+  },
+  {
+    "path": "assets/sheets/idle_left.png",
+    "bytes": 65760
+  },
+  {
+    "path": "assets/sheets/idle_right.png",
+    "bytes": 65218
+  },
+  {
+    "path": "assets/sheets/items.png",
+    "bytes": 62240
+  },
+  {
+    "path": "assets/sheets/jump_left.png",
+    "bytes": 62299
+  },
+  {
+    "path": "assets/sheets/jump_right.png",
+    "bytes": 65135
+  },
+  {
+    "path": "assets/sheets/open_chest.png",
+    "bytes": 101254
+  },
+  {
+    "path": "assets/sheets/portrait.png",
+    "bytes": 147447
+  },
+  {
+    "path": "assets/sheets/pray.png",
+    "bytes": 15675
+  },
+  {
+    "path": "assets/sheets/read.png",
+    "bytes": 16368
+  },
+  {
+    "path": "assets/sheets/receive_amistades.png",
+    "bytes": 69062
+  },
+  {
+    "path": "assets/sheets/receive_aprendizaje.png",
+    "bytes": 68655
+  },
+  {
+    "path": "assets/sheets/receive_fe.png",
+    "bytes": 69351
+  },
+  {
+    "path": "assets/sheets/receive_generic.png",
+    "bytes": 68655
+  },
+  {
+    "path": "assets/sheets/receive_perdon.png",
+    "bytes": 69792
+  },
+  {
+    "path": "assets/sheets/receive_perseverancia.png",
+    "bytes": 68957
+  },
+  {
+    "path": "assets/sheets/receive_valor.png",
+    "bytes": 69293
+  },
+  {
+    "path": "assets/sheets/recover.png",
+    "bytes": 48904
+  },
+  {
+    "path": "assets/sheets/rest.png",
+    "bytes": 17377
+  },
+  {
+    "path": "assets/sheets/sit.png",
+    "bytes": 12349
+  },
+  {
+    "path": "assets/sheets/stumble.png",
+    "bytes": 71571
+  },
+  {
+    "path": "assets/sheets/talk.png",
+    "bytes": 70910
+  },
+  {
+    "path": "assets/sheets/walk_left.png",
+    "bytes": 105730
+  },
+  {
+    "path": "assets/sheets/walk_right.png",
+    "bytes": 108292
+  },
+  {
+    "path": "assets/sounds/ambient.wav",
+    "bytes": 529244
+  },
+  {
+    "path": "assets/sounds/step.wav",
+    "bytes": 4012
+  },
+  {
+    "path": "manifest.json",
+    "bytes": 13647
+  }
+]

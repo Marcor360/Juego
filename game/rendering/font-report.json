@@ -1,0 +1,14 @@
+[
+  {
+    "source": "assets/fonts/CormorantGaramond.ttf",
+    "runtime": "assets/runtime/Cormorant.ttf",
+    "originalBytes": 1195560,
+    "runtimeBytes": 176684
+  },
+  {
+    "source": "assets/fonts/PixelifySans.ttf",
+    "runtime": "assets/runtime/Pixelify.ttf",
+    "originalBytes": 79160,
+    "runtimeBytes": 46008
+  }
+]

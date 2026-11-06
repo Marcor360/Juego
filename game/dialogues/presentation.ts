@@ -6,7 +6,10 @@ export type Speaker =
   | "narrator"
   | "walker"
   | "secondary"
-  | "keeper";
+  | "keeper"
+  | "librarian"
+  | "ranger"
+  | "reader";
 export const speakerNames: Record<Speaker, string> = {
   hero: "La precursora",
   guide: "La guía del bosque",
@@ -16,6 +19,9 @@ export const speakerNames: Record<Speaker, string> = {
   walker: "La caminante",
   secondary: "El viajero del claro",
   keeper: "La encargada del refugio",
+  ranger: "El guardabosques",
+  reader: "El aprendiz de la biblioteca",
+  librarian: "La bibliotecaria",
 };
 export function portraitFrame(speaker: Speaker, mouth = 0) {
   if (speaker === "hero") return mouth ? 1 : 0;

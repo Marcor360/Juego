@@ -1,0 +1,232 @@
+[
+  {
+    "name": "step-grass-1",
+    "file": "step-grass-1.wav",
+    "seconds": 0.16,
+    "channels": 1,
+    "peak": 0.254,
+    "rms": 0.0384,
+    "bytes": 10284
+  },
+  {
+    "name": "step-grass-2",
+    "file": "step-grass-2.wav",
+    "seconds": 0.16,
+    "channels": 1,
+    "peak": 0.2337,
+    "rms": 0.0376,
+    "bytes": 10284
+  },
+  {
+    "name": "step-wood-1",
+    "file": "step-wood-1.wav",
+    "seconds": 0.16,
+    "channels": 1,
+    "peak": 0.2783,
+    "rms": 0.0354,
+    "bytes": 10284
+  },
+  {
+    "name": "step-wood-2",
+    "file": "step-wood-2.wav",
+    "seconds": 0.16,
+    "channels": 1,
+    "peak": 0.2233,
+    "rms": 0.0356,
+    "bytes": 10284
+  },
+  {
+    "name": "step-stone-1",
+    "file": "step-stone-1.wav",
+    "seconds": 0.16,
+    "channels": 1,
+    "peak": 0.3096,
+    "rms": 0.0395,
+    "bytes": 10284
+  },
+  {
+    "name": "step-stone-2",
+    "file": "step-stone-2.wav",
+    "seconds": 0.16,
+    "channels": 1,
+    "peak": 0.252,
+    "rms": 0.0389,
+    "bytes": 10284
+  },
+  {
+    "name": "jump",
+    "file": "jump.wav",
+    "seconds": 0.24,
+    "channels": 1,
+    "peak": 0.177,
+    "rms": 0.0607,
+    "bytes": 15404
+  },
+  {
+    "name": "fall",
+    "file": "fall.wav",
+    "seconds": 0.65,
+    "channels": 1,
+    "peak": 0.3053,
+    "rms": 0.057,
+    "bytes": 41644
+  },
+  {
+    "name": "land",
+    "file": "land.wav",
+    "seconds": 0.2,
+    "channels": 1,
+    "peak": 0.2979,
+    "rms": 0.0587,
+    "bytes": 12844
+  },
+  {
+    "name": "damage",
+    "file": "damage.wav",
+    "seconds": 0.3,
+    "channels": 1,
+    "peak": 0.2088,
+    "rms": 0.067,
+    "bytes": 19244
+  },
+  {
+    "name": "page",
+    "file": "page.wav",
+    "seconds": 0.24,
+    "channels": 1,
+    "peak": 0.2342,
+    "rms": 0.0453,
+    "bytes": 15404
+  },
+  {
+    "name": "chest",
+    "file": "chest.wav",
+    "seconds": 0.65,
+    "channels": 1,
+    "peak": 0.2078,
+    "rms": 0.0464,
+    "bytes": 41644
+  },
+  {
+    "name": "interact",
+    "file": "interact.wav",
+    "seconds": 0.18,
+    "channels": 1,
+    "peak": 0.072,
+    "rms": 0.033,
+    "bytes": 11564
+  },
+  {
+    "name": "discovery",
+    "file": "discovery.wav",
+    "seconds": 0.85,
+    "channels": 1,
+    "peak": 0.3155,
+    "rms": 0.0486,
+    "bytes": 54444
+  },
+  {
+    "name": "ambience-menu",
+    "file": "ambience-menu.mp3",
+    "seconds": 48.0,
+    "channels": 2,
+    "peak": 0.0947,
+    "rms": 0.0137,
+    "bytes": 577196
+  },
+  {
+    "name": "ambience-forest",
+    "file": "ambience-forest.mp3",
+    "seconds": 48.0,
+    "channels": 2,
+    "peak": 0.0413,
+    "rms": 0.0056,
+    "bytes": 577196
+  },
+  {
+    "name": "ambience-stream",
+    "file": "ambience-stream.mp3",
+    "seconds": 48.0,
+    "channels": 2,
+    "peak": 0.092,
+    "rms": 0.0162,
+    "bytes": 577196
+  },
+  {
+    "name": "ambience-bridge",
+    "file": "ambience-bridge.mp3",
+    "seconds": 48.0,
+    "channels": 2,
+    "peak": 0.085,
+    "rms": 0.0103,
+    "bytes": 577196
+  },
+  {
+    "name": "ambience-clearing",
+    "file": "ambience-clearing.mp3",
+    "seconds": 48.0,
+    "channels": 2,
+    "peak": 0.0619,
+    "rms": 0.0095,
+    "bytes": 577196
+  },
+  {
+    "name": "ambience-mist",
+    "file": "ambience-mist.mp3",
+    "seconds": 48.0,
+    "channels": 2,
+    "peak": 0.0502,
+    "rms": 0.0098,
+    "bytes": 577196
+  },
+  {
+    "name": "ambience-refuge",
+    "file": "ambience-refuge.mp3",
+    "seconds": 48.0,
+    "channels": 2,
+    "peak": 0.0595,
+    "rms": 0.0095,
+    "bytes": 577196
+  },
+  {
+    "name": "ambience-library",
+    "file": "ambience-library.mp3",
+    "seconds": 48.0,
+    "channels": 2,
+    "peak": 0.0602,
+    "rms": 0.008,
+    "bytes": 577196
+  },
+  {
+    "name": "wood-shift",
+    "file": "wood-shift.wav",
+    "seconds": 1.2,
+    "bytes": 76844,
+    "peak": 0.2627178502226947,
+    "rms": 0.03838014855505953
+  },
+  {
+    "name": "wood-land",
+    "file": "wood-land.wav",
+    "seconds": 0.5,
+    "bytes": 32044,
+    "peak": 0.3846348657616982,
+    "rms": 0.05719413075911276
+  },
+  {
+    "name": "ignite",
+    "file": "ignite.wav",
+    "seconds": 0.65,
+    "bytes": 41644,
+    "peak": 0.4432724886245402,
+    "rms": 0.05834101409529764
+  },
+  {
+    "name": "talk-soft",
+    "file": "talk-soft.wav",
+    "seconds": 0.1,
+    "bytes": 6444,
+    "peak": 0.09353264110742081,
+    "rms": 0.027023251964192987
+  }
+]
